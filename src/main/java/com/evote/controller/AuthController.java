@@ -1,7 +1,8 @@
 package com.evote.controller;
 
 import com.evote.model.Voter;
-import com.evote.service.ElectionService;
+import com.evote.service.FaceVerificationService;
+import org.springframework.web.multipart.MultipartFile;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,8 +14,13 @@ import java.util.Optional;
 @Controller
 public class AuthController {
 
-    private final ElectionService svc;
-    public AuthController(ElectionService svc) { this.svc = svc; }
+    private final ElectionService         svc;
+    private final FaceVerificationService faceService;
+
+    public AuthController(ElectionService svc, FaceVerificationService faceService) {
+        this.svc         = svc;
+        this.faceService = faceService;
+    }
 
     // ── Login ─────────────────────────────────────────────────────────────────
     @GetMapping({"/", "/login"})
@@ -84,6 +90,9 @@ public class AuthController {
                              @RequestParam(required = false) String contactNumber,
                              @RequestParam String password,
                              @RequestParam String confirm,
+                             @RequestParam(required = false) String idType,
+                             @RequestParam(required = false) MultipartFile idPhoto,
+                             @RequestParam(required = false) String selfieData,
                              Model model) {
         if (voterId.isBlank() || name.isBlank() || password.isBlank()) {
             model.addAttribute("error", "Voter ID, Full Name and Password are required."); return "register";
@@ -96,6 +105,28 @@ public class AuthController {
         }
         if (svc.voterIdExists(voterId)) {
             model.addAttribute("error", "Voter ID '" + voterId + "' is already taken."); return "register";
+        }
+
+        // Face verification
+        if (idPhoto != null && !idPhoto.isEmpty() && selfieData != null && !selfieData.isBlank()) {
+            try {
+                // Decode base64 selfie
+                String base64 = selfieData.contains(",")
+                    ? selfieData.split(",")[1] : selfieData;
+                byte[] selfieBytes = java.util.Base64.getDecoder().decode(base64);
+                byte[] idBytes     = idPhoto.getBytes();
+
+                FaceVerificationService.FaceCompareResult result =
+                    faceService.compareFaces(idBytes, selfieBytes);
+
+                if (!result.passed) {
+                    model.addAttribute("error", "Face verification failed: " + result.message);
+                    return "register";
+                }
+            } catch (Exception e) {
+                model.addAttribute("error", "Face verification error: " + e.getMessage());
+                return "register";
+            }
         }
 
         svc.addVoterFull(voterId, name, email, birthday, age, placeOfBirth, gender, contactNumber, password);
