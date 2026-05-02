@@ -4,159 +4,376 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>E-Vote System — Create Account</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
     <style>
-        .reg-body {
-            min-height: 100vh;
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
             background: #f0faf4;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 24px;
         }
-        .reg-card {
+        .card {
             background: #fff;
-            border-radius: 16px;
-            padding: 44px 48px;
+            border-radius: 20px;
+            padding: 48px 52px 40px;
             width: 100%;
-            max-width: 480px;
-            box-shadow: 0 4px 24px rgba(26,107,60,0.10);
+            max-width: 580px;
+            box-shadow: 0 8px 40px rgba(26,107,60,0.10);
         }
-        .reg-card h1 {
-            font-size: 26px;
-            font-weight: 800;
-            color: #1a1a1a;
+        h1 {
+            font-size: 32px;
+            font-weight: 900;
+            color: #111;
             text-align: center;
             margin-bottom: 32px;
+            letter-spacing: -.5px;
         }
-        .field-group {
-            margin-bottom: 20px;
-        }
-        .field-group label {
-            display: block;
-            font-size: 14px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-        }
-        .field-group input,
-        .field-group select {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1.5px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 15px;
-            color: #1a1a1a;
-            background: #fff;
-            outline: none;
-            transition: border-color .2s, box-shadow .2s;
-            box-sizing: border-box;
-        }
-        .field-group input::placeholder { color: #9ca3af; }
-        .field-group input:focus,
-        .field-group select:focus {
-            border-color: #2d9e5f;
-            box-shadow: 0 0 0 3px rgba(45,158,95,0.12);
-        }
-        .field-row {
+        .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 16px;
+            gap: 20px;
+            margin-bottom: 20px;
         }
-        .reg-btn {
+        .field label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: #aaa;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .field input,
+        .field select {
             width: 100%;
-            padding: 14px;
+            padding: 13px 18px;
+            border: none;
+            border-radius: 50px;
+            background: #f3f4f6;
+            font-size: 14px;
+            color: #222;
+            outline: none;
+            transition: background .2s, box-shadow .2s;
+        }
+        .field input:focus,
+        .field select:focus {
+            background: #e8f8ef;
+            box-shadow: 0 0 0 2px #2d9e5f;
+        }
+        .field input::placeholder { color: #bbb; }
+
+        .terms-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            margin: 24px 0 20px;
+            font-size: 14px;
+            color: #555;
+        }
+        .terms-row input[type=radio] {
+            width: 18px; height: 18px;
+            accent-color: #2d9e5f;
+            cursor: pointer;
+        }
+        .terms-row a {
+            color: #1a6b3c;
+            font-weight: 700;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .btn-main {
+            width: 100%;
+            padding: 15px;
             background: #2d9e5f;
             border: none;
-            border-radius: 8px;
+            border-radius: 50px;
             color: #fff;
-            font-size: 16px;
-            font-weight: 700;
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
             cursor: pointer;
-            margin-top: 8px;
-            transition: background .2s;
+            transition: background .2s, transform .1s;
+            margin-bottom: 24px;
         }
-        .reg-btn:hover { background: #1a6b3c; }
-        .reg-footer {
+        .btn-main:hover { background: #1a6b3c; transform: translateY(-1px); }
+        .btn-main:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            color: #ccc;
+            font-size: 13px;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e5e7eb;
+        }
+
+        .social-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .btn-social {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 11px 8px;
+            border: none;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #fff;
+            cursor: not-allowed;
+            opacity: .7;
+        }
+        .btn-twitter  { background: #1da1f2; }
+        .btn-facebook { background: #1877f2; }
+        .btn-google   { background: #ea4335; }
+
+        .footer-link {
             text-align: center;
-            margin-top: 20px;
             font-size: 14px;
-            color: #6b7280;
+            color: #888;
         }
-        .reg-footer a { color: #2d9e5f; font-weight: 700; text-decoration: none; }
-        .reg-footer a:hover { text-decoration: underline; }
+        .footer-link a { color: #2d9e5f; font-weight: 700; text-decoration: none; }
+        .footer-link a:hover { text-decoration: underline; }
+
         .alert-error {
             background: #fff0f0;
             color: #c0392b;
             border: 1px solid #f5c6c6;
-            border-radius: 8px;
+            border-radius: 10px;
             padding: 12px 16px;
             font-size: 13px;
             margin-bottom: 20px;
+            text-align: center;
         }
-        .step-badge {
-            display: inline-block;
-            background: #f0faf4;
-            color: #2d9e5f;
-            border: 1.5px solid #a8dfc0;
-            border-radius: 20px;
-            padding: 4px 14px;
-            font-size: 12px;
-            font-weight: 700;
-            margin-bottom: 20px;
+
+        /* Terms Modal */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.45); z-index: 1000;
+            align-items: center; justify-content: center;
         }
-        @media (max-width: 520px) {
-            .reg-card { padding: 28px 20px; }
-            .field-row { grid-template-columns: 1fr; }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: #fff; border-radius: 16px;
+            width: 520px; max-width: 95vw; max-height: 85vh;
+            display: flex; flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2); overflow: hidden;
+        }
+        .modal-header {
+            padding: 18px 24px; background: #f0faf4;
+            border-bottom: 2px solid #e0f2e9;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .modal-header h2 { color: #1a6b3c; font-size: 17px; font-weight: 800; margin: 0; }
+        .modal-body {
+            padding: 20px 24px; overflow-y: auto; flex: 1;
+            color: #444; font-size: 13px; line-height: 1.75;
+        }
+        .modal-body h3 { color: #1a6b3c; font-size: 13px; margin: 14px 0 5px; font-weight: 700; }
+        .modal-body h3:first-child { margin-top: 0; }
+        .modal-body p { margin-bottom: 8px; }
+        .modal-footer {
+            padding: 14px 24px; border-top: 2px solid #e0f2e9;
+            display: flex; align-items: center;
+            justify-content: space-between; gap: 10px;
+            flex-wrap: wrap; background: #f8fffe;
+        }
+        .modal-footer label { display: flex; align-items: center; gap: 8px; color: #444; font-size: 13px; cursor: pointer; font-weight: 600; }
+        .scroll-hint { text-align: center; font-size: 11px; color: #aaa; padding: 6px 0 0; }
+        .btn-agree {
+            padding: 10px 24px; background: #2d9e5f; border: none;
+            border-radius: 50px; color: #fff; font-size: 14px;
+            font-weight: 700; cursor: pointer; opacity: 0.4; pointer-events: none;
+        }
+        .btn-agree.enabled { opacity: 1; pointer-events: all; }
+        .btn-cancel-modal {
+            padding: 10px 18px; background: transparent;
+            border: 1.5px solid #c8e6d4; border-radius: 50px;
+            color: #2d9e5f; font-size: 13px; font-weight: 600; cursor: pointer;
+        }
+
+        @media (max-width: 560px) {
+            .card { padding: 32px 20px 28px; }
+            .grid-2 { grid-template-columns: 1fr; }
+            .social-row { grid-template-columns: 1fr; }
+            h1 { font-size: 26px; }
         }
     </style>
 </head>
-<body class="reg-body">
-<div class="reg-card">
+<body>
 
-    <div style="text-align:center">
-        <div style="font-size:36px;margin-bottom:8px">🗳</div>
-        <div class="step-badge">Step 1 of 4 — Basic Information</div>
+<!-- Terms Modal -->
+<div class="modal-overlay" id="termsModal">
+    <div class="modal">
+        <div class="modal-header"><span>📋</span><h2>Terms &amp; Conditions</h2></div>
+        <div class="modal-body" id="modalBody" onscroll="checkScroll()">
+            <h3>1. Eligibility</h3>
+            <p>By registering, you confirm that you are a qualified voter and all information provided is accurate and truthful.</p>
+            <h3>2. One Vote Per Voter</h3>
+            <p>Each registered voter may cast exactly one vote per election. Multiple voting attempts are strictly prohibited.</p>
+            <h3>3. Identity Verification</h3>
+            <p>You consent to face verification using your uploaded ID and selfie. This data is used solely for identity verification.</p>
+            <h3>4. Confidentiality</h3>
+            <p>Keep your Voter ID and password confidential. Do not share them with anyone.</p>
+            <h3>5. Data Privacy</h3>
+            <p>Your personal information is collected solely for voter verification and election administration, in compliance with applicable data privacy laws.</p>
+            <h3>6. Election Integrity</h3>
+            <p>Any attempt to manipulate or interfere with the voting process is strictly prohibited and may be subject to legal action.</p>
+            <h3>7. Finality of Vote</h3>
+            <p>Once cast, your vote is final and cannot be changed or withdrawn.</p>
+            <h3>8. Acceptance</h3>
+            <p>By clicking "I Agree", you acknowledge that you have read and fully agree to these Terms &amp; Conditions.</p>
+            <div class="scroll-hint" id="scrollHint">↓ Scroll down to read all terms</div>
+        </div>
+        <div class="modal-footer">
+            <label><input type="checkbox" id="agreeCheck" onchange="toggleAgree()" disabled> I agree to the Terms &amp; Conditions</label>
+            <div style="display:flex;gap:8px">
+                <button class="btn-cancel-modal" onclick="closeModal()">Cancel</button>
+                <button class="btn-agree" id="agreeBtn" onclick="submitForm()">I Agree ✓</button>
+            </div>
+        </div>
     </div>
+</div>
 
+<div class="card">
     <h1>Create Account</h1>
 
     <div th:if="${error}" class="alert-error" th:text="${error}"></div>
 
-    <form method="post" th:action="@{/register/send-otp}">
+    <form method="post" th:action="@{/register/send-otp}" id="regForm">
 
-        <div class="field-group">
-            <label>Voter ID</label>
-            <input type="text" name="voterId" placeholder="Enter your Voter ID  (e.g. V001)" required>
+        <div class="grid-2">
+            <div class="field">
+                <label>Voter ID</label>
+                <input type="text" name="voterId" placeholder="e.g. V001" required>
+            </div>
+            <div class="field">
+                <label>Your E-Mail</label>
+                <input type="email" name="email" placeholder="your@email.com" required>
+            </div>
         </div>
 
-        <div class="field-group">
-            <label>Full Name</label>
-            <input type="text" name="name" placeholder="Enter your full name" required>
+        <div class="grid-2">
+            <div class="field">
+                <label>Full Name</label>
+                <input type="text" name="name" placeholder="Juan dela Cruz" required>
+            </div>
+            <div class="field">
+                <label>Select Gender</label>
+                <select name="gender">
+                    <option value="" disabled selected>Select...</option>
+                    <option>Male</option>
+                    <option>Female</option>
+                    <option>Other</option>
+                    <option>Prefer not to say</option>
+                </select>
+            </div>
         </div>
 
-        <div class="field-group">
-            <label>Email Address</label>
-            <input type="email" name="email" placeholder="Enter your email" required>
-        </div>
-
-        <div class="field-row">
-            <div class="field-group">
-                <label>Password</label>
+        <div class="grid-2">
+            <div class="field">
+                <label>Create Password</label>
                 <input type="password" name="password" placeholder="Min. 6 characters" required>
             </div>
-            <div class="field-group">
+            <div class="field">
                 <label>Confirm Password</label>
                 <input type="password" name="confirm" placeholder="Re-enter password" required>
             </div>
         </div>
 
-        <button type="submit" class="reg-btn">Send OTP to Email →</button>
+        <!-- Terms checkbox -->
+        <div class="terms-row">
+            <input type="radio" id="termsRadio" name="termsAccepted" onclick="openModal()" required>
+            <label for="termsRadio">
+                I Agree To <a onclick="openModal()">The Terms &amp; Conditions</a>
+            </label>
+        </div>
+        <input type="hidden" name="termsConfirmed" id="termsConfirmed" value="">
+
+        <button type="button" class="btn-main" id="submitBtn" onclick="handleSubmit()">
+            Get Started
+        </button>
+
     </form>
 
-    <div class="reg-footer">
+    <div class="divider">or</div>
+
+    <div class="social-row">
+        <button class="btn-social btn-twitter" title="Coming soon">
+            🐦 Twitter
+        </button>
+        <button class="btn-social btn-facebook" title="Coming soon">
+            f&nbsp; Facebook
+        </button>
+        <button class="btn-social btn-google" title="Coming soon">
+            G+ Google
+        </button>
+    </div>
+
+    <div class="footer-link">
         Already have an account? <a th:href="@{/login}">Sign in</a>
     </div>
 </div>
+
+<script>
+let termsAgreed = false;
+
+function openModal() {
+    document.getElementById('agreeCheck').checked = false;
+    document.getElementById('agreeCheck').disabled = true;
+    document.getElementById('agreeBtn').classList.remove('enabled');
+    document.getElementById('scrollHint').style.display = 'block';
+    document.getElementById('modalBody').scrollTop = 0;
+    document.getElementById('termsModal').classList.add('active');
+}
+function closeModal() {
+    document.getElementById('termsModal').classList.remove('active');
+    if (!termsAgreed) document.getElementById('termsRadio').checked = false;
+}
+function checkScroll() {
+    const b = document.getElementById('modalBody');
+    if (b.scrollHeight - b.scrollTop <= b.clientHeight + 50) {
+        document.getElementById('agreeCheck').disabled = false;
+        document.getElementById('scrollHint').style.display = 'none';
+    }
+}
+function toggleAgree() {
+    document.getElementById('agreeCheck').checked
+        ? document.getElementById('agreeBtn').classList.add('enabled')
+        : document.getElementById('agreeBtn').classList.remove('enabled');
+}
+function submitForm() {
+    termsAgreed = true;
+    document.getElementById('termsConfirmed').value = 'yes';
+    document.getElementById('termsRadio').checked = true;
+    closeModal();
+}
+function handleSubmit() {
+    if (!termsAgreed) {
+        alert('Please agree to the Terms & Conditions to continue.');
+        return;
+    }
+    document.getElementById('regForm').submit();
+}
+document.getElementById('termsModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('termsModal')) closeModal();
+});
+</script>
 </body>
 </html>
