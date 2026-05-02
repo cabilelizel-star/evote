@@ -140,7 +140,12 @@ a { text-decoration: none; color: inherit; }
     padding: 9px 12px; border: 1.5px solid #c8e6d4;
     border-radius: 8px; font-size: 14px; color: #1a1a1a;
     outline: none; transition: border .2s; background: #f8fffe;
+    text-transform: capitalize;
 }
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group input[type="number"],
+.form-group input[type="date"] { text-transform: none; }
 .form-group input:focus, .form-group select:focus { border-color: #2d9e5f; box-shadow: 0 0 0 3px rgba(45,158,95,0.1); }
 
 .btn { padding: 9px 18px; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity .2s; }
@@ -256,7 +261,20 @@ tr:hover td { background: #f8fffe; }
 }
 .btn-cancel-modal:hover { background: #f0faf4; }
 
-/* ── Responsive ──────────────────────────────────────────────── */
+/* ── Auto capitalize first letter on text inputs ─────────────── */
+input[type="text"],
+input[type="tel"],
+input[type="search"],
+textarea {
+    text-transform: capitalize;
+}
+/* Keep email, password, number as-is */
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="date"] {
+    text-transform: none;
+}
 @media (max-width: 640px) {
     .grid-2, .grid-3 { grid-template-columns: 1fr; }
     .auth-card { width: 95vw; padding: 28px 20px; }
