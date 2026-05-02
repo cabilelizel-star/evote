@@ -17,11 +17,20 @@ public class VoterController {
     public String dashboard(HttpSession session, Model model) {
         if (!"voter".equals(session.getAttribute("role"))) return "redirect:/login";
 
-        model.addAttribute("election",   svc.getElection());
-        model.addAttribute("candidates", svc.getCandidates());
-        model.addAttribute("userName",   session.getAttribute("userName"));
-        model.addAttribute("userId",     session.getAttribute("userId"));
-        model.addAttribute("hasVoted",   session.getAttribute("hasVoted"));
+        try {
+            model.addAttribute("election",   svc.getElection());
+            model.addAttribute("candidates", svc.getCandidates());
+            model.addAttribute("userName",   session.getAttribute("userName"));
+            model.addAttribute("userId",     session.getAttribute("userId"));
+            model.addAttribute("hasVoted",   session.getAttribute("hasVoted"));
+        } catch (Exception e) {
+            model.addAttribute("election",   new com.evote.model.Election(1, "General Election 2025", false));
+            model.addAttribute("candidates", java.util.Collections.emptyList());
+            model.addAttribute("userName",   session.getAttribute("userName"));
+            model.addAttribute("userId",     session.getAttribute("userId"));
+            model.addAttribute("hasVoted",   session.getAttribute("hasVoted"));
+            model.addAttribute("dbError",    e.getMessage());
+        }
         return "voter/dashboard";
     }
 

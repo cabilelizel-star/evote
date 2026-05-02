@@ -55,6 +55,11 @@
 
 <div class="dash-container">
 
+    <!-- DB Error Banner -->
+    <div th:if="${dbError}" class="alert alert-error" style="margin-bottom:20px">
+        ⚠ Database error: <span th:text="${dbError}"></span>
+    </div>
+
     <!-- Election Control Bar -->
     <div class="election-status-bar">
         <div>

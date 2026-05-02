@@ -17,10 +17,18 @@ public class AdminController {
     public String dashboard(HttpSession session, Model model) {
         if (!"admin".equals(session.getAttribute("role"))) return "redirect:/login";
 
-        model.addAttribute("election",   svc.getElection());
-        model.addAttribute("candidates", svc.getCandidates());
-        model.addAttribute("voters",     svc.getVoters());
-        model.addAttribute("totalVotes", svc.getTotalVotes());
+        try {
+            model.addAttribute("election",   svc.getElection());
+            model.addAttribute("candidates", svc.getCandidates());
+            model.addAttribute("voters",     svc.getVoters());
+            model.addAttribute("totalVotes", svc.getTotalVotes());
+        } catch (Exception e) {
+            model.addAttribute("election",   new com.evote.model.Election(1, "General Election 2025", false));
+            model.addAttribute("candidates", java.util.Collections.emptyList());
+            model.addAttribute("voters",     java.util.Collections.emptyList());
+            model.addAttribute("totalVotes", 0);
+            model.addAttribute("dbError",    e.getMessage());
+        }
         return "admin/dashboard";
     }
 

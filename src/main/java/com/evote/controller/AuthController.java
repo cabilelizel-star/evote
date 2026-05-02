@@ -20,7 +20,13 @@ public class AuthController {
     @GetMapping({"/", "/login"})
     public String loginPage(HttpSession session, Model model,
                             @RequestParam(required = false) String success) {
-        if (session.getAttribute("userId") != null) return redirectByRole(session);
+        // If already logged in, redirect to correct dashboard
+        Object userId = session.getAttribute("userId");
+        if (userId != null) {
+            String role = (String) session.getAttribute("role");
+            if ("admin".equals(role))  return "redirect:/admin/dashboard";
+            if ("voter".equals(role))  return "redirect:/voter/dashboard";
+        }
         if ("registered".equals(success)) model.addAttribute("success", "Account created! You can now sign in.");
         if ("reset".equals(success))      model.addAttribute("success", "Password reset successfully!");
         return "login";
