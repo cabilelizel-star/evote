@@ -5,51 +5,141 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>E-Vote System — Create Account</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.65); z-index: 1000;
+            align-items: center; justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: #1e2d4a; border-radius: 12px;
+            width: 520px; max-width: 95vw; max-height: 88vh;
+            display: flex; flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5); overflow: hidden;
+        }
+        .modal-header {
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; gap: 12px;
+        }
+        .modal-header h2 { color:#fff; font-size:18px; font-weight:700; margin:0; }
+        .modal-body {
+            padding: 20px 24px; overflow-y: auto; flex: 1;
+            color: rgba(255,255,255,0.8); font-size: 13px; line-height: 1.75;
+        }
+        .modal-body h3 { color:#fff; font-size:14px; margin:16px 0 6px; }
+        .modal-body h3:first-child { margin-top:0; }
+        .modal-body p { margin-bottom:10px; }
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center;
+            justify-content: space-between; gap: 12px; flex-wrap: wrap;
+        }
+        .modal-footer label {
+            display: flex; align-items: center; gap: 8px;
+            color: rgba(255,255,255,0.8); font-size: 13px; cursor: pointer;
+        }
+        .scroll-hint {
+            text-align:center; font-size:11px;
+            color:rgba(255,255,255,0.4); padding:8px 0 0;
+        }
+        .btn-agree {
+            padding: 10px 28px; background: #4e6b99; border: none;
+            border-radius: 6px; color: #fff; font-size: 14px;
+            font-weight: 700; cursor: pointer; opacity: 0.4; pointer-events: none;
+            transition: background .2s;
+        }
+        .btn-agree.enabled { opacity:1; pointer-events:all; }
+        .btn-agree.enabled:hover { background:#3a5580; }
+        .btn-cancel-modal {
+            padding: 10px 20px; background: transparent;
+            border: 1px solid rgba(255,255,255,0.3); border-radius: 6px;
+            color: rgba(255,255,255,0.7); font-size: 14px; cursor: pointer;
+        }
+        .btn-cancel-modal:hover { background: rgba(255,255,255,0.05); }
+    </style>
 </head>
 <body class="auth-body">
-<div class="auth-card" style="width:500px">
 
-    <div class="auth-avatar">&#9997;</div>
+<!-- Terms Modal -->
+<div class="modal-overlay" id="termsModal">
+    <div class="modal">
+        <div class="modal-header">
+            <span style="font-size:22px">📋</span>
+            <h2>Terms and Agreement</h2>
+        </div>
+        <div class="modal-body" id="modalBody" onscroll="checkScroll()">
+            <h3>1. Eligibility</h3>
+            <p>By registering, you confirm that you are a qualified voter and that all information you have provided is accurate, complete, and truthful. Providing false information is a violation of this agreement.</p>
 
-    <div class="auth-title-row">
-        <hr><span>Create Account</span><hr>
+            <h3>2. One Vote Per Voter</h3>
+            <p>Each registered voter is entitled to cast exactly one (1) vote per election. Attempting to vote more than once, or assisting others in doing so, is strictly prohibited and may result in disqualification.</p>
+
+            <h3>3. Confidentiality of Credentials</h3>
+            <p>You are responsible for keeping your Voter ID and password confidential. Do not share your login credentials with anyone. The E-Vote System will never ask for your password via email or any other channel.</p>
+
+            <h3>4. Data Privacy</h3>
+            <p>Your personal information (name, email, birthday, gender, contact number) is collected solely for voter verification and election administration. It will not be shared with third parties without your consent, except as required by law.</p>
+
+            <h3>5. Integrity of the Election</h3>
+            <p>Any attempt to manipulate, tamper with, or interfere with the voting process — including hacking, impersonation, or coercion — is strictly prohibited and may be subject to legal action.</p>
+
+            <h3>6. Finality of Vote</h3>
+            <p>Once your vote has been cast and confirmed, it is final and cannot be changed or withdrawn. Please review your choice carefully before submitting.</p>
+
+            <h3>7. System Availability</h3>
+            <p>The E-Vote System strives to maintain availability during the election period. However, we are not liable for any downtime or technical interruptions beyond our control.</p>
+
+            <h3>8. Acceptance</h3>
+            <p>By clicking "I Agree" and completing registration, you acknowledge that you have read, understood, and agree to be bound by these Terms and Agreement.</p>
+
+            <div class="scroll-hint" id="scrollHint">↓ Scroll down to read all terms before agreeing</div>
+        </div>
+        <div class="modal-footer">
+            <label>
+                <input type="checkbox" id="agreeCheck" onchange="toggleAgree()" disabled>
+                I have read and agree to the Terms and Agreement
+            </label>
+            <div style="display:flex;gap:8px">
+                <button class="btn-cancel-modal" onclick="closeModal()">Cancel</button>
+                <button class="btn-agree" id="agreeBtn" onclick="submitForm()">I Agree</button>
+            </div>
+        </div>
     </div>
+</div>
+
+<!-- Registration Form -->
+<div class="auth-card" style="width:500px">
+    <div class="auth-avatar">&#9997;</div>
+    <div class="auth-title-row"><hr><span>Create Account</span><hr></div>
 
     <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
 
-    <form method="post" th:action="@{/register}">
-
-        <!-- Voter ID -->
+    <form method="post" th:action="@{/register}" id="registerForm">
         <div class="input-group">
             <span class="icon">&#128100;</span>
             <input type="text" name="voterId" placeholder="Voter ID  (e.g. V001)" required>
         </div>
-
-        <!-- Full Name -->
         <div class="input-group">
             <span class="icon">&#128221;</span>
             <input type="text" name="name" placeholder="Full Name" required>
         </div>
-
-        <!-- Email -->
         <div class="input-group">
             <span class="icon">&#128140;</span>
             <input type="email" name="email" placeholder="Email Address">
         </div>
-
-        <!-- Birthday & Age side by side -->
         <div style="display:flex;gap:10px;margin-bottom:14px">
             <div class="input-group" style="flex:2;margin-bottom:0">
                 <span class="icon">&#128197;</span>
-                <input type="date" name="birthday" placeholder="Birthday">
+                <input type="date" name="birthday">
             </div>
             <div class="input-group" style="flex:1;margin-bottom:0">
                 <span class="icon">&#128102;</span>
                 <input type="number" name="age" placeholder="Age" min="18" max="120">
             </div>
         </div>
-
-        <!-- Gender -->
         <div style="margin-bottom:14px">
             <select name="gender" style="width:100%;padding:13px 14px;border:none;border-radius:4px;font-size:14px;color:#334155;outline:none;">
                 <option value="" disabled selected>Select Gender</option>
@@ -59,26 +149,18 @@
                 <option value="Prefer not to say">Prefer not to say</option>
             </select>
         </div>
-
-        <!-- Contact Number -->
         <div class="input-group">
             <span class="icon">&#128222;</span>
             <input type="tel" name="contactNumber" placeholder="Contact Number">
         </div>
-
-        <!-- Password -->
         <div class="input-group">
             <span class="icon">&#128274;</span>
             <input type="password" name="password" placeholder="Password  (min. 6 chars)" required>
         </div>
-
-        <!-- Confirm Password -->
         <div class="input-group">
             <span class="icon">&#128274;</span>
             <input type="password" name="confirm" placeholder="Confirm Password" required>
         </div>
-
-        <!-- Security Question -->
         <div style="margin-bottom:14px">
             <select name="question" style="width:100%;padding:13px 14px;border:none;border-radius:4px;font-size:14px;color:#334155;outline:none;">
                 <option value="" disabled selected>Select Security Question</option>
@@ -89,19 +171,54 @@
                 <option>What is your favourite movie?</option>
             </select>
         </div>
-
-        <!-- Answer -->
         <div class="input-group">
             <span class="icon">&#128273;</span>
             <input type="text" name="answer" placeholder="Security answer" required>
         </div>
 
-        <button type="submit" class="btn-primary">Create Account</button>
+        <!-- Opens modal instead of submitting directly -->
+        <button type="button" class="btn-primary" onclick="openModal()">Register</button>
     </form>
 
     <div class="auth-footer">
         Already have an account? <a th:href="@{/login}">Sign in</a>
     </div>
 </div>
+
+<script>
+function openModal() {
+    const form = document.getElementById('registerForm');
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+    document.getElementById('agreeCheck').checked = false;
+    document.getElementById('agreeCheck').disabled = true;
+    document.getElementById('agreeBtn').classList.remove('enabled');
+    document.getElementById('scrollHint').style.display = 'block';
+    document.getElementById('modalBody').scrollTop = 0;
+    document.getElementById('termsModal').classList.add('active');
+}
+function closeModal() {
+    document.getElementById('termsModal').classList.remove('active');
+}
+function checkScroll() {
+    const b = document.getElementById('modalBody');
+    if (b.scrollHeight - b.scrollTop <= b.clientHeight + 50) {
+        document.getElementById('agreeCheck').disabled = false;
+        document.getElementById('scrollHint').style.display = 'none';
+    }
+}
+function toggleAgree() {
+    const btn = document.getElementById('agreeBtn');
+    document.getElementById('agreeCheck').checked
+        ? btn.classList.add('enabled')
+        : btn.classList.remove('enabled');
+}
+function submitForm() {
+    closeModal();
+    document.getElementById('registerForm').submit();
+}
+document.getElementById('termsModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+});
+</script>
 </body>
 </html>
