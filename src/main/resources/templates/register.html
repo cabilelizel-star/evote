@@ -192,11 +192,13 @@
             <div class="grid-2">
                 <div class="field">
                     <label>Barangay <span class="required">*</span></label>
-                    <input type="text" name="barangay" placeholder="Brgy. San Antonio" required>
+                    <select name="barangay" id="barangaySelect" required>
+                        <option value="" disabled selected>Select city first</option>
+                    </select>
                 </div>
                 <div class="field">
                     <label>City / Municipality <span class="required">*</span></label>
-                    <select name="city" id="citySelect" onchange="fillZip(this.value)" required>
+                    <select name="city" id="citySelect" onchange="onCityChange(this.value)" required>
                         <option value="" disabled selected>Select city/municipality</option>
                         <option value="Alaminos">Alaminos</option>
                         <option value="Bay">Bay</option>
@@ -370,7 +372,7 @@
 </div>
 
 <script>
-// ── ZIP code auto-fill (Laguna cities) ───────────────────────
+// ── ZIP + Barangay auto-fill ──────────────────────────────────
 const ZIP_CODES = {
     'Alaminos':'4001','Bay':'4033','Biñan':'4024','Cabuyao':'4025',
     'Calamba':'4027','Calauan':'4012','Cavinti':'4013','Famy':'4021',
@@ -381,8 +383,69 @@ const ZIP_CODES = {
     'San Pedro':'4023','Santa Cruz':'4009','Santa Maria':'4022',
     'Santo Tomas':'4234','Siniloan':'4019','Victoria':'4011'
 };
-function fillZip(city) {
+
+const BARANGAYS = {
+    'Santa Cruz': [
+        'Bagong Anyo','Bubukal','Duhat','Gatid','Labuin','Palasan',
+        'Pagsawitan','Patimbao','Poblacion Uno','Poblacion Dos',
+        'Sto. Angel Norte','Sto. Angel Sur','Sto. Angel Central'
+    ],
+    'Biñan': [
+        'Biñan','Canlalay','Casile','De La Paz','Ganado','Langkiwa',
+        'Loma','Malaban','Malamig','Mampalasan','Platero','Poblacion',
+        'San Antonio','San Francisco','San Jose','San Vicente',
+        'Santo Domingo','Santo Tomas','Soro-soro','Timbao','Tubigan','Zapote'
+    ],
+    'Calamba': [
+        'Bagong Kalsada','Banadero','Banlic','Batino','Burol','Canlubang',
+        'Halang','Laguerta','Lawa','Lecheria','Lingga','Looc','Mabato',
+        'Makiling','Mapagong','Masili','Maunong','Mayapa','Milagrosa',
+        'Paciano Rizal','Palo-Alto','Pansol','Parian','Prinza','Punta',
+        'Puting Lupa','Real','Saimsim','Sampiruhan','San Cristobal',
+        'San Jose','San Juan','Sirang Lupa','Sucol','Turbina','Ulango','Uwisan'
+    ],
+    'San Pablo': [
+        'Atisan','Bagong Bayan','Concepcion','Del Remedio','Dolores',
+        'San Antonio 1','San Antonio 2','San Bartolome','San Buenaventura',
+        'San Francisco','San Gabriel','San Gregorio','San Ignacio',
+        'San Isidro','San Jose','San Juan','San Lucas 1','San Lucas 2',
+        'San Marcos','San Mateo','San Miguel','San Nicolas','San Pedro',
+        'San Rafael','San Roque','San Salvador','San Sebastian',
+        'Santa Catalina','Santa Cruz','Santa Filomena','Santa Maria',
+        'Santa Monica','Santa Veronica','Santiago 1','Santiago 2',
+        'Santisimo Rosario','Santo Angel','Santo Cristo','Santo Niño 1',
+        'Santo Niño 2','Soledad'
+    ]
+};
+
+function onCityChange(city) {
     document.getElementById('zipField').value = ZIP_CODES[city] || '';
+    const sel = document.getElementById('barangaySelect');
+    sel.innerHTML = '<option value="" disabled selected>Select barangay</option>';
+    const brgys = BARANGAYS[city];
+    if (brgys && brgys.length > 0) {
+        brgys.sort().forEach(b => {
+            const opt = document.createElement('option');
+            opt.value = b; opt.textContent = b;
+            sel.appendChild(opt);
+        });
+        sel.disabled = false;
+        sel.name = 'barangay';
+        const fb = document.getElementById('barangayFallback');
+        if (fb) { fb.style.display = 'none'; fb.removeAttribute('name'); }
+    } else {
+        sel.disabled = true;
+        sel.removeAttribute('name');
+        let fb = document.getElementById('barangayFallback');
+        if (!fb) {
+            fb = document.createElement('input');
+            fb.type = 'text'; fb.id = 'barangayFallback';
+            fb.name = 'barangay'; fb.placeholder = 'Enter barangay name';
+            fb.required = true;
+            fb.style.cssText = 'width:100%;padding:11px 16px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;margin-top:6px;text-transform:capitalize;outline:none;box-sizing:border-box';
+            sel.parentNode.appendChild(fb);
+        } else { fb.style.display = 'block'; fb.name = 'barangay'; }
+    }
 }
 
 let currentStep = 1;
