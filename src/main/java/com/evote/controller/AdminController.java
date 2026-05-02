@@ -1,6 +1,8 @@
 package com.evote.controller;
 
+import com.evote.model.Voter;
 import com.evote.service.ElectionService;
+import com.evote.service.EmailService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,7 +13,12 @@ import org.springframework.web.bind.annotation.*;
 public class AdminController {
 
     private final ElectionService svc;
-    public AdminController(ElectionService svc) { this.svc = svc; }
+    private final EmailService    emailService;
+
+    public AdminController(ElectionService svc, EmailService emailService) {
+        this.svc          = svc;
+        this.emailService = emailService;
+    }
 
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model) {
@@ -75,6 +82,12 @@ public class AdminController {
     public String openElection(HttpSession session) {
         if (!"admin".equals(session.getAttribute("role"))) return "redirect:/login";
         svc.setElectionOpen(true);
+        // Notify all voters by email
+        String title = svc.getElection().getTitle();
+        new Thread(() -> svc.getVoters().stream()
+            .filter(v -> v.getEmail() != null && !v.getEmail().isBlank())
+            .forEach(v -> emailService.sendElectionOpenedEmail(v.getEmail(), v.getName(), title))
+        ).start();
         return "redirect:/admin/dashboard";
     }
 
@@ -82,6 +95,12 @@ public class AdminController {
     public String closeElection(HttpSession session) {
         if (!"admin".equals(session.getAttribute("role"))) return "redirect:/login";
         svc.setElectionOpen(false);
+        // Notify all voters by email
+        String title = svc.getElection().getTitle();
+        new Thread(() -> svc.getVoters().stream()
+            .filter(v -> v.getEmail() != null && !v.getEmail().isBlank())
+            .forEach(v -> emailService.sendElectionClosedEmail(v.getEmail(), v.getName(), title))
+        ).start();
         return "redirect:/admin/dashboard";
     }
 }

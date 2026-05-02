@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>E-Vote — Verify OTP</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .otp-inputs { display:flex; gap:10px; justify-content:center; margin:24px 0; }
+        .otp-input {
+            width:52px; height:60px; text-align:center;
+            font-size:26px; font-weight:800; color:#1a6b3c;
+            border:2px solid #c8e6d4; border-radius:10px;
+            outline:none; background:#f8fffe;
+            transition:border-color .2s, box-shadow .2s;
+        }
+        .otp-input:focus { border-color:#2d9e5f; box-shadow:0 0 0 3px rgba(45,158,95,0.15); }
+        .resend-link { color:#2d9e5f; cursor:pointer; font-weight:700; text-decoration:underline; }
+        .timer { color:#888; font-size:13px; }
+    </style>
+</head>
+<body class="auth-body">
+<div class="auth-card" style="width:420px;text-align:center">
+
+    <div class="auth-avatar">📧</div>
+    <div class="auth-title-row"><hr><span>Verify OTP</span><hr></div>
+
+    <p style="color:#555;font-size:14px;margin-bottom:4px">
+        We sent a 6-digit code to
+    </p>
+    <p style="color:#1a6b3c;font-weight:700;font-size:15px;margin-bottom:20px"
+       th:text="${email}"></p>
+
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+    <form method="post" th:action="@{/register/verify-otp}" id="otpForm">
+        <div class="otp-inputs">
+            <input class="otp-input" type="text" maxlength="1" id="o1" oninput="moveNext(this,'o2')" onkeydown="movePrev(event,this,'')">
+            <input class="otp-input" type="text" maxlength="1" id="o2" oninput="moveNext(this,'o3')" onkeydown="movePrev(event,this,'o1')">
+            <input class="otp-input" type="text" maxlength="1" id="o3" oninput="moveNext(this,'o4')" onkeydown="movePrev(event,this,'o2')">
+            <input class="otp-input" type="text" maxlength="1" id="o4" oninput="moveNext(this,'o5')" onkeydown="movePrev(event,this,'o3')">
+            <input class="otp-input" type="text" maxlength="1" id="o5" oninput="moveNext(this,'o6')" onkeydown="movePrev(event,this,'o4')">
+            <input class="otp-input" type="text" maxlength="1" id="o6" oninput="moveNext(this,'')"   onkeydown="movePrev(event,this,'o5')">
+        </div>
+        <input type="hidden" name="otp" id="otpHidden">
+        <button type="button" class="btn-primary" onclick="submitOtp()">Verify Code</button>
+    </form>
+
+    <p class="timer" style="margin-top:16px">
+        Code expires in <span id="countdown">10:00</span>
+    </p>
+    <p style="font-size:13px;color:#888;margin-top:8px">
+        Didn't receive it?
+        <a th:href="@{/register}" class="resend-link">Go back and try again</a>
+    </p>
+
+    <div class="auth-footer" style="margin-top:20px">
+        <a th:href="@{/login}">← Back to Sign In</a>
+    </div>
+</div>
+
+<script>
+function moveNext(el, nextId) {
+    el.value = el.value.replace(/[^0-9]/g,'');
+    if (el.value && nextId) document.getElementById(nextId).focus();
+    checkComplete();
+}
+function movePrev(e, el, prevId) {
+    if (e.key === 'Backspace' && !el.value && prevId) {
+        document.getElementById(prevId).focus();
+    }
+}
+function checkComplete() {
+    const vals = ['o1','o2','o3','o4','o5','o6'].map(id => document.getElementById(id).value);
+    if (vals.every(v => v)) submitOtp();
+}
+function submitOtp() {
+    const otp = ['o1','o2','o3','o4','o5','o6'].map(id => document.getElementById(id).value).join('');
+    if (otp.length < 6) { alert('Please enter the complete 6-digit code.'); return; }
+    document.getElementById('otpHidden').value = otp;
+    document.getElementById('otpForm').submit();
+}
+
+// Countdown timer
+let seconds = 600;
+const timer = setInterval(() => {
+    seconds--;
+    const m = Math.floor(seconds/60).toString().padStart(2,'0');
+    const s = (seconds%60).toString().padStart(2,'0');
+    document.getElementById('countdown').textContent = m+':'+s;
+    if (seconds <= 0) { clearInterval(timer); document.getElementById('countdown').textContent = 'Expired'; }
+}, 1000);
+
+document.getElementById('o1').focus();
+</script>
+</body>
+</html>

@@ -1,17 +1,26 @@
 package com.evote.controller;
 
+import com.evote.model.Candidate;
 import com.evote.service.ElectionService;
+import com.evote.service.EmailService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/voter")
 public class VoterController {
 
     private final ElectionService svc;
-    public VoterController(ElectionService svc) { this.svc = svc; }
+    private final EmailService    emailService;
+
+    public VoterController(ElectionService svc, EmailService emailService) {
+        this.svc          = svc;
+        this.emailService = emailService;
+    }
 
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model) {
@@ -44,6 +53,19 @@ public class VoterController {
 
         if ("ok".equals(result)) {
             session.setAttribute("hasVoted", true);
+            // Send vote confirmation email in background
+            Optional<com.evote.model.Voter> voter = svc.findVoter(voterId);
+            Optional<Candidate> candidate = svc.getCandidates().stream()
+                .filter(c -> c.getCandidateId().equals(candidateId)).findFirst();
+            if (voter.isPresent() && candidate.isPresent()
+                    && voter.get().getEmail() != null && !voter.get().getEmail().isBlank()) {
+                String email     = voter.get().getEmail();
+                String name      = voter.get().getName();
+                String cName     = candidate.get().getName();
+                String party     = candidate.get().getParty();
+                String elTitle   = svc.getElection().getTitle();
+                new Thread(() -> emailService.sendVoteConfirmation(email, name, cName, party, elTitle)).start();
+            }
             return "redirect:/voter/dashboard?success=voted";
         }
         return "redirect:/voter/dashboard?error=" + result;

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>E-Vote — Complete Registration</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .steps { display:flex; gap:0; margin-bottom:28px; }
+        .step { flex:1; text-align:center; padding:10px 6px; font-size:11px; font-weight:700; color:#aaa; border-bottom:3px solid #e0f2e9; }
+        .step.active { color:#1a6b3c; border-bottom-color:#2d9e5f; }
+        .step.done   { color:#2d9e5f; border-bottom-color:#2d9e5f; }
+        .step-num { display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:50%; background:#e0f2e9; color:#aaa; font-size:12px; font-weight:800; margin-bottom:3px; }
+        .step.active .step-num { background:#2d9e5f; color:#fff; }
+        .step.done   .step-num { background:#1a6b3c; color:#fff; }
+        .step-panel { display:none; }
+        .step-panel.active { display:block; }
+        .id-type-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+        .id-type-card { border:2px solid #e0f2e9; border-radius:10px; padding:14px; text-align:center; cursor:pointer; transition:border-color .2s; }
+        .id-type-card:hover { border-color:#2d9e5f; }
+        .id-type-card.selected { border-color:#1a6b3c; background:#f0faf4; }
+        .id-type-card input { display:none; }
+        .upload-area { border:2px dashed #c8e6d4; border-radius:10px; padding:24px; text-align:center; cursor:pointer; margin-bottom:14px; transition:border-color .2s; }
+        .upload-area:hover, .upload-area.has-file { border-color:#2d9e5f; background:#f8fffe; }
+        #idPreview { max-width:100%; max-height:180px; border-radius:8px; margin-top:10px; display:none; }
+        .camera-wrap { position:relative; border-radius:12px; overflow:hidden; background:#000; margin-bottom:14px; }
+        #cameraFeed { width:100%; display:block; border-radius:12px; }
+        .face-overlay { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:180px; height:220px; border:3px solid rgba(45,158,95,0.8); border-radius:50%; pointer-events:none; }
+        .camera-hint { position:absolute; bottom:10px; left:0; right:0; text-align:center; color:#fff; font-size:12px; text-shadow:0 1px 3px rgba(0,0,0,0.8); }
+        #selfiePreview { width:100%; border-radius:12px; display:none; border:3px solid #2d9e5f; margin-bottom:10px; }
+        /* Terms Modal */
+        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center; }
+        .modal-overlay.active { display:flex; }
+        .modal { background:#fff; border-radius:16px; width:520px; max-width:95vw; max-height:88vh; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,0.2); overflow:hidden; }
+        .modal-header { padding:18px 24px 14px; border-bottom:2px solid #e0f2e9; display:flex; align-items:center; gap:10px; background:#f0faf4; }
+        .modal-header h2 { color:#1a6b3c; font-size:17px; font-weight:800; margin:0; }
+        .modal-body { padding:18px 24px; overflow-y:auto; flex:1; color:#444; font-size:13px; line-height:1.75; }
+        .modal-body h3 { color:#1a6b3c; font-size:13px; margin:14px 0 5px; font-weight:700; }
+        .modal-body h3:first-child { margin-top:0; }
+        .modal-body p { margin-bottom:8px; }
+        .modal-footer { padding:14px 24px; border-top:2px solid #e0f2e9; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; background:#f8fffe; }
+        .modal-footer label { display:flex; align-items:center; gap:8px; color:#444; font-size:13px; cursor:pointer; font-weight:600; }
+        .scroll-hint { text-align:center; font-size:11px; color:#aaa; padding:6px 0 0; }
+        .btn-agree { padding:10px 24px; background:linear-gradient(135deg,#2d9e5f,#1a6b3c); border:none; border-radius:8px; color:#fff; font-size:14px; font-weight:700; cursor:pointer; opacity:0.4; pointer-events:none; }
+        .btn-agree.enabled { opacity:1; pointer-events:all; }
+        .btn-cancel-modal { padding:10px 18px; background:transparent; border:1.5px solid #c8e6d4; border-radius:8px; color:#2d9e5f; font-size:13px; font-weight:600; cursor:pointer; }
+    </style>
+</head>
+<body class="auth-body">
+
+<!-- Terms Modal -->
+<div class="modal-overlay" id="termsModal">
+    <div class="modal">
+        <div class="modal-header"><span>📋</span><h2>Terms and Agreement</h2></div>
+        <div class="modal-body" id="modalBody" onscroll="checkScroll()">
+            <h3>1. Eligibility</h3><p>You confirm all information provided is accurate and truthful.</p>
+            <h3>2. One Vote Per Voter</h3><p>Each voter may cast exactly one vote per election.</p>
+            <h3>3. Identity Verification</h3><p>You consent to face verification using your uploaded ID and selfie for identity purposes only.</p>
+            <h3>4. Confidentiality</h3><p>Keep your Voter ID and password confidential at all times.</p>
+            <h3>5. Data Privacy</h3><p>Your personal information is used solely for voter verification and election administration.</p>
+            <h3>6. Election Integrity</h3><p>Any attempt to manipulate the voting process is strictly prohibited.</p>
+            <h3>7. Finality of Vote</h3><p>Once cast, your vote is final and cannot be changed.</p>
+            <h3>8. Acceptance</h3><p>By clicking "I Agree", you accept these Terms and Agreement in full.</p>
+            <div class="scroll-hint" id="scrollHint">↓ Scroll to read all terms</div>
+        </div>
+        <div class="modal-footer">
+            <label><input type="checkbox" id="agreeCheck" onchange="toggleAgree()" disabled> I agree to the Terms and Agreement</label>
+            <div style="display:flex;gap:8px">
+                <button class="btn-cancel-modal" onclick="closeModal()">Cancel</button>
+                <button class="btn-agree" id="agreeBtn" onclick="submitForm()">I Agree ✓</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="auth-card" style="width:520px;max-height:95vh;overflow-y:auto">
+    <div class="auth-avatar">✅</div>
+    <div class="auth-title-row"><hr><span>Complete Registration</span><hr></div>
+
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+    <!-- Steps -->
+    <div class="steps">
+        <div class="step done"><div class="step-num">✓</div><br>Info</div>
+        <div class="step done"><div class="step-num">✓</div><br>OTP</div>
+        <div class="step active" id="s1ind"><div class="step-num">3</div><br>ID Upload</div>
+        <div class="step" id="s2ind"><div class="step-num">4</div><br>Face Verify</div>
+    </div>
+
+    <form method="post" th:action="@{/register/complete}" id="completeForm" enctype="multipart/form-data">
+        <input type="hidden" name="selfieData" id="selfieData">
+
+        <!-- Step 3: Additional info + ID -->
+        <div class="step-panel active" id="sp1">
+            <div style="display:flex;gap:10px;margin-bottom:14px">
+                <div class="input-group" style="flex:2;margin-bottom:0">
+                    <span class="icon">📅</span>
+                    <input type="date" name="birthday">
+                </div>
+                <div class="input-group" style="flex:1;margin-bottom:0">
+                    <span class="icon">🔢</span>
+                    <input type="number" name="age" placeholder="Age" min="18" max="120">
+                </div>
+            </div>
+            <div class="input-group">
+                <span class="icon">🏠</span>
+                <input type="text" name="placeOfBirth" placeholder="Place of Birth">
+            </div>
+            <div style="margin-bottom:14px">
+                <select name="gender" style="width:100%;padding:13px 14px;border:1.5px solid #c8e6d4;border-radius:8px;font-size:14px;color:#333;outline:none;background:#f8fffe;">
+                    <option value="" disabled selected>Select Gender</option>
+                    <option>Male</option><option>Female</option><option>Other</option><option>Prefer not to say</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <span class="icon">📞</span>
+                <input type="tel" name="contactNumber" placeholder="Contact Number">
+            </div>
+
+            <p style="font-size:13px;font-weight:700;color:#1a6b3c;margin:16px 0 10px">Select ID Type:</p>
+            <div class="id-type-grid">
+                <label class="id-type-card" onclick="selId(this)"><input type="radio" name="idType" value="National ID"><div style="font-size:24px">🪪</div><div style="font-size:12px;font-weight:700">National ID</div></label>
+                <label class="id-type-card" onclick="selId(this)"><input type="radio" name="idType" value="Passport"><div style="font-size:24px">📘</div><div style="font-size:12px;font-weight:700">Passport</div></label>
+                <label class="id-type-card" onclick="selId(this)"><input type="radio" name="idType" value="Driver's License"><div style="font-size:24px">🚗</div><div style="font-size:12px;font-weight:700">Driver's License</div></label>
+                <label class="id-type-card" onclick="selId(this)"><input type="radio" name="idType" value="Voter ID Card"><div style="font-size:24px">🗳</div><div style="font-size:12px;font-weight:700">Voter ID Card</div></label>
+            </div>
+
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('idPhoto').click()">
+                <div style="font-size:32px">📤</div>
+                <p style="font-size:13px;color:#666;margin:6px 0 0"><strong>Click to upload ID photo</strong></p>
+                <p style="font-size:11px;color:#aaa;margin:4px 0 0">JPG, PNG — max 10MB</p>
+                <img id="idPreview" src="" alt="">
+            </div>
+            <input type="file" name="idPhoto" id="idPhoto" accept="image/*" style="display:none" onchange="prevId(this)">
+
+            <button type="button" class="btn-primary" onclick="goFace()">Next: Face Verify →</button>
+        </div>
+
+        <!-- Step 4: Face verification -->
+        <div class="step-panel" id="sp2">
+            <p style="font-size:13px;color:#555;margin-bottom:14px">Position your face in the oval and take a selfie.</p>
+            <div id="camSec">
+                <div class="camera-wrap">
+                    <video id="cameraFeed" autoplay playsinline muted></video>
+                    <div class="face-overlay"></div>
+                    <div class="camera-hint">Align your face with the oval</div>
+                </div>
+                <button type="button" class="btn-primary" onclick="snap()">📸 Take Selfie</button>
+            </div>
+            <div id="selfieSec" style="display:none">
+                <img id="selfiePreview" src="" alt="">
+                <canvas id="selfieCanvas" style="display:none"></canvas>
+                <div class="alert alert-success" style="margin-bottom:10px">✅ Selfie captured! Click Register to continue.</div>
+                <button type="button" class="btn-primary" style="background:#aaa;margin-bottom:10px" onclick="retake()">🔄 Retake</button>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:8px">
+                <button type="button" class="btn-primary" style="background:#aaa;flex:1" onclick="stopCam();goStep(1)">← Back</button>
+                <button type="button" class="btn-primary" style="flex:2" id="regBtn" onclick="openModal()" disabled>Register →</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="auth-footer" style="margin-top:16px">
+        <a th:href="@{/login}">← Back to Sign In</a>
+    </div>
+</div>
+
+<script>
+let stream = null;
+
+function goStep(n) {
+    document.querySelectorAll('.step-panel').forEach((p,i) => p.classList.toggle('active', i===n-1));
+    if (n===1) { document.getElementById('s1ind').classList.add('active'); document.getElementById('s2ind').classList.remove('active'); }
+    if (n===2) { document.getElementById('s1ind').classList.remove('active'); document.getElementById('s2ind').classList.add('active'); startCam(); }
+}
+function goFace() { goStep(2); }
+function selId(card) { document.querySelectorAll('.id-type-card').forEach(c=>c.classList.remove('selected')); card.classList.add('selected'); }
+function prevId(input) {
+    if (!input.files[0]) return;
+    const r = new FileReader();
+    r.onload = e => { const img=document.getElementById('idPreview'); img.src=e.target.result; img.style.display='block'; document.getElementById('uploadArea').classList.add('has-file'); };
+    r.readAsDataURL(input.files[0]);
+}
+async function startCam() {
+    try { stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:640,height:480}}); document.getElementById('cameraFeed').srcObject=stream; }
+    catch(e) { alert('Camera access denied. Please allow camera access.'); }
+}
+function stopCam() { if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;} }
+function snap() {
+    const v=document.getElementById('cameraFeed'), c=document.getElementById('selfieCanvas');
+    c.width=v.videoWidth||640; c.height=v.videoHeight||480;
+    c.getContext('2d').drawImage(v,0,0);
+    const d=c.toDataURL('image/jpeg',0.9);
+    document.getElementById('selfieData').value=d;
+    document.getElementById('selfiePreview').src=d;
+    document.getElementById('selfiePreview').style.display='block';
+    document.getElementById('camSec').style.display='none';
+    document.getElementById('selfieSec').style.display='block';
+    document.getElementById('regBtn').disabled=false;
+    stopCam();
+}
+function retake() {
+    document.getElementById('selfiePreview').style.display='none';
+    document.getElementById('camSec').style.display='block';
+    document.getElementById('selfieSec').style.display='none';
+    document.getElementById('regBtn').disabled=true;
+    document.getElementById('selfieData').value='';
+    startCam();
+}
+function openModal() {
+    document.getElementById('agreeCheck').checked=false;
+    document.getElementById('agreeCheck').disabled=true;
+    document.getElementById('agreeBtn').classList.remove('enabled');
+    document.getElementById('scrollHint').style.display='block';
+    document.getElementById('modalBody').scrollTop=0;
+    document.getElementById('termsModal').classList.add('active');
+}
+function closeModal() { document.getElementById('termsModal').classList.remove('active'); }
+function checkScroll() {
+    const b=document.getElementById('modalBody');
+    if(b.scrollHeight-b.scrollTop<=b.clientHeight+50){document.getElementById('agreeCheck').disabled=false;document.getElementById('scrollHint').style.display='none';}
+}
+function toggleAgree() { document.getElementById('agreeCheck').checked?document.getElementById('agreeBtn').classList.add('enabled'):document.getElementById('agreeBtn').classList.remove('enabled'); }
+function submitForm() { closeModal(); document.getElementById('completeForm').submit(); }
+document.getElementById('termsModal').addEventListener('click',e=>{if(e.target===document.getElementById('termsModal'))closeModal();});
+</script>
+</body>
+</html>

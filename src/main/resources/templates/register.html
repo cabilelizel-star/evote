@@ -5,427 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>E-Vote System — Create Account</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <style>
-        /* ── Steps ─────────────────────────────────────────── */
-        .steps { display:flex; gap:0; margin-bottom:32px; }
-        .step {
-            flex:1; text-align:center; padding:12px 8px;
-            font-size:12px; font-weight:700; color:#aaa;
-            border-bottom:3px solid #e0f2e9; position:relative;
-        }
-        .step.active { color:#1a6b3c; border-bottom-color:#2d9e5f; }
-        .step.done   { color:#2d9e5f; border-bottom-color:#2d9e5f; }
-        .step-num {
-            display:inline-flex; align-items:center; justify-content:center;
-            width:28px; height:28px; border-radius:50%;
-            background:#e0f2e9; color:#aaa; font-size:13px;
-            font-weight:800; margin-bottom:4px;
-        }
-        .step.active .step-num { background:#2d9e5f; color:#fff; }
-        .step.done   .step-num { background:#1a6b3c; color:#fff; }
-
-        /* ── Step panels ────────────────────────────────────── */
-        .step-panel { display:none; }
-        .step-panel.active { display:block; }
-
-        /* ── ID upload ──────────────────────────────────────── */
-        .id-type-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
-        .id-type-card {
-            border:2px solid #e0f2e9; border-radius:10px;
-            padding:14px; text-align:center; cursor:pointer;
-            transition:border-color .2s, background .2s;
-        }
-        .id-type-card:hover { border-color:#2d9e5f; background:#f8fffe; }
-        .id-type-card.selected { border-color:#1a6b3c; background:#f0faf4; }
-        .id-type-card input { display:none; }
-        .id-type-card .id-icon { font-size:28px; margin-bottom:6px; }
-        .id-type-card .id-label { font-size:13px; font-weight:700; color:#333; }
-
-        .upload-area {
-            border:2px dashed #c8e6d4; border-radius:10px;
-            padding:28px; text-align:center; cursor:pointer;
-            transition:border-color .2s, background .2s; margin-bottom:16px;
-        }
-        .upload-area:hover { border-color:#2d9e5f; background:#f8fffe; }
-        .upload-area.has-file { border-color:#1a6b3c; background:#f0faf4; }
-        .upload-area .upload-icon { font-size:36px; margin-bottom:8px; }
-        .upload-area p { font-size:13px; color:#666; margin:0; }
-        #idPreview { max-width:100%; max-height:200px; border-radius:8px; margin-top:12px; display:none; }
-
-        /* ── Camera ─────────────────────────────────────────── */
-        .camera-wrap {
-            position:relative; border-radius:12px; overflow:hidden;
-            background:#000; margin-bottom:16px;
-        }
-        #cameraFeed { width:100%; display:block; border-radius:12px; }
-        .face-overlay {
-            position:absolute; top:50%; left:50%;
-            transform:translate(-50%,-50%);
-            width:200px; height:240px;
-            border:3px solid rgba(45,158,95,0.8);
-            border-radius:50%; pointer-events:none;
-        }
-        .camera-hint {
-            position:absolute; bottom:12px; left:0; right:0;
-            text-align:center; color:#fff; font-size:12px;
-            text-shadow:0 1px 3px rgba(0,0,0,0.8);
-        }
-        #selfieCanvas { display:none; }
-        #selfiePreview {
-            width:100%; border-radius:12px; display:none;
-            border:3px solid #2d9e5f; margin-bottom:12px;
-        }
-        .verify-status {
-            padding:12px 16px; border-radius:8px; font-size:13px;
-            font-weight:600; margin-bottom:12px; display:none;
-        }
-        .verify-ok   { background:#f0faf4; color:#1a6b3c; border:1.5px solid #a8dfc0; }
-        .verify-fail { background:#fff0f0; color:#c0392b; border:1.5px solid #f5c6c6; }
-        .verify-wait { background:#fff8f0; color:#d68910; border:1.5px solid #f5d5a0; }
-
-        /* ── Terms Modal ────────────────────────────────────── */
-        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center; }
-        .modal-overlay.active { display:flex; }
-        .modal { background:#fff; border-radius:16px; width:520px; max-width:95vw; max-height:88vh; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,0.2); overflow:hidden; }
-        .modal-header { padding:20px 24px 16px; border-bottom:2px solid #e0f2e9; display:flex; align-items:center; gap:12px; background:#f0faf4; }
-        .modal-header h2 { color:#1a6b3c; font-size:18px; font-weight:800; margin:0; }
-        .modal-body { padding:20px 24px; overflow-y:auto; flex:1; color:#444; font-size:13px; line-height:1.75; }
-        .modal-body h3 { color:#1a6b3c; font-size:14px; margin:16px 0 6px; font-weight:700; }
-        .modal-body h3:first-child { margin-top:0; }
-        .modal-body p { margin-bottom:10px; }
-        .modal-footer { padding:16px 24px; border-top:2px solid #e0f2e9; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; background:#f8fffe; }
-        .modal-footer label { display:flex; align-items:center; gap:8px; color:#444; font-size:13px; cursor:pointer; font-weight:600; }
-        .scroll-hint { text-align:center; font-size:11px; color:#aaa; padding:8px 0 0; }
-        .btn-agree { padding:10px 28px; background:linear-gradient(135deg,#2d9e5f,#1a6b3c); border:none; border-radius:8px; color:#fff; font-size:14px; font-weight:700; cursor:pointer; opacity:0.4; pointer-events:none; }
-        .btn-agree.enabled { opacity:1; pointer-events:all; }
-        .btn-cancel-modal { padding:10px 20px; background:transparent; border:1.5px solid #c8e6d4; border-radius:8px; color:#2d9e5f; font-size:14px; font-weight:600; cursor:pointer; }
-    </style>
 </head>
 <body class="auth-body">
+<div class="auth-card" style="width:460px">
 
-<!-- Terms Modal -->
-<div class="modal-overlay" id="termsModal">
-    <div class="modal">
-        <div class="modal-header"><span style="font-size:22px">📋</span><h2>Terms and Agreement</h2></div>
-        <div class="modal-body" id="modalBody" onscroll="checkScroll()">
-            <h3>1. Eligibility</h3>
-            <p>By registering, you confirm that you are a qualified voter and all information provided is accurate and truthful.</p>
-            <h3>2. One Vote Per Voter</h3>
-            <p>Each registered voter may cast exactly one vote per election. Multiple voting attempts are prohibited.</p>
-            <h3>3. Identity Verification</h3>
-            <p>You consent to face verification using your uploaded ID and selfie. This data is used solely for identity verification and will not be shared with third parties.</p>
-            <h3>4. Confidentiality of Credentials</h3>
-            <p>Keep your Voter ID and password confidential. Do not share them with anyone.</p>
-            <h3>5. Data Privacy</h3>
-            <p>Your personal information is collected solely for voter verification and election administration, in compliance with applicable data privacy laws.</p>
-            <h3>6. Integrity of the Election</h3>
-            <p>Any attempt to manipulate or interfere with the voting process is strictly prohibited and may be subject to legal action.</p>
-            <h3>7. Finality of Vote</h3>
-            <p>Once cast, your vote is final and cannot be changed or withdrawn.</p>
-            <h3>8. Acceptance</h3>
-            <p>By clicking "I Agree", you acknowledge that you have read and agree to these Terms and Agreement.</p>
-            <div class="scroll-hint" id="scrollHint">↓ Scroll down to read all terms</div>
-        </div>
-        <div class="modal-footer">
-            <label><input type="checkbox" id="agreeCheck" onchange="toggleAgree()" disabled> I have read and agree to the Terms and Agreement</label>
-            <div style="display:flex;gap:8px">
-                <button class="btn-cancel-modal" onclick="closeModal()">Cancel</button>
-                <button class="btn-agree" id="agreeBtn" onclick="submitForm()">I Agree</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Registration Card -->
-<div class="auth-card" style="width:540px;max-height:95vh;overflow-y:auto">
     <div class="auth-avatar">✍</div>
     <div class="auth-title-row"><hr><span>Create Account</span><hr></div>
 
+    <p style="font-size:13px;color:#888;text-align:center;margin-bottom:20px">
+        Step 1 of 4 — Basic Information
+    </p>
+
     <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
 
-    <!-- Steps indicator -->
-    <div class="steps">
-        <div class="step active" id="step1-indicator">
-            <div class="step-num">1</div><br>Personal Info
+    <form method="post" th:action="@{/register/send-otp}">
+        <div class="input-group">
+            <span class="icon">🪪</span>
+            <input type="text" name="voterId" placeholder="Voter ID  (e.g. V001)" required>
         </div>
-        <div class="step" id="step2-indicator">
-            <div class="step-num">2</div><br>ID Upload
+        <div class="input-group">
+            <span class="icon">📝</span>
+            <input type="text" name="name" placeholder="Full Name" required>
         </div>
-        <div class="step" id="step3-indicator">
-            <div class="step-num">3</div><br>Face Verify
+        <div class="input-group">
+            <span class="icon">📧</span>
+            <input type="email" name="email" placeholder="Email Address (for OTP)" required>
         </div>
-    </div>
-
-    <form method="post" th:action="@{/register}" id="registerForm" enctype="multipart/form-data">
-
-        <!-- Hidden selfie data -->
-        <input type="hidden" name="selfieData" id="selfieData">
-
-        <!-- ── Step 1: Personal Info ──────────────────────── -->
-        <div class="step-panel active" id="step1">
-            <div class="input-group">
-                <span class="icon">🪪</span>
-                <input type="text" name="voterId" id="voterId" placeholder="Voter ID  (e.g. V001)" required>
-            </div>
-            <div class="input-group">
-                <span class="icon">📝</span>
-                <input type="text" name="name" id="nameField" placeholder="Full Name" required>
-            </div>
-            <div class="input-group">
-                <span class="icon">📧</span>
-                <input type="email" name="email" placeholder="Email Address" required>
-            </div>
-            <div style="display:flex;gap:10px;margin-bottom:14px">
-                <div class="input-group" style="flex:2;margin-bottom:0">
-                    <span class="icon">📅</span>
-                    <input type="date" name="birthday" required>
-                </div>
-                <div class="input-group" style="flex:1;margin-bottom:0">
-                    <span class="icon">🔢</span>
-                    <input type="number" name="age" placeholder="Age" min="18" max="120" required>
-                </div>
-            </div>
-            <div class="input-group">
-                <span class="icon">🏠</span>
-                <input type="text" name="placeOfBirth" placeholder="Place of Birth" required>
-            </div>
-            <div style="margin-bottom:14px">
-                <select name="gender" style="width:100%;padding:13px 14px;border:1.5px solid #c8e6d4;border-radius:8px;font-size:14px;color:#333;outline:none;background:#f8fffe;" required>
-                    <option value="" disabled selected>Select Gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                    <option value="Prefer not to say">Prefer not to say</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <span class="icon">📞</span>
-                <input type="tel" name="contactNumber" placeholder="Contact Number" required>
-            </div>
-            <div class="input-group">
-                <span class="icon">🔒</span>
-                <input type="password" name="password" id="pwField" placeholder="Password  (min. 6 chars)" required>
-            </div>
-            <div class="input-group">
-                <span class="icon">🔒</span>
-                <input type="password" name="confirm" id="confirmField" placeholder="Confirm Password" required>
-            </div>
-            <button type="button" class="btn-primary" onclick="goToStep2()">Next: Upload ID →</button>
+        <div class="input-group">
+            <span class="icon">🔒</span>
+            <input type="password" name="password" placeholder="Password  (min. 6 chars)" required>
+        </div>
+        <div class="input-group">
+            <span class="icon">🔒</span>
+            <input type="password" name="confirm" placeholder="Confirm Password" required>
         </div>
 
-        <!-- ── Step 2: ID Upload ──────────────────────────── -->
-        <div class="step-panel" id="step2">
-            <p style="font-size:13px;color:#555;margin-bottom:16px">
-                Select your ID type and upload a clear photo of it.
-            </p>
-
-            <div class="id-type-grid">
-                <label class="id-type-card" onclick="selectIdType(this,'National ID')">
-                    <input type="radio" name="idType" value="National ID">
-                    <div class="id-icon">🪪</div>
-                    <div class="id-label">National ID</div>
-                </label>
-                <label class="id-type-card" onclick="selectIdType(this,'Passport')">
-                    <input type="radio" name="idType" value="Passport">
-                    <div class="id-icon">📘</div>
-                    <div class="id-label">Passport</div>
-                </label>
-                <label class="id-type-card" onclick="selectIdType(this,'Driver\'s License')">
-                    <input type="radio" name="idType" value="Driver's License">
-                    <div class="id-icon">🚗</div>
-                    <div class="id-label">Driver's License</div>
-                </label>
-                <label class="id-type-card" onclick="selectIdType(this,'Voter ID Card')">
-                    <input type="radio" name="idType" value="Voter ID Card">
-                    <div class="id-icon">🗳</div>
-                    <div class="id-label">Voter ID Card</div>
-                </label>
-            </div>
-
-            <div class="upload-area" id="uploadArea" onclick="document.getElementById('idPhoto').click()">
-                <div class="upload-icon">📤</div>
-                <p><strong>Click to upload your ID photo</strong></p>
-                <p style="font-size:12px;margin-top:4px">JPG, PNG — max 10MB</p>
-                <img id="idPreview" src="" alt="ID Preview">
-            </div>
-            <input type="file" name="idPhoto" id="idPhoto" accept="image/*" style="display:none" onchange="previewId(this)">
-
-            <div style="display:flex;gap:10px">
-                <button type="button" class="btn-primary" style="background:#aaa;flex:1" onclick="goToStep(1)">← Back</button>
-                <button type="button" class="btn-primary" style="flex:2" onclick="goToStep3()" id="step2Next" disabled>Next: Face Verify →</button>
-            </div>
-        </div>
-
-        <!-- ── Step 3: Face Verification ─────────────────── -->
-        <div class="step-panel" id="step3">
-            <p style="font-size:13px;color:#555;margin-bottom:16px">
-                Position your face inside the oval and click <strong>Take Selfie</strong>.
-                Make sure your face is clearly visible and matches your ID.
-            </p>
-
-            <div id="cameraSection">
-                <div class="camera-wrap">
-                    <video id="cameraFeed" autoplay playsinline muted></video>
-                    <div class="face-overlay"></div>
-                    <div class="camera-hint">Align your face with the oval</div>
-                </div>
-                <button type="button" class="btn-primary" onclick="takeSelfie()" id="captureBtn">
-                    📸 Take Selfie
-                </button>
-            </div>
-
-            <div id="selfieSection" style="display:none">
-                <img id="selfiePreview" src="" alt="Selfie">
-                <canvas id="selfieCanvas"></canvas>
-                <div class="verify-status verify-ok" id="verifyOk">
-                    ✅ Selfie captured! Click Register to complete verification.
-                </div>
-                <button type="button" class="btn-primary" style="background:#aaa;margin-bottom:10px" onclick="retakeSelfie()">
-                    🔄 Retake Selfie
-                </button>
-            </div>
-
-            <div style="display:flex;gap:10px;margin-top:8px">
-                <button type="button" class="btn-primary" style="background:#aaa;flex:1" onclick="stopCamera();goToStep(2)">← Back</button>
-                <button type="button" class="btn-primary" style="flex:2" id="registerBtn" onclick="openModal()" disabled>
-                    Register →
-                </button>
-            </div>
-        </div>
-
+        <button type="submit" class="btn-primary">Send OTP to Email →</button>
     </form>
 
-    <div class="auth-footer" style="margin-top:16px">
+    <div class="auth-footer">
         Already have an account? <a th:href="@{/login}">Sign in</a>
     </div>
 </div>
-
-<script>
-let stream = null;
-
-// ── Step navigation ───────────────────────────────────────────
-function goToStep(n) {
-    document.querySelectorAll('.step-panel').forEach((p,i) => {
-        p.classList.toggle('active', i === n-1);
-    });
-    document.querySelectorAll('.step').forEach((s,i) => {
-        s.classList.remove('active','done');
-        if (i < n-1) s.classList.add('done');
-        if (i === n-1) s.classList.add('active');
-    });
-    if (n === 3) startCamera();
-}
-
-function goToStep2() {
-    // Validate step 1
-    const fields = ['voterId','nameField','pwField','confirmField'];
-    for (const id of fields) {
-        const f = document.getElementById(id);
-        if (!f.value.trim()) { f.focus(); alert('Please fill in all required fields.'); return; }
-    }
-    if (document.getElementById('pwField').value !== document.getElementById('confirmField').value) {
-        alert('Passwords do not match.'); return;
-    }
-    goToStep(2);
-}
-
-function goToStep3() {
-    if (!document.getElementById('idPhoto').files[0]) {
-        alert('Please upload your ID photo.'); return;
-    }
-    if (!document.querySelector('.id-type-card.selected')) {
-        alert('Please select your ID type.'); return;
-    }
-    goToStep(3);
-}
-
-// ── ID type selection ─────────────────────────────────────────
-function selectIdType(card, type) {
-    document.querySelectorAll('.id-type-card').forEach(c => c.classList.remove('selected'));
-    card.classList.add('selected');
-}
-
-// ── ID photo preview ──────────────────────────────────────────
-function previewId(input) {
-    if (!input.files[0]) return;
-    const reader = new FileReader();
-    reader.onload = e => {
-        const img = document.getElementById('idPreview');
-        img.src = e.target.result;
-        img.style.display = 'block';
-        document.getElementById('uploadArea').classList.add('has-file');
-        document.getElementById('step2Next').disabled = false;
-    };
-    reader.readAsDataURL(input.files[0]);
-}
-
-// ── Camera ────────────────────────────────────────────────────
-async function startCamera() {
-    try {
-        stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: 'user', width:640, height:480 }
-        });
-        document.getElementById('cameraFeed').srcObject = stream;
-    } catch(e) {
-        alert('Camera access denied. Please allow camera access and try again.');
-    }
-}
-
-function stopCamera() {
-    if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
-}
-
-function takeSelfie() {
-    const video  = document.getElementById('cameraFeed');
-    const canvas = document.getElementById('selfieCanvas');
-    canvas.width  = video.videoWidth  || 640;
-    canvas.height = video.videoHeight || 480;
-    canvas.getContext('2d').drawImage(video, 0, 0);
-
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
-    document.getElementById('selfieData').value = dataUrl;
-    document.getElementById('selfiePreview').src = dataUrl;
-    document.getElementById('selfiePreview').style.display = 'block';
-    document.getElementById('cameraSection').style.display = 'none';
-    document.getElementById('selfieSection').style.display = 'block';
-    document.getElementById('verifyOk').style.display = 'block';
-    document.getElementById('registerBtn').disabled = false;
-    stopCamera();
-}
-
-function retakeSelfie() {
-    document.getElementById('selfiePreview').style.display = 'none';
-    document.getElementById('cameraSection').style.display = 'block';
-    document.getElementById('selfieSection').style.display = 'none';
-    document.getElementById('registerBtn').disabled = true;
-    document.getElementById('selfieData').value = '';
-    startCamera();
-}
-
-// ── Terms modal ───────────────────────────────────────────────
-function openModal() {
-    document.getElementById('agreeCheck').checked = false;
-    document.getElementById('agreeCheck').disabled = true;
-    document.getElementById('agreeBtn').classList.remove('enabled');
-    document.getElementById('scrollHint').style.display = 'block';
-    document.getElementById('modalBody').scrollTop = 0;
-    document.getElementById('termsModal').classList.add('active');
-}
-function closeModal() { document.getElementById('termsModal').classList.remove('active'); }
-function checkScroll() {
-    const b = document.getElementById('modalBody');
-    if (b.scrollHeight - b.scrollTop <= b.clientHeight + 50) {
-        document.getElementById('agreeCheck').disabled = false;
-        document.getElementById('scrollHint').style.display = 'none';
-    }
-}
-function toggleAgree() {
-    document.getElementById('agreeCheck').checked
-        ? document.getElementById('agreeBtn').classList.add('enabled')
-        : document.getElementById('agreeBtn').classList.remove('enabled');
-}
-function submitForm() { closeModal(); document.getElementById('registerForm').submit(); }
-document.getElementById('termsModal').addEventListener('click', e => { if(e.target===document.getElementById('termsModal')) closeModal(); });
-</script>
 </body>
 </html>
