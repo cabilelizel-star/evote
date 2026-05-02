@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>E-Vote System — Create Account</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="auth-body">
+<div class="auth-card" style="width:460px">
+
+    <div class="auth-avatar">&#9997;</div>
+
+    <div class="auth-title-row">
+        <hr><span>Create Account</span><hr>
+    </div>
+
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+    <form method="post" th:action="@{/register}">
+        <div class="input-group">
+            <span class="icon">&#128100;</span>
+            <input type="text" name="voterId" placeholder="Voter ID  (e.g. V001)" required>
+        </div>
+        <div class="input-group">
+            <span class="icon">&#128221;</span>
+            <input type="text" name="name" placeholder="Full Name" required>
+        </div>
+        <div class="input-group">
+            <span class="icon">&#128274;</span>
+            <input type="password" name="password" placeholder="Password  (min. 6 chars)" required>
+        </div>
+        <div class="input-group">
+            <span class="icon">&#128274;</span>
+            <input type="password" name="confirm" placeholder="Confirm Password" required>
+        </div>
+
+        <div style="margin-bottom:14px">
+            <select name="question" style="width:100%;padding:13px 14px;border:none;border-radius:4px;font-size:14px;color:#334155;outline:none;">
+                <option>What was the name of your first pet?</option>
+                <option>What is your mother's maiden name?</option>
+                <option>What city were you born in?</option>
+                <option>What was the name of your primary school?</option>
+                <option>What is your favourite movie?</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <span class="icon">&#128273;</span>
+            <input type="text" name="answer" placeholder="Your answer" required>
+        </div>
+
+        <button type="submit" class="btn-primary">Create Account</button>
+    </form>
+
+    <div class="auth-footer">
+        Already have an account? <a th:href="@{/login}">Sign in</a>
+    </div>
+</div>
+</body>
+</html>

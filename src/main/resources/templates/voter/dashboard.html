@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>E-Vote — Voter Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="dash-body">
+
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="brand">&#128499; E-Vote System</div>
+    <div class="nav-right">
+        <span>&#128100; <span th:text="${userName}"></span> &nbsp;|&nbsp; ID: <span th:text="${userId}"></span></span>
+        <span class="badge" th:classappend="${election.open} ? 'badge-open' : 'badge-closed'"
+              th:text="${election.open} ? 'OPEN' : 'CLOSED'"></span>
+        <a th:href="@{/logout}">Logout</a>
+    </div>
+</nav>
+
+<div class="dash-container">
+    <div class="page-title">Voter Dashboard</div>
+
+    <!-- Alerts -->
+    <div th:if="${param.success != null}" class="alert alert-success" style="margin-bottom:20px">
+        &#10004; Your vote has been cast successfully!
+    </div>
+    <div th:if="${param.error != null}" class="alert alert-error" style="margin-bottom:20px"
+         th:text="${param.error[0]}"></div>
+
+    <!-- Stats -->
+    <div class="grid-3" style="margin-bottom:24px">
+        <div class="stat-box">
+            <div class="stat-label">Election</div>
+            <div class="stat-value" style="font-size:15px;margin-top:6px" th:text="${election.title}"></div>
+        </div>
+        <div class="stat-box" th:classappend="${election.open} ? 'green' : 'red'">
+            <div class="stat-label">Status</div>
+            <div class="stat-value" style="font-size:20px" th:text="${election.open} ? 'Open' : 'Closed'"></div>
+        </div>
+        <div class="stat-box" th:classappend="${hasVoted} ? 'green' : 'yellow'">
+            <div class="stat-label">My Vote</div>
+            <div class="stat-value" style="font-size:20px" th:text="${hasVoted} ? 'Voted ✔' : 'Not Yet'"></div>
+        </div>
+    </div>
+
+    <!-- Candidates -->
+    <div class="card">
+        <div class="card-title">&#127939; Candidates — Select one to vote</div>
+
+        <div th:if="${!election.open}">
+            <p style="color:#64748b;padding:20px 0">The election is currently closed. Voting is not available.</p>
+        </div>
+
+        <div th:if="${election.open and hasVoted}">
+            <p style="color:#16a34a;padding:20px 0">&#10004; You have already cast your vote. Thank you!</p>
+        </div>
+
+        <div th:if="${election.open and !hasVoted}">
+            <div th:if="${#lists.isEmpty(candidates)}">
+                <p style="color:#64748b;padding:20px 0">No candidates registered yet.</p>
+            </div>
+            <form th:if="${!#lists.isEmpty(candidates)}" method="post" th:action="@{/voter/vote}">
+                <div class="grid-2" style="margin-bottom:20px">
+                    <label th:each="c : ${candidates}"
+                           class="candidate-card"
+                           th:id="'card-' + ${c.candidateId}"
+                           th:onclick="'selectCard(\'' + ${c.candidateId} + '\')'">
+                        <input type="radio" name="candidateId"
+                               th:value="${c.candidateId}"
+                               th:id="'r-' + ${c.candidateId}">
+                        <div class="candidate-name"  th:text="${c.name}"></div>
+                        <div class="candidate-party" th:text="${c.party}"></div>
+                        <div class="candidate-id"    th:text="'ID: ' + ${c.candidateId}"></div>
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-blue"
+                        onclick="return confirm('Confirm your vote? This cannot be undone.')">
+                    &#128499; Cast My Vote
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function selectCard(id) {
+    document.querySelectorAll('.candidate-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('card-' + id).classList.add('selected');
+    document.getElementById('r-' + id).checked = true;
+}
+</script>
+</body>
+</html>

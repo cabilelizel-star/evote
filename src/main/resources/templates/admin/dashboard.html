@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>E-Vote — Admin Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="dash-body">
+
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="brand">&#128737; Admin Dashboard</div>
+    <div class="nav-right">
+        <span th:text="${election.title}"></span>
+        <span class="badge" th:classappend="${election.open} ? 'badge-open' : 'badge-closed'"
+              th:text="${election.open} ? 'OPEN' : 'CLOSED'"></span>
+        <a th:href="@{/logout}">Logout</a>
+    </div>
+</nav>
+
+<div class="dash-container">
+
+    <!-- Stats -->
+    <div class="grid-3" style="margin-bottom:28px">
+        <div class="stat-box">
+            <div class="stat-label">Candidates</div>
+            <div class="stat-value" th:text="${#lists.size(candidates)}"></div>
+        </div>
+        <div class="stat-box green">
+            <div class="stat-label">Registered Voters</div>
+            <div class="stat-value" th:text="${#lists.size(voters)}"></div>
+        </div>
+        <div class="stat-box yellow">
+            <div class="stat-label">Votes Cast</div>
+            <div class="stat-value" th:text="${totalVotes}"></div>
+        </div>
+    </div>
+
+    <!-- Election control -->
+    <div class="card" style="margin-bottom:24px">
+        <div class="card-title">&#9889; Election Control</div>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+            <form method="post" th:action="@{/admin/election/open}">
+                <button class="btn btn-green" th:disabled="${election.open}">&#9654; Open Election</button>
+            </form>
+            <form method="post" th:action="@{/admin/election/close}">
+                <button class="btn btn-red" th:disabled="${!election.open}">&#9632; Close Election</button>
+            </form>
+            <span style="color:#64748b;font-size:13px">
+                Status:
+                <strong th:style="${election.open} ? 'color:#16a34a' : 'color:#dc2626'"
+                        th:text="${election.open} ? 'OPEN — Voting is active' : 'CLOSED — Voting is inactive'"></strong>
+            </span>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab-btn" th:classappend="${param.tab == null or param.tab[0] == 'candidates'} ? ' active' : ''"
+                onclick="showTab('candidates',this)">&#127939; Candidates</button>
+        <button class="tab-btn" th:classappend="${param.tab != null and param.tab[0] == 'voters'} ? ' active' : ''"
+                onclick="showTab('voters',this)">&#128100; Voters</button>
+        <button class="tab-btn" th:classappend="${param.tab != null and param.tab[0] == 'results'} ? ' active' : ''"
+                onclick="showTab('results',this)">&#128202; Results</button>
+    </div>
+
+    <!-- ── Candidates tab ──────────────────────────────────────────────────── -->
+    <div id="tab-candidates" class="tab-content"
+         th:classappend="${param.tab == null or param.tab[0] == 'candidates'} ? ' active' : ''">
+        <div class="card">
+            <div class="card-title">Add Candidate</div>
+            <form method="post" th:action="@{/admin/candidate/add}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Candidate ID</label>
+                        <input type="text" name="candidateId" placeholder="e.g. C001" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" name="name" placeholder="Candidate name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Party</label>
+                        <input type="text" name="party" placeholder="Party name" required>
+                    </div>
+                    <button type="submit" class="btn btn-blue" style="align-self:flex-end">Add</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Candidate List</div>
+            <table>
+                <thead><tr><th>ID</th><th>Name</th><th>Party</th><th>Action</th></tr></thead>
+                <tbody>
+                    <tr th:if="${#lists.isEmpty(candidates)}">
+                        <td colspan="4" style="color:#94a3b8;text-align:center;padding:20px">No candidates yet.</td>
+                    </tr>
+                    <tr th:each="c : ${candidates}">
+                        <td th:text="${c.candidateId}"></td>
+                        <td th:text="${c.name}"></td>
+                        <td th:text="${c.party}"></td>
+                        <td>
+                            <form method="post" th:action="@{/admin/candidate/remove}" style="display:inline">
+                                <input type="hidden" name="candidateId" th:value="${c.candidateId}">
+                                <button class="btn btn-red btn-sm"
+                                        onclick="return confirm('Remove this candidate?')">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ── Voters tab ──────────────────────────────────────────────────────── -->
+    <div id="tab-voters" class="tab-content"
+         th:classappend="${param.tab != null and param.tab[0] == 'voters'} ? ' active' : ''">
+        <div class="card">
+            <div class="card-title">Register Voter</div>
+            <form method="post" th:action="@{/admin/voter/add}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Voter ID</label>
+                        <input type="text" name="voterId" placeholder="e.g. V001" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" name="name" placeholder="Voter name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" name="password" placeholder="Password" required>
+                    </div>
+                    <button type="submit" class="btn btn-blue" style="align-self:flex-end">Register</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Voter List</div>
+            <table>
+                <thead><tr><th>Voter ID</th><th>Name</th><th>Status</th><th>Action</th></tr></thead>
+                <tbody>
+                    <tr th:if="${#lists.isEmpty(voters)}">
+                        <td colspan="4" style="color:#94a3b8;text-align:center;padding:20px">No voters registered.</td>
+                    </tr>
+                    <tr th:each="v : ${voters}">
+                        <td th:text="${v.voterId}"></td>
+                        <td th:text="${v.name}"></td>
+                        <td>
+                            <span class="pill" th:classappend="${v.hasVoted} ? 'pill-green' : 'pill-yellow'"
+                                  th:text="${v.hasVoted} ? 'Voted' : 'Not Voted'"></span>
+                        </td>
+                        <td>
+                            <form method="post" th:action="@{/admin/voter/remove}" style="display:inline">
+                                <input type="hidden" name="voterId" th:value="${v.voterId}">
+                                <button class="btn btn-red btn-sm"
+                                        onclick="return confirm('Remove this voter?')">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ── Results tab ─────────────────────────────────────────────────────── -->
+    <div id="tab-results" class="tab-content"
+         th:classappend="${param.tab != null and param.tab[0] == 'results'} ? ' active' : ''">
+        <div class="card">
+            <div class="card-title">&#127942; Live Results — <span th:text="${election.title}"></span></div>
+            <p style="color:#64748b;font-size:13px;margin-bottom:16px">
+                Total votes cast: <strong style="color:#1e293b" th:text="${totalVotes}"></strong>
+            </p>
+            <table>
+                <thead><tr><th>ID</th><th>Name</th><th>Party</th><th>Votes</th><th>%</th><th>Bar</th></tr></thead>
+                <tbody>
+                    <tr th:if="${#lists.isEmpty(candidates)}">
+                        <td colspan="6" style="color:#94a3b8;text-align:center;padding:20px">No candidates yet.</td>
+                    </tr>
+                    <tr th:each="c : ${candidates}">
+                        <td th:text="${c.candidateId}"></td>
+                        <td><strong th:text="${c.name}"></strong></td>
+                        <td th:text="${c.party}"></td>
+                        <td th:text="${c.voteCount}"></td>
+                        <td th:text="${totalVotes > 0} ? ${#numbers.formatDecimal(c.voteCount * 100.0 / totalVotes, 1, 1)} + '%' : '0.0%'"></td>
+                        <td style="width:160px">
+                            <div class="progress-wrap">
+                                <div class="progress-bar"
+                                     th:style="'width:' + (${totalVotes > 0} ? ${c.voteCount * 100 / totalVotes} : 0) + '%'"></div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function showTab(name, btn) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    btn.classList.add('active');
+}
+// Activate correct tab on page load based on URL param
+(function() {
+    const p = new URLSearchParams(window.location.search).get('tab');
+    if (p) {
+        const btn = document.querySelector(`.tab-btn:nth-child(${p==='candidates'?1:p==='voters'?2:3})`);
+        if (btn) showTab(p, btn);
+    }
+})();
+</script>
+</body>
+</html>
