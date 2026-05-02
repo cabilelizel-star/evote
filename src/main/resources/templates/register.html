@@ -7,58 +7,57 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <style>
         .modal-overlay {
-            display: none; position: fixed; inset: 0;
-            background: rgba(0,0,0,0.65); z-index: 1000;
-            align-items: center; justify-content: center;
+            display:none; position:fixed; inset:0;
+            background:rgba(0,0,0,0.65); z-index:1000;
+            align-items:center; justify-content:center;
         }
-        .modal-overlay.active { display: flex; }
+        .modal-overlay.active { display:flex; }
         .modal {
-            background: #1e2d4a; border-radius: 12px;
-            width: 520px; max-width: 95vw; max-height: 88vh;
-            display: flex; flex-direction: column;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5); overflow: hidden;
+            background:#1e2d4a; border-radius:12px;
+            width:520px; max-width:95vw; max-height:88vh;
+            display:flex; flex-direction:column;
+            box-shadow:0 20px 60px rgba(0,0,0,0.5); overflow:hidden;
         }
         .modal-header {
-            padding: 20px 24px 16px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            display: flex; align-items: center; gap: 12px;
+            padding:20px 24px 16px;
+            border-bottom:1px solid rgba(255,255,255,0.1);
+            display:flex; align-items:center; gap:12px;
         }
         .modal-header h2 { color:#fff; font-size:18px; font-weight:700; margin:0; }
         .modal-body {
-            padding: 20px 24px; overflow-y: auto; flex: 1;
-            color: rgba(255,255,255,0.8); font-size: 13px; line-height: 1.75;
+            padding:20px 24px; overflow-y:auto; flex:1;
+            color:rgba(255,255,255,0.8); font-size:13px; line-height:1.75;
         }
         .modal-body h3 { color:#fff; font-size:14px; margin:16px 0 6px; }
         .modal-body h3:first-child { margin-top:0; }
         .modal-body p { margin-bottom:10px; }
         .modal-footer {
-            padding: 16px 24px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            display: flex; align-items: center;
-            justify-content: space-between; gap: 12px; flex-wrap: wrap;
+            padding:16px 24px;
+            border-top:1px solid rgba(255,255,255,0.1);
+            display:flex; align-items:center;
+            justify-content:space-between; gap:12px; flex-wrap:wrap;
         }
         .modal-footer label {
-            display: flex; align-items: center; gap: 8px;
-            color: rgba(255,255,255,0.8); font-size: 13px; cursor: pointer;
+            display:flex; align-items:center; gap:8px;
+            color:rgba(255,255,255,0.8); font-size:13px; cursor:pointer;
         }
         .scroll-hint {
             text-align:center; font-size:11px;
             color:rgba(255,255,255,0.4); padding:8px 0 0;
         }
         .btn-agree {
-            padding: 10px 28px; background: #4e6b99; border: none;
-            border-radius: 6px; color: #fff; font-size: 14px;
-            font-weight: 700; cursor: pointer; opacity: 0.4; pointer-events: none;
-            transition: background .2s;
+            padding:10px 28px; background:#4e6b99; border:none;
+            border-radius:6px; color:#fff; font-size:14px; font-weight:700;
+            cursor:pointer; opacity:0.4; pointer-events:none; transition:background .2s;
         }
         .btn-agree.enabled { opacity:1; pointer-events:all; }
         .btn-agree.enabled:hover { background:#3a5580; }
         .btn-cancel-modal {
-            padding: 10px 20px; background: transparent;
-            border: 1px solid rgba(255,255,255,0.3); border-radius: 6px;
-            color: rgba(255,255,255,0.7); font-size: 14px; cursor: pointer;
+            padding:10px 20px; background:transparent;
+            border:1px solid rgba(255,255,255,0.3); border-radius:6px;
+            color:rgba(255,255,255,0.7); font-size:14px; cursor:pointer;
         }
-        .btn-cancel-modal:hover { background: rgba(255,255,255,0.05); }
+        .btn-cancel-modal:hover { background:rgba(255,255,255,0.05); }
     </style>
 </head>
 <body class="auth-body">
@@ -81,7 +80,7 @@
             <p>You are responsible for keeping your Voter ID and password confidential. Do not share your login credentials with anyone. The E-Vote System will never ask for your password via email or any other channel.</p>
 
             <h3>4. Data Privacy</h3>
-            <p>Your personal information (name, email, birthday, gender, contact number) is collected solely for voter verification and election administration. It will not be shared with third parties without your consent, except as required by law.</p>
+            <p>Your personal information (name, email, birthday, age, place of birth, gender, contact number) is collected solely for voter verification and election administration. It will not be shared with third parties without your consent, except as required by law.</p>
 
             <h3>5. Integrity of the Election</h3>
             <p>Any attempt to manipulate, tamper with, or interfere with the voting process — including hacking, impersonation, or coercion — is strictly prohibited and may be subject to legal action.</p>
@@ -118,30 +117,43 @@
     <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
 
     <form method="post" th:action="@{/register}" id="registerForm">
+
         <div class="input-group">
             <span class="icon">&#128100;</span>
             <input type="text" name="voterId" placeholder="Voter ID  (e.g. V001)" required>
         </div>
+
         <div class="input-group">
             <span class="icon">&#128221;</span>
             <input type="text" name="name" placeholder="Full Name" required>
         </div>
+
         <div class="input-group">
             <span class="icon">&#128140;</span>
-            <input type="email" name="email" placeholder="Email Address">
+            <input type="email" name="email" placeholder="Email Address" required>
         </div>
+
+        <!-- Birthday & Age -->
         <div style="display:flex;gap:10px;margin-bottom:14px">
             <div class="input-group" style="flex:2;margin-bottom:0">
                 <span class="icon">&#128197;</span>
-                <input type="date" name="birthday">
+                <input type="date" name="birthday" required>
             </div>
             <div class="input-group" style="flex:1;margin-bottom:0">
                 <span class="icon">&#128102;</span>
-                <input type="number" name="age" placeholder="Age" min="18" max="120">
+                <input type="number" name="age" placeholder="Age" min="18" max="120" required>
             </div>
         </div>
+
+        <!-- Place of Birth -->
+        <div class="input-group">
+            <span class="icon">&#127968;</span>
+            <input type="text" name="placeOfBirth" placeholder="Place of Birth" required>
+        </div>
+
+        <!-- Gender -->
         <div style="margin-bottom:14px">
-            <select name="gender" style="width:100%;padding:13px 14px;border:none;border-radius:4px;font-size:14px;color:#334155;outline:none;">
+            <select name="gender" style="width:100%;padding:13px 14px;border:none;border-radius:4px;font-size:14px;color:#334155;outline:none;" required>
                 <option value="" disabled selected>Select Gender</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
@@ -149,34 +161,25 @@
                 <option value="Prefer not to say">Prefer not to say</option>
             </select>
         </div>
+
+        <!-- Contact Number -->
         <div class="input-group">
             <span class="icon">&#128222;</span>
-            <input type="tel" name="contactNumber" placeholder="Contact Number">
+            <input type="tel" name="contactNumber" placeholder="Contact Number" required>
         </div>
+
+        <!-- Password -->
         <div class="input-group">
             <span class="icon">&#128274;</span>
             <input type="password" name="password" placeholder="Password  (min. 6 chars)" required>
         </div>
+
+        <!-- Confirm Password -->
         <div class="input-group">
             <span class="icon">&#128274;</span>
             <input type="password" name="confirm" placeholder="Confirm Password" required>
         </div>
-        <div style="margin-bottom:14px">
-            <select name="question" style="width:100%;padding:13px 14px;border:none;border-radius:4px;font-size:14px;color:#334155;outline:none;">
-                <option value="" disabled selected>Select Security Question</option>
-                <option>What was the name of your first pet?</option>
-                <option>What is your mother's maiden name?</option>
-                <option>What city were you born in?</option>
-                <option>What was the name of your primary school?</option>
-                <option>What is your favourite movie?</option>
-            </select>
-        </div>
-        <div class="input-group">
-            <span class="icon">&#128273;</span>
-            <input type="text" name="answer" placeholder="Security answer" required>
-        </div>
 
-        <!-- Opens modal instead of submitting directly -->
         <button type="button" class="btn-primary" onclick="openModal()">Register</button>
     </form>
 

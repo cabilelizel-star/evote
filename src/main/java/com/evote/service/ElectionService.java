@@ -74,13 +74,13 @@ public class ElectionService {
     }
 
     public void addVoterFull(String id, String name, String email, String birthday,
-                              Integer age, String gender, String contact, String password) {
+                              Integer age, String placeOfBirth, String gender,
+                              String contact, String password) {
         db.update("INSERT IGNORE INTO voters " +
-                  "(voter_id, election_id, name, email, birthday, age, gender, contact_number, password) " +
-                  "VALUES (?,?,?,?,?,?,?,?,?)",
-            id, ELECTION_ID, name, email, birthday, age, gender, contact, password);
-    }
-    public void removeVoter(String id) {
+                  "(voter_id, election_id, name, email, birthday, age, place_of_birth, gender, contact_number, password) " +
+                  "VALUES (?,?,?,?,?,?,?,?,?,?)",
+            id, ELECTION_ID, name, email, birthday, age, placeOfBirth, gender, contact, password);
+    }    public void removeVoter(String id) {
         db.update("DELETE FROM voters WHERE voter_id = ? AND election_id = ?", id, ELECTION_ID);
     }
 
@@ -165,6 +165,7 @@ public class ElectionService {
             try { v.setEmail(rs.getString("email")); } catch (Exception ignored) {}
             try { v.setBirthday(rs.getString("birthday")); } catch (Exception ignored) {}
             try { v.setAge(rs.getInt("age")); } catch (Exception ignored) {}
+            try { v.setPlaceOfBirth(rs.getString("place_of_birth")); } catch (Exception ignored) {}
             try { v.setGender(rs.getString("gender")); } catch (Exception ignored) {}
             try { v.setContactNumber(rs.getString("contact_number")); } catch (Exception ignored) {}
             return v;
