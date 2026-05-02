@@ -196,17 +196,51 @@
                 </div>
                 <div class="field">
                     <label>City / Municipality <span class="required">*</span></label>
-                    <input type="text" name="city" placeholder="Biñan" required>
+                    <select name="city" id="citySelect" onchange="fillZip(this.value)" required>
+                        <option value="" disabled selected>Select city/municipality</option>
+                        <option value="Alaminos">Alaminos</option>
+                        <option value="Bay">Bay</option>
+                        <option value="Biñan">Biñan</option>
+                        <option value="Cabuyao">Cabuyao</option>
+                        <option value="Calamba">Calamba</option>
+                        <option value="Calauan">Calauan</option>
+                        <option value="Cavinti">Cavinti</option>
+                        <option value="Famy">Famy</option>
+                        <option value="Kalayaan">Kalayaan</option>
+                        <option value="Liliw">Liliw</option>
+                        <option value="Los Baños">Los Baños</option>
+                        <option value="Luisiana">Luisiana</option>
+                        <option value="Lumban">Lumban</option>
+                        <option value="Mabitac">Mabitac</option>
+                        <option value="Magdalena">Magdalena</option>
+                        <option value="Majayjay">Majayjay</option>
+                        <option value="Nagcarlan">Nagcarlan</option>
+                        <option value="Paete">Paete</option>
+                        <option value="Pagsanjan">Pagsanjan</option>
+                        <option value="Pakil">Pakil</option>
+                        <option value="Pangil">Pangil</option>
+                        <option value="Pila">Pila</option>
+                        <option value="Rizal">Rizal</option>
+                        <option value="San Pablo">San Pablo</option>
+                        <option value="San Pedro">San Pedro</option>
+                        <option value="Santa Cruz">Santa Cruz</option>
+                        <option value="Santa Maria">Santa Maria</option>
+                        <option value="Santo Tomas">Santo Tomas</option>
+                        <option value="Siniloan">Siniloan</option>
+                        <option value="Victoria">Victoria</option>
+                    </select>
                 </div>
             </div>
             <div class="grid-2">
                 <div class="field">
-                    <label>Province <span class="required">*</span></label>
-                    <input type="text" name="province" placeholder="Laguna" required>
+                    <label>Province</label>
+                    <input type="text" name="province" id="provinceField" value="Laguna" readonly
+                           style="background:#f0faf4;color:#1a6b3c;font-weight:700;cursor:not-allowed">
                 </div>
                 <div class="field">
                     <label>ZIP Code</label>
-                    <input type="text" name="zipCode" placeholder="4024" maxlength="10">
+                    <input type="text" name="zipCode" id="zipField" placeholder="Auto-filled" readonly
+                           style="background:#f0faf4;color:#1a6b3c;font-weight:700;cursor:not-allowed">
                 </div>
             </div>
             <div class="btn-row">
@@ -336,6 +370,21 @@
 </div>
 
 <script>
+// ── ZIP code auto-fill (Laguna cities) ───────────────────────
+const ZIP_CODES = {
+    'Alaminos':'4001','Bay':'4033','Biñan':'4024','Cabuyao':'4025',
+    'Calamba':'4027','Calauan':'4012','Cavinti':'4013','Famy':'4021',
+    'Kalayaan':'4015','Liliw':'4004','Los Baños':'4030','Luisiana':'4032',
+    'Lumban':'4014','Mabitac':'4020','Magdalena':'4007','Majayjay':'4005',
+    'Nagcarlan':'4002','Paete':'4016','Pagsanjan':'4008','Pakil':'4017',
+    'Pangil':'4018','Pila':'4010','Rizal':'4003','San Pablo':'4000',
+    'San Pedro':'4023','Santa Cruz':'4009','Santa Maria':'4022',
+    'Santo Tomas':'4234','Siniloan':'4019','Victoria':'4011'
+};
+function fillZip(city) {
+    document.getElementById('zipField').value = ZIP_CODES[city] || '';
+}
+
 let currentStep = 1;
 const TOTAL = 5;
 

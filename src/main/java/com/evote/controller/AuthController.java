@@ -52,7 +52,7 @@ public class AuthController {
         }
         if ("admin".equals(username) && "admin123".equals(password)) {
             session.setAttribute("userId",   "admin");
-            session.setAttribute("userName", "Administrator");
+            session.setAttribute("userName", "Admin");
             session.setAttribute("role",     "admin");
             return "redirect:/admin/dashboard";
         }
