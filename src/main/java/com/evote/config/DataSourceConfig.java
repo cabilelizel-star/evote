@@ -42,14 +42,32 @@ public class DataSourceConfig {
             }
         }
 
-        // Format 3: DATABASE_URL (jdbc:mysql://...)
+        // Format 3: DATABASE_URL or MYSQL_URL (jdbc:mysql://... or mysql://...)
         if (url == null) {
-            String dbUrl = System.getenv("DATABASE_URL");
-            if (dbUrl != null && dbUrl.startsWith("mysql://")) {
-                // Convert mysql:// to jdbc:mysql://
-                url      = "jdbc:" + dbUrl;
-                user     = getEnv("MYSQL_USER", "root");
-                password = getEnv("MYSQL_PASSWORD", "");
+            String[] urlKeys = {"MYSQL_URL", "MYSQL_PRIVATE_URL", "MYSQL_PUBLIC_URL", "DATABASE_URL"};
+            for (String key : urlKeys) {
+                String raw = System.getenv(key);
+                if (raw != null && !raw.isBlank()) {
+                    if (raw.startsWith("mysql://")) {
+                        // parse mysql://user:pass@host:port/db
+                        try {
+                            raw = raw.substring(8); // remove mysql://
+                            String userInfo = raw.substring(0, raw.indexOf('@'));
+                            String hostPart = raw.substring(raw.indexOf('@') + 1);
+                            user     = userInfo.contains(":") ? userInfo.split(":")[0] : userInfo;
+                            password = userInfo.contains(":") ? userInfo.split(":")[1] : "";
+                            url = "jdbc:mysql://" + hostPart
+                                + "?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&characterEncoding=UTF-8";
+                        } catch (Exception e) {
+                            System.out.println(">>> Failed to parse " + key + ": " + e.getMessage());
+                        }
+                    } else if (raw.startsWith("jdbc:mysql://")) {
+                        url      = raw;
+                        user     = getEnv("MYSQL_USER", getEnv("MYSQLUSER", "root"));
+                        password = getEnv("MYSQL_PASSWORD", getEnv("MYSQLPASSWORD", ""));
+                    }
+                    if (url != null) break;
+                }
             }
         }
 
@@ -61,6 +79,12 @@ public class DataSourceConfig {
         }
 
         System.out.println(">>> Connecting to: " + url);
+        System.out.println(">>> All env vars with MYSQL:");
+        System.getenv().forEach((k, v) -> {
+            if (k.toUpperCase().contains("MYSQL") || k.toUpperCase().contains("DATABASE")) {
+                System.out.println("    " + k + " = " + (k.toUpperCase().contains("PASSWORD") ? "***" : v));
+            }
+        });
 
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(url);
