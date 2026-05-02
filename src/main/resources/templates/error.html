@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>E-Vote — Error</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="auth-body">
+<div class="auth-card" style="text-align:center">
+    <div class="auth-avatar">&#9888;</div>
+    <div class="auth-title-row"><hr><span>Something went wrong</span><hr></div>
+
+    <p style="color:rgba(255,255,255,.8);margin-bottom:8px;font-size:14px">
+        Status: <span th:text="${status}"></span>
+    </p>
+    <p style="color:rgba(255,255,255,.6);margin-bottom:24px;font-size:13px"
+       th:text="${message}"></p>
+
+    <a th:href="@{/login}" class="btn-primary" style="display:inline-block;text-decoration:none">
+        &#8592; Back to Login
+    </a>
+</div>
+</body>
+</html>

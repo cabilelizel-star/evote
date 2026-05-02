@@ -70,13 +70,18 @@ public class AuthController {
     @PostMapping("/register")
     public String doRegister(@RequestParam String voterId,
                              @RequestParam String name,
+                             @RequestParam(required = false) String email,
+                             @RequestParam(required = false) String birthday,
+                             @RequestParam(required = false) Integer age,
+                             @RequestParam(required = false) String gender,
+                             @RequestParam(required = false) String contactNumber,
                              @RequestParam String password,
                              @RequestParam String confirm,
                              @RequestParam String question,
                              @RequestParam String answer,
                              Model model) {
         if (voterId.isBlank() || name.isBlank() || password.isBlank() || answer.isBlank()) {
-            model.addAttribute("error", "All fields are required."); return "register";
+            model.addAttribute("error", "All required fields must be filled."); return "register";
         }
         if (password.length() < 6) {
             model.addAttribute("error", "Password must be at least 6 characters."); return "register";
@@ -88,7 +93,7 @@ public class AuthController {
             model.addAttribute("error", "Voter ID '" + voterId + "' is already taken."); return "register";
         }
 
-        svc.addVoter(voterId, name, password);
+        svc.addVoterFull(voterId, name, email, birthday, age, gender, contactNumber, password);
         svc.saveSecurityQuestion(voterId, question, answer);
         return "redirect:/login?success=registered";
     }

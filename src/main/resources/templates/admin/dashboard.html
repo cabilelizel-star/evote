@@ -141,14 +141,18 @@
         <div class="card">
             <div class="card-title">Voter List</div>
             <table>
-                <thead><tr><th>Voter ID</th><th>Name</th><th>Status</th><th>Action</th></tr></thead>
+                <thead><tr><th>Voter ID</th><th>Name</th><th>Email</th><th>Age</th><th>Gender</th><th>Contact</th><th>Status</th><th>Action</th></tr></thead>
                 <tbody>
                     <tr th:if="${#lists.isEmpty(voters)}">
-                        <td colspan="4" style="color:#94a3b8;text-align:center;padding:20px">No voters registered.</td>
+                        <td colspan="8" style="color:#94a3b8;text-align:center;padding:20px">No voters registered.</td>
                     </tr>
                     <tr th:each="v : ${voters}">
                         <td th:text="${v.voterId}"></td>
                         <td th:text="${v.name}"></td>
+                        <td th:text="${v.email} ?: '-'"></td>
+                        <td th:text="${v.age} ?: '-'"></td>
+                        <td th:text="${v.gender} ?: '-'"></td>
+                        <td th:text="${v.contactNumber} ?: '-'"></td>
                         <td>
                             <span class="pill" th:classappend="${v.hasVoted} ? 'pill-green' : 'pill-yellow'"
                                   th:text="${v.hasVoted} ? 'Voted' : 'Not Voted'"></span>

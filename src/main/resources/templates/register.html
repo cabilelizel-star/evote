@@ -7,7 +7,7 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body class="auth-body">
-<div class="auth-card" style="width:460px">
+<div class="auth-card" style="width:500px">
 
     <div class="auth-avatar">&#9997;</div>
 
@@ -18,25 +18,70 @@
     <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
 
     <form method="post" th:action="@{/register}">
+
+        <!-- Voter ID -->
         <div class="input-group">
             <span class="icon">&#128100;</span>
             <input type="text" name="voterId" placeholder="Voter ID  (e.g. V001)" required>
         </div>
+
+        <!-- Full Name -->
         <div class="input-group">
             <span class="icon">&#128221;</span>
             <input type="text" name="name" placeholder="Full Name" required>
         </div>
+
+        <!-- Email -->
+        <div class="input-group">
+            <span class="icon">&#128140;</span>
+            <input type="email" name="email" placeholder="Email Address">
+        </div>
+
+        <!-- Birthday & Age side by side -->
+        <div style="display:flex;gap:10px;margin-bottom:14px">
+            <div class="input-group" style="flex:2;margin-bottom:0">
+                <span class="icon">&#128197;</span>
+                <input type="date" name="birthday" placeholder="Birthday">
+            </div>
+            <div class="input-group" style="flex:1;margin-bottom:0">
+                <span class="icon">&#128102;</span>
+                <input type="number" name="age" placeholder="Age" min="18" max="120">
+            </div>
+        </div>
+
+        <!-- Gender -->
+        <div style="margin-bottom:14px">
+            <select name="gender" style="width:100%;padding:13px 14px;border:none;border-radius:4px;font-size:14px;color:#334155;outline:none;">
+                <option value="" disabled selected>Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+            </select>
+        </div>
+
+        <!-- Contact Number -->
+        <div class="input-group">
+            <span class="icon">&#128222;</span>
+            <input type="tel" name="contactNumber" placeholder="Contact Number">
+        </div>
+
+        <!-- Password -->
         <div class="input-group">
             <span class="icon">&#128274;</span>
             <input type="password" name="password" placeholder="Password  (min. 6 chars)" required>
         </div>
+
+        <!-- Confirm Password -->
         <div class="input-group">
             <span class="icon">&#128274;</span>
             <input type="password" name="confirm" placeholder="Confirm Password" required>
         </div>
 
+        <!-- Security Question -->
         <div style="margin-bottom:14px">
             <select name="question" style="width:100%;padding:13px 14px;border:none;border-radius:4px;font-size:14px;color:#334155;outline:none;">
+                <option value="" disabled selected>Select Security Question</option>
                 <option>What was the name of your first pet?</option>
                 <option>What is your mother's maiden name?</option>
                 <option>What city were you born in?</option>
@@ -44,9 +89,11 @@
                 <option>What is your favourite movie?</option>
             </select>
         </div>
+
+        <!-- Answer -->
         <div class="input-group">
             <span class="icon">&#128273;</span>
-            <input type="text" name="answer" placeholder="Your answer" required>
+            <input type="text" name="answer" placeholder="Security answer" required>
         </div>
 
         <button type="submit" class="btn-primary">Create Account</button>
