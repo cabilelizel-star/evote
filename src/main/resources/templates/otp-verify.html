@@ -10,35 +10,41 @@
         .otp-input {
             width:52px; height:60px; text-align:center;
             font-size:26px; font-weight:800; color:#1a6b3c;
-            border:2px solid #c8e6d4; border-radius:10px;
-            outline:none; background:#f8fffe;
+            border:1.5px solid #d1d5db; border-radius:10px;
+            outline:none; background:#fff;
             transition:border-color .2s, box-shadow .2s;
         }
-        .otp-input:focus { border-color:#2d9e5f; box-shadow:0 0 0 3px rgba(45,158,95,0.15); }
+        .otp-input:focus { border-color:#2d9e5f; box-shadow:0 0 0 3px rgba(45,158,95,0.12); }
         .resend-link { color:#2d9e5f; cursor:pointer; font-weight:700; text-decoration:underline; }
         .timer { color:#888; font-size:13px; }
+        .otp-body { min-height:100vh; background:#f0faf4; display:flex; align-items:center; justify-content:center; padding:24px; }
+        .otp-card { background:#fff; border-radius:16px; padding:44px 48px; width:100%; max-width:440px; box-shadow:0 4px 24px rgba(26,107,60,0.10); text-align:center; }
+        .otp-card h1 { font-size:24px; font-weight:800; color:#1a1a1a; margin-bottom:8px; }
+        .otp-btn { width:100%; padding:14px; background:#2d9e5f; border:none; border-radius:8px; color:#fff; font-size:16px; font-weight:700; cursor:pointer; transition:background .2s; }
+        .otp-btn:hover { background:#1a6b3c; }
+        .alert-error { background:#fff0f0; color:#c0392b; border:1px solid #f5c6c6; border-radius:8px; padding:12px 16px; font-size:13px; margin-bottom:16px; }
+        .fallback-box { background:#f0faf4; border:2px dashed #2d9e5f; border-radius:10px; padding:16px; margin-bottom:16px; }
     </style>
 </head>
-<body class="auth-body">
-<div class="auth-card" style="width:420px;text-align:center">
+<body style="min-height:100vh;background:#f0faf4;display:flex;align-items:center;justify-content:center;padding:24px;font-family:'Segoe UI',system-ui,sans-serif">
+<div style="background:#fff;border-radius:16px;padding:44px 48px;width:100%;max-width:440px;box-shadow:0 4px 24px rgba(26,107,60,0.10);text-align:center">
 
-    <div class="auth-avatar">📧</div>
-    <div class="auth-title-row"><hr><span>Verify OTP</span><hr></div>
-
+    <div style="font-size:40px;margin-bottom:12px">📧</div>
+    <h1 style="font-size:24px;font-weight:800;color:#1a1a1a;margin:0 0 8px">Verify Your Email</h1>
+    <div style="display:inline-block;background:#f0faf4;color:#2d9e5f;border:1.5px solid #a8dfc0;border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700;margin-bottom:16px">Step 2 of 4 — OTP Verification</div>
     <p style="color:#555;font-size:14px;margin-bottom:4px">
         We sent a 6-digit code to
     </p>
     <p style="color:#1a6b3c;font-weight:700;font-size:15px;margin-bottom:20px"
        th:text="${email}"></p>
 
-    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+    <div th:if="${error}" style="background:#fff0f0;color:#c0392b;border:1px solid #f5c6c6;border-radius:8px;padding:12px 16px;font-size:13px;margin-bottom:16px" th:text="${error}"></div>
 
     <!-- Fallback: show OTP on screen if email failed -->
-    <div th:if="${otpFallback}" class="alert alert-error" style="margin-bottom:16px">
-        ⚠ Email could not be sent. Your OTP code is:
-        <div style="font-size:28px;font-weight:900;letter-spacing:8px;color:#1a6b3c;margin-top:8px"
-             th:text="${otpFallback}"></div>
-        <div style="font-size:11px;margin-top:4px">Use this code below to continue.</div>
+    <div th:if="${otpFallback}" style="background:#f0faf4;border:2px dashed #2d9e5f;border-radius:10px;padding:16px;margin-bottom:16px">
+        <div style="font-size:13px;color:#555;margin-bottom:8px">⚠ Email could not be sent. Your OTP code is:</div>
+        <div style="font-size:36px;font-weight:900;letter-spacing:10px;color:#1a6b3c" th:text="${otpFallback}"></div>
+        <div style="font-size:11px;color:#888;margin-top:6px">Enter this code below to continue.</div>
     </div>
 
     <form method="post" th:action="@{/register/verify-otp}" id="otpForm">
@@ -51,19 +57,19 @@
             <input class="otp-input" type="text" maxlength="1" id="o6" oninput="moveNext(this,'')"   onkeydown="movePrev(event,this,'o5')">
         </div>
         <input type="hidden" name="otp" id="otpHidden">
-        <button type="button" class="btn-primary" onclick="submitOtp()">Verify Code</button>
+        <button type="button" style="width:100%;padding:14px;background:#2d9e5f;border:none;border-radius:8px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;transition:background .2s" onmouseover="this.style.background='#1a6b3c'" onmouseout="this.style.background='#2d9e5f'" onclick="submitOtp()">Verify Code</button>
     </form>
 
-    <p class="timer" style="margin-top:16px">
+    <p style="color:#888;font-size:13px;margin-top:16px">
         Code expires in <span id="countdown">10:00</span>
     </p>
     <p style="font-size:13px;color:#888;margin-top:8px">
         Didn't receive it?
-        <a th:href="@{/register}" class="resend-link">Go back and try again</a>
+        <a th:href="@{/register}" style="color:#2d9e5f;font-weight:700">Go back and try again</a>
     </p>
 
-    <div class="auth-footer" style="margin-top:20px">
-        <a th:href="@{/login}">← Back to Sign In</a>
+    <div style="text-align:center;margin-top:20px;font-size:14px;color:#6b7280">
+        <a th:href="@{/login}" style="color:#2d9e5f;font-weight:700;text-decoration:none">← Back to Sign In</a>
     </div>
 </div>
 

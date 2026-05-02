@@ -5,45 +5,156 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>E-Vote System — Create Account</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .reg-body {
+            min-height: 100vh;
+            background: #f0faf4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .reg-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 44px 48px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 4px 24px rgba(26,107,60,0.10);
+        }
+        .reg-card h1 {
+            font-size: 26px;
+            font-weight: 800;
+            color: #1a1a1a;
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .field-group {
+            margin-bottom: 20px;
+        }
+        .field-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .field-group input,
+        .field-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 15px;
+            color: #1a1a1a;
+            background: #fff;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+            box-sizing: border-box;
+        }
+        .field-group input::placeholder { color: #9ca3af; }
+        .field-group input:focus,
+        .field-group select:focus {
+            border-color: #2d9e5f;
+            box-shadow: 0 0 0 3px rgba(45,158,95,0.12);
+        }
+        .field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .reg-btn {
+            width: 100%;
+            padding: 14px;
+            background: #2d9e5f;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background .2s;
+        }
+        .reg-btn:hover { background: #1a6b3c; }
+        .reg-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #6b7280;
+        }
+        .reg-footer a { color: #2d9e5f; font-weight: 700; text-decoration: none; }
+        .reg-footer a:hover { text-decoration: underline; }
+        .alert-error {
+            background: #fff0f0;
+            color: #c0392b;
+            border: 1px solid #f5c6c6;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+        .step-badge {
+            display: inline-block;
+            background: #f0faf4;
+            color: #2d9e5f;
+            border: 1.5px solid #a8dfc0;
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 520px) {
+            .reg-card { padding: 28px 20px; }
+            .field-row { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
-<body class="auth-body">
-<div class="auth-card" style="width:460px">
+<body class="reg-body">
+<div class="reg-card">
 
-    <div class="auth-avatar">✍</div>
-    <div class="auth-title-row"><hr><span>Create Account</span><hr></div>
+    <div style="text-align:center">
+        <div style="font-size:36px;margin-bottom:8px">🗳</div>
+        <div class="step-badge">Step 1 of 4 — Basic Information</div>
+    </div>
 
-    <p style="font-size:13px;color:#888;text-align:center;margin-bottom:20px">
-        Step 1 of 4 — Basic Information
-    </p>
+    <h1>Create Account</h1>
 
-    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+    <div th:if="${error}" class="alert-error" th:text="${error}"></div>
 
     <form method="post" th:action="@{/register/send-otp}">
-        <div class="input-group">
-            <span class="icon">🪪</span>
-            <input type="text" name="voterId" placeholder="Voter ID  (e.g. V001)" required>
-        </div>
-        <div class="input-group">
-            <span class="icon">📝</span>
-            <input type="text" name="name" placeholder="Full Name" required>
-        </div>
-        <div class="input-group">
-            <span class="icon">📧</span>
-            <input type="email" name="email" placeholder="Email Address (for OTP)" required>
-        </div>
-        <div class="input-group">
-            <span class="icon">🔒</span>
-            <input type="password" name="password" placeholder="Password  (min. 6 chars)" required>
-        </div>
-        <div class="input-group">
-            <span class="icon">🔒</span>
-            <input type="password" name="confirm" placeholder="Confirm Password" required>
+
+        <div class="field-group">
+            <label>Voter ID</label>
+            <input type="text" name="voterId" placeholder="Enter your Voter ID  (e.g. V001)" required>
         </div>
 
-        <button type="submit" class="btn-primary">Send OTP to Email →</button>
+        <div class="field-group">
+            <label>Full Name</label>
+            <input type="text" name="name" placeholder="Enter your full name" required>
+        </div>
+
+        <div class="field-group">
+            <label>Email Address</label>
+            <input type="email" name="email" placeholder="Enter your email" required>
+        </div>
+
+        <div class="field-row">
+            <div class="field-group">
+                <label>Password</label>
+                <input type="password" name="password" placeholder="Min. 6 characters" required>
+            </div>
+            <div class="field-group">
+                <label>Confirm Password</label>
+                <input type="password" name="confirm" placeholder="Re-enter password" required>
+            </div>
+        </div>
+
+        <button type="submit" class="reg-btn">Send OTP to Email →</button>
     </form>
 
-    <div class="auth-footer">
+    <div class="reg-footer">
         Already have an account? <a th:href="@{/login}">Sign in</a>
     </div>
 </div>
