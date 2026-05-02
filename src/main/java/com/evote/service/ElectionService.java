@@ -73,13 +73,22 @@ public class ElectionService {
             id, ELECTION_ID, name, password);
     }
 
-    public void addVoterFull(String id, String name, String email, String birthday,
-                              Integer age, String placeOfBirth, String gender,
-                              String contact, String password) {
+    public void addVoterFull(String voterId, String firstName, String middleName, String lastName,
+                              String dob, String gender,
+                              String street, String barangay, String city, String province, String zip,
+                              String mobile, String email,
+                              String voterIdNumber, String votingDistrict, String affiliation,
+                              String idType, String idNumber,
+                              String password) {
+        String name = (firstName + " " + (middleName != null && !middleName.isBlank() ? middleName + " " : "") + lastName).trim();
         db.update("INSERT IGNORE INTO voters " +
-                  "(voter_id, election_id, name, email, birthday, age, place_of_birth, gender, contact_number, password) " +
-                  "VALUES (?,?,?,?,?,?,?,?,?,?)",
-            id, ELECTION_ID, name, email, birthday, age, placeOfBirth, gender, contact, password);
+            "(voter_id, election_id, name, first_name, middle_name, last_name, date_of_birth, gender, " +
+            "street, barangay, city, province, zip_code, mobile_number, email, " +
+            "voter_id_number, voting_district, affiliation, id_type, id_number, password) " +
+            "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            voterId, ELECTION_ID, name, firstName, middleName, lastName, dob, gender,
+            street, barangay, city, province, zip, mobile, email,
+            voterIdNumber, votingDistrict, affiliation, idType, idNumber, password);
     }    public void removeVoter(String id) {
         db.update("DELETE FROM voters WHERE voter_id = ? AND election_id = ?", id, ELECTION_ID);
     }
@@ -162,12 +171,23 @@ public class ElectionService {
     private RowMapper<Voter> voterMapper() {
         return (rs, i) -> {
             Voter v = new Voter(rs.getString("voter_id"), rs.getString("name"), rs.getBoolean("has_voted"));
-            try { v.setEmail(rs.getString("email")); } catch (Exception ignored) {}
-            try { v.setBirthday(rs.getString("birthday")); } catch (Exception ignored) {}
-            try { v.setAge(rs.getInt("age")); } catch (Exception ignored) {}
-            try { v.setPlaceOfBirth(rs.getString("place_of_birth")); } catch (Exception ignored) {}
-            try { v.setGender(rs.getString("gender")); } catch (Exception ignored) {}
-            try { v.setContactNumber(rs.getString("contact_number")); } catch (Exception ignored) {}
+            try { v.setFirstName(rs.getString("first_name")); }      catch (Exception ignored) {}
+            try { v.setMiddleName(rs.getString("middle_name")); }    catch (Exception ignored) {}
+            try { v.setLastName(rs.getString("last_name")); }        catch (Exception ignored) {}
+            try { v.setDateOfBirth(rs.getString("date_of_birth")); } catch (Exception ignored) {}
+            try { v.setGender(rs.getString("gender")); }             catch (Exception ignored) {}
+            try { v.setStreet(rs.getString("street")); }             catch (Exception ignored) {}
+            try { v.setBarangay(rs.getString("barangay")); }         catch (Exception ignored) {}
+            try { v.setCity(rs.getString("city")); }                 catch (Exception ignored) {}
+            try { v.setProvince(rs.getString("province")); }         catch (Exception ignored) {}
+            try { v.setZipCode(rs.getString("zip_code")); }          catch (Exception ignored) {}
+            try { v.setMobileNumber(rs.getString("mobile_number")); }catch (Exception ignored) {}
+            try { v.setEmail(rs.getString("email")); }               catch (Exception ignored) {}
+            try { v.setVoterIdNumber(rs.getString("voter_id_number")); }  catch (Exception ignored) {}
+            try { v.setVotingDistrict(rs.getString("voting_district")); } catch (Exception ignored) {}
+            try { v.setAffiliation(rs.getString("affiliation")); }   catch (Exception ignored) {}
+            try { v.setIdType(rs.getString("id_type")); }            catch (Exception ignored) {}
+            try { v.setIdNumber(rs.getString("id_number")); }        catch (Exception ignored) {}
             return v;
         };
     }

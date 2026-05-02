@@ -80,16 +80,42 @@ public class AuthController {
 
     // ── Register — Step 2: send OTP ───────────────────────────────────────────
     @PostMapping("/register/send-otp")
-    public String sendOtp(@RequestParam String voterId,
-                          @RequestParam String name,
-                          @RequestParam String email,
-                          @RequestParam String password,
-                          @RequestParam String confirm,
-                          HttpSession session, Model model) {
-        if (voterId.isBlank() || name.isBlank() || email.isBlank() || password.isBlank()) {
-            model.addAttribute("error", "All fields are required."); return "register";
+    public String sendOtp(
+            // Personal
+            @RequestParam(required=false) String firstName,
+            @RequestParam(required=false) String middleName,
+            @RequestParam(required=false) String lastName,
+            @RequestParam(required=false) String dateOfBirth,
+            @RequestParam(required=false) String gender,
+            // Address
+            @RequestParam(required=false) String street,
+            @RequestParam(required=false) String barangay,
+            @RequestParam(required=false) String city,
+            @RequestParam(required=false) String province,
+            @RequestParam(required=false) String zipCode,
+            // Contact
+            @RequestParam(required=false) String mobileNumber,
+            @RequestParam(required=false) String email,
+            // Voter info
+            @RequestParam(required=false) String voterIdNumber,
+            @RequestParam(required=false) String votingDistrict,
+            @RequestParam(required=false) String affiliation,
+            @RequestParam(required=false) String idType,
+            @RequestParam(required=false) String idNumber,
+            // Account
+            @RequestParam String voterId,
+            @RequestParam String name,
+            @RequestParam String password,
+            @RequestParam String confirm,
+            HttpSession session, Model model) {
+
+        if (voterId == null || voterId.isBlank()) {
+            model.addAttribute("error", "Voter ID is required."); return "register";
         }
-        if (password.length() < 6) {
+        if (email == null || email.isBlank()) {
+            model.addAttribute("error", "Email address is required."); return "register";
+        }
+        if (password == null || password.length() < 6) {
             model.addAttribute("error", "Password must be at least 6 characters."); return "register";
         }
         if (!password.equals(confirm)) {
@@ -98,6 +124,28 @@ public class AuthController {
         if (svc.voterIdExists(voterId)) {
             model.addAttribute("error", "Voter ID '" + voterId + "' is already taken."); return "register";
         }
+
+        // Store all form data in session
+        session.setAttribute("reg_voterId",       voterId);
+        session.setAttribute("reg_name",          name);
+        session.setAttribute("reg_firstName",     firstName);
+        session.setAttribute("reg_middleName",    middleName);
+        session.setAttribute("reg_lastName",      lastName);
+        session.setAttribute("reg_dateOfBirth",   dateOfBirth);
+        session.setAttribute("reg_gender",        gender);
+        session.setAttribute("reg_street",        street);
+        session.setAttribute("reg_barangay",      barangay);
+        session.setAttribute("reg_city",          city);
+        session.setAttribute("reg_province",      province);
+        session.setAttribute("reg_zipCode",       zipCode);
+        session.setAttribute("reg_mobileNumber",  mobileNumber);
+        session.setAttribute("reg_email",         email);
+        session.setAttribute("reg_voterIdNumber", voterIdNumber);
+        session.setAttribute("reg_votingDistrict",votingDistrict);
+        session.setAttribute("reg_affiliation",   affiliation);
+        session.setAttribute("reg_idType",        idType);
+        session.setAttribute("reg_idNumber",      idNumber);
+        session.setAttribute("reg_password",      password);
 
         // Generate and send OTP
         String otp = emailService.generateOtp(voterId);
@@ -108,12 +156,6 @@ public class AuthController {
             emailError = e.getMessage();
             System.err.println("OTP email failed: " + e.getMessage());
         }
-
-        // Store form data in session for final submission
-        session.setAttribute("reg_voterId",  voterId);
-        session.setAttribute("reg_name",     name);
-        session.setAttribute("reg_email",    email);
-        session.setAttribute("reg_password", password);
         session.setAttribute("reg_otp_fallback", emailError != null ? otp : null);
 
         return "redirect:/register/verify-otp";
@@ -156,26 +198,52 @@ public class AuthController {
     }
 
     @PostMapping("/register/complete")
-    public String doComplete(@RequestParam(required = false) String birthday,
-                             @RequestParam(required = false) Integer age,
-                             @RequestParam(required = false) String placeOfBirth,
+    public String doComplete(@RequestParam(required = false) String firstName,
+                             @RequestParam(required = false) String middleName,
+                             @RequestParam(required = false) String lastName,
+                             @RequestParam(required = false) String dateOfBirth,
                              @RequestParam(required = false) String gender,
-                             @RequestParam(required = false) String contactNumber,
+                             @RequestParam(required = false) String street,
+                             @RequestParam(required = false) String barangay,
+                             @RequestParam(required = false) String city,
+                             @RequestParam(required = false) String province,
+                             @RequestParam(required = false) String zipCode,
+                             @RequestParam(required = false) String mobileNumber,
+                             @RequestParam(required = false) String voterIdNumber,
+                             @RequestParam(required = false) String votingDistrict,
+                             @RequestParam(required = false) String affiliation,
                              @RequestParam(required = false) String idType,
+                             @RequestParam(required = false) String idNumber,
                              @RequestParam(required = false) MultipartFile idPhoto,
                              @RequestParam(required = false) String selfieData,
                              HttpSession session, Model model) {
         if (!Boolean.TRUE.equals(session.getAttribute("otp_verified"))) return "redirect:/register";
 
-        String voterId  = (String) session.getAttribute("reg_voterId");
-        String name     = (String) session.getAttribute("reg_name");
-        String email    = (String) session.getAttribute("reg_email");
-        String password = (String) session.getAttribute("reg_password");
+        String voterId       = (String) session.getAttribute("reg_voterId");
+        String name          = (String) session.getAttribute("reg_name");
+        String email         = (String) session.getAttribute("reg_email");
+        String password      = (String) session.getAttribute("reg_password");
+        String firstName     = (String) session.getAttribute("reg_firstName");
+        String middleName    = (String) session.getAttribute("reg_middleName");
+        String lastName      = (String) session.getAttribute("reg_lastName");
+        String dob           = (String) session.getAttribute("reg_dateOfBirth");
+        String gender        = (String) session.getAttribute("reg_gender");
+        String street        = (String) session.getAttribute("reg_street");
+        String barangay      = (String) session.getAttribute("reg_barangay");
+        String city          = (String) session.getAttribute("reg_city");
+        String province      = (String) session.getAttribute("reg_province");
+        String zipCode       = (String) session.getAttribute("reg_zipCode");
+        String mobile        = (String) session.getAttribute("reg_mobileNumber");
+        String voterIdNum    = (String) session.getAttribute("reg_voterIdNumber");
+        String district      = (String) session.getAttribute("reg_votingDistrict");
+        String affiliation   = (String) session.getAttribute("reg_affiliation");
+        String idTypeS       = (String) session.getAttribute("reg_idType");
+        String idNumberS     = (String) session.getAttribute("reg_idNumber");
 
         // Face verification
         if (idPhoto != null && !idPhoto.isEmpty() && selfieData != null && !selfieData.isBlank()) {
             try {
-                String base64    = selfieData.contains(",") ? selfieData.split(",")[1] : selfieData;
+                String base64      = selfieData.contains(",") ? selfieData.split(",")[1] : selfieData;
                 byte[] selfieBytes = java.util.Base64.getDecoder().decode(base64);
                 byte[] idBytes     = idPhoto.getBytes();
                 FaceVerificationService.FaceCompareResult result = faceService.compareFaces(idBytes, selfieBytes);
@@ -189,14 +257,20 @@ public class AuthController {
             }
         }
 
-        svc.addVoterFull(voterId, name, email, birthday, age, placeOfBirth, gender, contactNumber, password);
+        // Use session name as full name fallback
+        String fn = firstName != null ? firstName : name;
+        String ln = lastName  != null ? lastName  : "";
+
+        svc.addVoterFull(voterId, fn, middleName, ln, dob, gender,
+            street, barangay, city, province, zipCode, mobile, email,
+            voterIdNum, district, affiliation, idTypeS, idNumberS, password);
 
         // Clear session
-        session.removeAttribute("reg_voterId");
-        session.removeAttribute("reg_name");
-        session.removeAttribute("reg_email");
-        session.removeAttribute("reg_password");
-        session.removeAttribute("otp_verified");
+        String[] keys = {"reg_voterId","reg_name","reg_firstName","reg_middleName","reg_lastName",
+            "reg_dateOfBirth","reg_gender","reg_street","reg_barangay","reg_city","reg_province",
+            "reg_zipCode","reg_mobileNumber","reg_email","reg_voterIdNumber","reg_votingDistrict",
+            "reg_affiliation","reg_idType","reg_idNumber","reg_password","otp_verified","reg_otp_fallback"};
+        for (String k : keys) session.removeAttribute(k);
 
         return "redirect:/login?success=registered";
     }
