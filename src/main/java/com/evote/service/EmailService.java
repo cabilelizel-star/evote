@@ -175,6 +175,10 @@ public class EmailService {
     // ── Send helper ───────────────────────────────────────────────────────────
     private void send(String to, String subject, String html) {
         try {
+            if (fromEmail == null || fromEmail.isBlank()) {
+                System.err.println("Email not configured — GMAIL_USER not set");
+                return;
+            }
             MimeMessage msg = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(msg, true, "UTF-8");
             helper.setFrom(fromEmail, "E-Vote System");
@@ -182,9 +186,10 @@ public class EmailService {
             helper.setSubject(subject);
             helper.setText(html, true);
             mailSender.send(msg);
-            System.out.println("Email sent to: " + to);
+            System.out.println("✅ Email sent to: " + to);
         } catch (Exception e) {
-            System.err.println("Email send failed: " + e.getMessage());
+            System.err.println("❌ Email send failed to " + to + ": " + e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
     }
 }

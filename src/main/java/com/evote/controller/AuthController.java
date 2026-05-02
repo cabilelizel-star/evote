@@ -101,11 +101,12 @@ public class AuthController {
 
         // Generate and send OTP
         String otp = emailService.generateOtp(voterId);
+        String emailError = null;
         try {
             emailService.sendOtpEmail(email, name, otp);
         } catch (Exception e) {
+            emailError = e.getMessage();
             System.err.println("OTP email failed: " + e.getMessage());
-            // Continue anyway — show OTP in session for demo if email fails
         }
 
         // Store form data in session for final submission
@@ -113,6 +114,7 @@ public class AuthController {
         session.setAttribute("reg_name",     name);
         session.setAttribute("reg_email",    email);
         session.setAttribute("reg_password", password);
+        session.setAttribute("reg_otp_fallback", emailError != null ? otp : null);
 
         return "redirect:/register/verify-otp";
     }
@@ -122,6 +124,11 @@ public class AuthController {
     public String otpPage(HttpSession session, Model model) {
         if (session.getAttribute("reg_voterId") == null) return "redirect:/register";
         model.addAttribute("email", session.getAttribute("reg_email"));
+        // Show fallback OTP on screen if email failed
+        String fallback = (String) session.getAttribute("reg_otp_fallback");
+        if (fallback != null) {
+            model.addAttribute("otpFallback", fallback);
+        }
         return "otp-verify";
     }
 

@@ -33,6 +33,14 @@
 
     <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
 
+    <!-- Fallback: show OTP on screen if email failed -->
+    <div th:if="${otpFallback}" class="alert alert-error" style="margin-bottom:16px">
+        ⚠ Email could not be sent. Your OTP code is:
+        <div style="font-size:28px;font-weight:900;letter-spacing:8px;color:#1a6b3c;margin-top:8px"
+             th:text="${otpFallback}"></div>
+        <div style="font-size:11px;margin-top:4px">Use this code below to continue.</div>
+    </div>
+
     <form method="post" th:action="@{/register/verify-otp}" id="otpForm">
         <div class="otp-inputs">
             <input class="otp-input" type="text" maxlength="1" id="o1" oninput="moveNext(this,'o2')" onkeydown="movePrev(event,this,'')">
