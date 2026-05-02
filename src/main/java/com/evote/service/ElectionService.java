@@ -100,7 +100,9 @@ public class ElectionService {
             voterId, ELECTION_ID, name, firstName, middleName, lastName, dob, gender,
             street, barangay, city, province, zip, mobile, email,
             voterIdNumber, votingDistrict, affiliation, idType, idNumber, password);
-    }    public void removeVoter(String id) {
+    }
+
+    public void removeVoter(String id) {
         db.update("DELETE FROM voters WHERE voter_id = ? AND election_id = ?", id, ELECTION_ID);
     }
 

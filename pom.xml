@@ -54,11 +54,8 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Email -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-mail</artifactId>
-        </dependency>
+        <!-- Email via Resend HTTP API (no SMTP needed) -->
+        <!-- No extra dependency needed - uses Java 11+ HttpClient -->
 
         <!-- Validation -->
         <dependency>

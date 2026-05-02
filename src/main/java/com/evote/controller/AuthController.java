@@ -274,17 +274,17 @@ public class AuthController {
         switch (step) {
 
             case "request" -> {
-                // Find voter by ID and verify email matches
                 if (voterId == null || voterId.isBlank() || email == null || email.isBlank()) {
                     model.addAttribute("error", "Please fill in all fields.");
                     return "forgot-password";
                 }
+                // Validate voter exists BEFORE generating OTP
                 Optional<com.evote.model.Voter> voter = svc.findVoterByIdAndEmail(voterId, email);
                 if (voter.isEmpty()) {
                     model.addAttribute("error", "No account found with that Voter ID and email combination.");
                     return "forgot-password";
                 }
-                // Send OTP
+                // Generate and send OTP only after validation
                 String generatedOtp = emailService.generateOtp(voterId);
                 String fallback = null;
                 try {
@@ -293,7 +293,6 @@ public class AuthController {
                     fallback = generatedOtp;
                     System.err.println("Reset OTP email failed: " + e.getMessage());
                 }
-                // Mask email for display
                 String masked = email.replaceAll("(?<=.{2}).(?=.*@)", "*");
                 model.addAttribute("step",        "otp");
                 model.addAttribute("voterId",     voterId);
