@@ -198,23 +198,7 @@ public class AuthController {
     }
 
     @PostMapping("/register/complete")
-    public String doComplete(@RequestParam(required = false) String firstName,
-                             @RequestParam(required = false) String middleName,
-                             @RequestParam(required = false) String lastName,
-                             @RequestParam(required = false) String dateOfBirth,
-                             @RequestParam(required = false) String gender,
-                             @RequestParam(required = false) String street,
-                             @RequestParam(required = false) String barangay,
-                             @RequestParam(required = false) String city,
-                             @RequestParam(required = false) String province,
-                             @RequestParam(required = false) String zipCode,
-                             @RequestParam(required = false) String mobileNumber,
-                             @RequestParam(required = false) String voterIdNumber,
-                             @RequestParam(required = false) String votingDistrict,
-                             @RequestParam(required = false) String affiliation,
-                             @RequestParam(required = false) String idType,
-                             @RequestParam(required = false) String idNumber,
-                             @RequestParam(required = false) MultipartFile idPhoto,
+    public String doComplete(@RequestParam(required = false) MultipartFile idPhoto,
                              @RequestParam(required = false) String selfieData,
                              HttpSession session, Model model) {
         if (!Boolean.TRUE.equals(session.getAttribute("otp_verified"))) return "redirect:/register";
