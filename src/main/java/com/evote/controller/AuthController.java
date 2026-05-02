@@ -259,49 +259,69 @@ public class AuthController {
         return "redirect:/login?success=registered";
     }
 
-    // ── Forgot password ───────────────────────────────────────────────────────
+    // ── Forgot password (OTP-based) ───────────────────────────────────────────
     @GetMapping("/forgot-password")
     public String forgotPage() { return "forgot-password"; }
 
     @PostMapping("/forgot-password")
     public String doForgot(@RequestParam String step,
                            @RequestParam(required = false) String voterId,
-                           @RequestParam(required = false) String answer,
+                           @RequestParam(required = false) String email,
+                           @RequestParam(required = false) String otp,
                            @RequestParam(required = false) String newPassword,
                            @RequestParam(required = false) String confirm,
                            Model model) {
         switch (step) {
-            case "lookup" -> {
-                Optional<String> q = svc.getSecurityQuestion(voterId);
-                if (q.isEmpty()) {
-                    model.addAttribute("error", "No account found with that Voter ID.");
+
+            case "request" -> {
+                // Find voter by ID and verify email matches
+                if (voterId == null || voterId.isBlank() || email == null || email.isBlank()) {
+                    model.addAttribute("error", "Please fill in all fields.");
                     return "forgot-password";
                 }
-                model.addAttribute("step", "answer");
-                model.addAttribute("voterId", voterId);
-                model.addAttribute("question", q.get());
+                Optional<com.evote.model.Voter> voter = svc.findVoterByIdAndEmail(voterId, email);
+                if (voter.isEmpty()) {
+                    model.addAttribute("error", "No account found with that Voter ID and email combination.");
+                    return "forgot-password";
+                }
+                // Send OTP
+                String generatedOtp = emailService.generateOtp(voterId);
+                String fallback = null;
+                try {
+                    emailService.sendOtpEmail(email, voter.get().getName(), generatedOtp);
+                } catch (Exception e) {
+                    fallback = generatedOtp;
+                    System.err.println("Reset OTP email failed: " + e.getMessage());
+                }
+                // Mask email for display
+                String masked = email.replaceAll("(?<=.{2}).(?=.*@)", "*");
+                model.addAttribute("step",        "otp");
+                model.addAttribute("voterId",     voterId);
+                model.addAttribute("maskedEmail", masked);
+                if (fallback != null) model.addAttribute("otpFallback", fallback);
             }
-            case "verify" -> {
-                if (!svc.verifySecurityAnswer(voterId, answer)) {
-                    model.addAttribute("error", "Incorrect answer.");
-                    model.addAttribute("step", "answer");
+
+            case "verify-otp" -> {
+                if (!emailService.verifyOtp(voterId, otp)) {
+                    model.addAttribute("error",   "Invalid or expired code. Please try again.");
+                    model.addAttribute("step",    "otp");
                     model.addAttribute("voterId", voterId);
-                    svc.getSecurityQuestion(voterId).ifPresent(q -> model.addAttribute("question", q));
                     return "forgot-password";
                 }
-                model.addAttribute("step", "reset");
+                model.addAttribute("step",    "reset");
                 model.addAttribute("voterId", voterId);
             }
+
             case "reset" -> {
                 if (newPassword == null || newPassword.length() < 6) {
-                    model.addAttribute("error", "Password must be at least 6 characters.");
-                    model.addAttribute("step", "reset");
+                    model.addAttribute("error",   "Password must be at least 6 characters.");
+                    model.addAttribute("step",    "reset");
                     model.addAttribute("voterId", voterId);
                     return "forgot-password";
                 }
                 if (!newPassword.equals(confirm)) {
-                    model.addAttribute("error", "Passwords do not match.");
-                    model.addAttribute("step", "reset");
+                    model.addAttribute("error",   "Passwords do not match.");
+                    model.addAttribute("step",    "reset");
                     model.addAttribute("voterId", voterId);
                     return "forgot-password";
                 }

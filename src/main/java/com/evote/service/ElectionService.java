@@ -50,7 +50,10 @@ public class ElectionService {
     // ── Voters ────────────────────────────────────────────────────────────────
     public List<Voter> getVoters() {
         return db.query(
-            "SELECT voter_id, name, has_voted FROM voters WHERE election_id = ? ORDER BY name",
+            "SELECT voter_id, name, has_voted, first_name, middle_name, last_name, " +
+            "date_of_birth, gender, street, barangay, city, province, zip_code, " +
+            "mobile_number, email, voter_id_number, voting_district, affiliation, " +
+            "id_type, id_number FROM voters WHERE election_id = ? ORDER BY name",
             voterMapper(), ELECTION_ID);
     }
 
@@ -58,6 +61,14 @@ public class ElectionService {
         List<Voter> list = db.query(
             "SELECT voter_id, name, has_voted FROM voters WHERE voter_id = ? AND election_id = ?",
             voterMapper(), voterId, ELECTION_ID);
+        return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
+    }
+
+    public Optional<Voter> findVoterByIdAndEmail(String voterId, String email) {
+        List<Voter> list = db.query(
+            "SELECT voter_id, name, has_voted, email FROM voters " +
+            "WHERE voter_id = ? AND email = ? AND election_id = ?",
+            voterMapper(), voterId, email, ELECTION_ID);
         return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
     }
 

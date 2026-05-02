@@ -2,13 +2,11 @@ package com.evote.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.net.*;
 import java.net.http.*;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
 
 /**
  * Uses Face++ Compare API to verify that a selfie matches an ID photo.

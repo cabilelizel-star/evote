@@ -183,7 +183,7 @@
                 <input class="search-box" type="text" placeholder="🔍 Search voters..." oninput="filterVoters(this.value)">
             </div>
             <table id="voterTable">
-                <thead><tr><th>#</th><th>Voter ID</th><th>Name</th><th>Email</th><th>Age</th><th>Gender</th><th>Contact</th><th>Status</th><th>Action</th></tr></thead>
+                <thead><tr><th>#</th><th>Voter ID</th><th>Name</th><th>Email</th><th>Mobile</th><th>Gender</th><th>City</th><th>Status</th><th>Action</th></tr></thead>
                 <tbody>
                     <tr th:if="${#lists.isEmpty(voters)}">
                         <td colspan="9" style="text-align:center;padding:24px;color:#aaa">No voters registered yet.</td>
@@ -193,9 +193,9 @@
                         <td><span class="pill pill-green" th:text="${v.voterId}"></span></td>
                         <td style="font-weight:700" th:text="${v.name}"></td>
                         <td th:text="${v.email} ?: '—'" style="font-size:13px"></td>
-                        <td th:text="${v.age} ?: '—'" style="font-size:13px"></td>
+                        <td th:text="${v.mobileNumber} ?: '—'" style="font-size:13px"></td>
                         <td th:text="${v.gender} ?: '—'" style="font-size:13px"></td>
-                        <td th:text="${v.contactNumber} ?: '—'" style="font-size:13px"></td>
+                        <td th:text="${v.city} ?: '—'" style="font-size:13px"></td>
                         <td>
                             <span class="pill" th:classappend="${v.hasVoted} ? 'pill-green' : 'pill-yellow'"
                                   th:text="${v.hasVoted} ? '✔ Voted' : 'Pending'"></span>

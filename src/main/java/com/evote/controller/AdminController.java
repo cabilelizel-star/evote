@@ -1,6 +1,5 @@
 package com.evote.controller;
 
-import com.evote.model.Voter;
 import com.evote.service.ElectionService;
 import com.evote.service.EmailService;
 import jakarta.servlet.http.HttpSession;
