@@ -127,15 +127,15 @@ h1{font-size:26px;font-weight:900;color:#111;text-align:center;margin-bottom:4px
 
   <!-- Progress bar -->
   <div class="prog-wrap">
-    <div class="prog-step active" id="ps1"><div class="dot">1</div><div class="lbl">Step 1</div></div>
+    <div class="prog-step active" id="ps1"><div class="dot">1</div><div class="lbl">Personal</div></div>
     <div class="prog-line" id="pl1"></div>
-    <div class="prog-step" id="ps2"><div class="dot">2</div><div class="lbl">Step 2</div></div>
+    <div class="prog-step" id="ps2"><div class="dot">2</div><div class="lbl">Address</div></div>
     <div class="prog-line" id="pl2"></div>
-    <div class="prog-step" id="ps3"><div class="dot">3</div><div class="lbl">Step 3</div></div>
+    <div class="prog-step" id="ps3"><div class="dot">3</div><div class="lbl">OTP</div></div>
     <div class="prog-line" id="pl3"></div>
-    <div class="prog-step" id="ps4"><div class="dot">4</div><div class="lbl">Step 4</div></div>
+    <div class="prog-step" id="ps4"><div class="dot">4</div><div class="lbl">ID Verify</div></div>
     <div class="prog-line" id="pl4"></div>
-    <div class="prog-step" id="ps5"><div class="dot">5</div><div class="lbl">Step 5</div></div>
+    <div class="prog-step" id="ps5"><div class="dot">5</div><div class="lbl">Face + Account</div></div>
   </div>
 
   <div id="stepError" class="alert-err" style="display:none"></div>
@@ -148,7 +148,7 @@ h1{font-size:26px;font-weight:900;color:#111;text-align:center;margin-bottom:4px
 
     <!-- ── STEP 1: Personal ──────────────────────────────── -->
     <div class="step-panel active" id="sp1">
-      <div class="sec-title">🪪 Personal Information</div>
+      <div class="sec-title">🪪 Step 1 — Personal Information</div>
       <div class="g3">
         <div class="field"><label>First Name <span class="req">*</span></label><input type="text" name="firstName" id="fn" placeholder="" required></div>
         <div class="field"><label>Middle Name</label><input type="text" name="middleName" placeholder=""></div>
@@ -165,7 +165,7 @@ h1{font-size:26px;font-weight:900;color:#111;text-align:center;margin-bottom:4px
 
     <!-- ── STEP 2: Address ───────────────────────────────── -->
     <div class="step-panel" id="sp2">
-      <div class="sec-title">📍 Address Information</div>
+      <div class="sec-title">📍 Step 2 — Address Information</div>
       <div class="field"><label>House/Unit No. &amp; Street <span class="req">*</span></label><input type="text" name="street" placeholder="" required></div>
       <div class="g2">
         <div class="field"><label>Barangay <span class="req">*</span></label>
@@ -194,7 +194,8 @@ h1{font-size:26px;font-weight:900;color:#111;text-align:center;margin-bottom:4px
 
     <!-- ── STEP 3: Contact + OTP ─────────────────────────── -->
     <div class="step-panel" id="sp3">
-      <div class="sec-title">📞 Contact &amp; Email Verification</div>
+      <div class="sec-title">📧 Step 3 — Contact &amp; OTP Verification</div>
+      <p style="font-size:13px;color:#555;margin-bottom:14px">Enter your contact details. An OTP will be sent to your email to verify it's valid before you can continue.</p>
       <div class="field"><label>Mobile Number <span class="req">*</span></label><input type="tel" name="mobileNumber" id="mobile" placeholder="09XXXXXXXXX" required><div class="hint">Philippine format: 09XXXXXXXXX</div></div>
       <div class="field"><label>Email Address <span class="req">*</span></label><input type="email" name="email" id="emailField" placeholder="example@gmail.com" required><div class="hint">An OTP will be sent here</div></div>
       <button type="button" class="btn-next" id="sendOtpBtn" onclick="sendOtp()" style="width:100%;margin-bottom:14px">📧 Send OTP Code</button>
@@ -221,7 +222,9 @@ h1{font-size:26px;font-weight:900;color:#111;text-align:center;margin-bottom:4px
 
     <!-- ── STEP 4: Voter Info + ID ───────────────────────── -->
     <div class="step-panel" id="sp4">
-      <div class="sec-title">🗳 Voter Information</div>
+      <div class="sec-title">🪪 Step 4 — ID Verification</div>
+      <p style="font-size:13px;color:#555;margin-bottom:14px">Select your ID type, enter your ID number, and upload a clear photo of your valid government ID.</p>
+      <div class="sec-title" style="margin-top:0">🗳 Voter Information</div>
       <div class="g2">
         <div class="field"><label>Voter ID Number</label><input type="text" name="voterIdNumber" placeholder=""><div class="hint">Existing registration number (if any)</div></div>
         <div class="field"><label>Voting District / Precinct</label><input type="text" name="votingDistrict" placeholder=""></div>
@@ -251,15 +254,11 @@ h1{font-size:26px;font-weight:900;color:#111;text-align:center;margin-bottom:4px
 
     <!-- ── STEP 5: Account + Face + Terms ───────────────── -->
     <div class="step-panel" id="sp5">
-      <div class="sec-title">🔐 Account Credentials</div>
-      <div class="field"><label>Username / Voter ID <span class="req">*</span></label><input type="text" name="voterId" id="voterId" placeholder="" required><div class="hint">This will be your login username</div></div>
-      <div class="g2">
-        <div class="field"><label>Password <span class="req">*</span></label><input type="password" name="password" id="pw" placeholder="" required></div>
-        <div class="field"><label>Confirm Password <span class="req">*</span></label><input type="password" name="confirm" id="cpw" placeholder="" required></div>
-      </div>
+      <div class="sec-title">📸 Step 5 — Face Verification &amp; Account Setup</div>
+      <p style="font-size:13px;color:#555;margin-bottom:14px">Take a selfie to verify your identity matches your uploaded ID. Then set your login credentials.</p>
 
-      <div class="sec-title">📸 Face Verification</div>
-      <p style="font-size:13px;color:#555;margin-bottom:12px">Take a selfie to verify your identity matches your ID. <span style="color:#888">(Optional — you may skip)</span></p>
+      <div class="sec-title" style="margin-top:0">📸 Face Verification</div>
+      <p style="font-size:13px;color:#555;margin-bottom:12px">Position your face inside the oval. Make sure it clearly matches your ID photo. <span style="color:#888">(Optional — you may skip)</span></p>
       <div id="camSection">
         <div class="cam-wrap"><video id="camFeed" autoplay playsinline muted></video><div class="face-oval"></div><div class="cam-hint">Align your face with the oval</div></div>
         <div class="btn-row"><button type="button" class="btn-next" onclick="snap()">📸 Take Selfie</button><button type="button" class="btn-back" onclick="skipFace()">Skip →</button></div>
@@ -268,6 +267,13 @@ h1{font-size:26px;font-weight:900;color:#111;text-align:center;margin-bottom:4px
         <img id="selfiePreview" src="" alt="">
         <div class="otp-status otp-ok">✅ Selfie captured!</div>
         <button type="button" class="btn-back" style="width:100%;margin-bottom:10px" onclick="retake()">🔄 Retake</button>
+      </div>
+
+      <div class="sec-title">🔐 Account Credentials</div>
+      <div class="field"><label>Username / Voter ID <span class="req">*</span></label><input type="text" name="voterId" id="voterId" placeholder="" required><div class="hint">This will be your login username</div></div>
+      <div class="g2">
+        <div class="field"><label>Password <span class="req">*</span></label><input type="password" name="password" id="pw" placeholder="" required></div>
+        <div class="field"><label>Confirm Password <span class="req">*</span></label><input type="password" name="confirm" id="cpw" placeholder="" required></div>
       </div>
 
       <div class="sec-title">✅ Agreements</div>

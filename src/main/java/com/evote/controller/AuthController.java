@@ -177,6 +177,22 @@ public class AuthController {
         svc.addVoterFull(voterId, fn, middleName, ln, dateOfBirth, gender,
             street, barangay, city, province, zipCode, mobileNumber, email,
             voterIdNumber, votingDistrict, affiliation, idType, idNumber, password);
+
+        // Save ID photo and selfie images for admin review
+        try {
+            byte[] idPhotoBytes = (idPhoto != null && !idPhoto.isEmpty()) ? idPhoto.getBytes() : null;
+            byte[] selfieBytes  = null;
+            if (selfieData != null && !selfieData.isBlank()) {
+                String base64 = selfieData.contains(",") ? selfieData.split(",")[1] : selfieData;
+                selfieBytes = java.util.Base64.getDecoder().decode(base64);
+            }
+            if (idPhotoBytes != null || selfieBytes != null) {
+                svc.saveVoterImages(voterId, idPhotoBytes, selfieBytes);
+            }
+        } catch (Exception e) {
+            System.err.println("Image save error: " + e.getMessage());
+        }
+
         svc.logActivity(voterId, "Registered — awaiting admin approval");
 
         return "redirect:/login?success=registered";

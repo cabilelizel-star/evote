@@ -1,5 +1,7 @@
 package com.evote.controller;
 
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import com.evote.service.ElectionService;
 import com.evote.service.EmailService;
 import jakarta.servlet.http.HttpSession;
@@ -41,6 +43,27 @@ public class AdminController {
             model.addAttribute("dbError",       e.getMessage());
         }
         return "admin/dashboard";
+    }
+
+    // ── Image serving ─────────────────────────────────────────────────────────
+    @GetMapping("/voter/id-photo/{voterId}")
+    @ResponseBody
+    public ResponseEntity<byte[]> serveIdPhoto(@PathVariable String voterId, HttpSession session) {
+        if (!"admin".equals(session.getAttribute("role")))
+            return ResponseEntity.status(403).build();
+        byte[] img = svc.getVoterIdPhoto(voterId);
+        if (img == null || img.length == 0) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(img);
+    }
+
+    @GetMapping("/voter/selfie/{voterId}")
+    @ResponseBody
+    public ResponseEntity<byte[]> serveSelfie(@PathVariable String voterId, HttpSession session) {
+        if (!"admin".equals(session.getAttribute("role")))
+            return ResponseEntity.status(403).build();
+        byte[] img = svc.getVoterSelfie(voterId);
+        if (img == null || img.length == 0) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(img);
     }
 
     // ── Approval actions ──────────────────────────────────────────────────────

@@ -229,13 +229,13 @@ tr:hover td{background:#f8fffe}
     <div class="sec-title">⏳ Voter Approvals</div>
     <div class="card">
       <div class="card-title">📋 Pending Registrations</div>
-      <p style="font-size:13px;color:#555;margin-bottom:14px">Review each voter's ID before approving access to vote.</p>
+      <p style="font-size:13px;color:#555;margin-bottom:14px">Review each voter's ID and selfie before approving access to vote.</p>
       <div style="overflow-x:auto">
         <table>
-          <thead><tr><th>Voter ID</th><th>Name</th><th>Email</th><th>Mobile</th><th>ID Type</th><th>ID Number</th><th>Action</th></tr></thead>
+          <thead><tr><th>Voter ID</th><th>Name</th><th>Email</th><th>Mobile</th><th>ID Type</th><th>ID Number</th><th>ID Photo</th><th>Selfie</th><th>Action</th></tr></thead>
           <tbody>
             <tr th:if="${#lists.isEmpty(pendingVoters)}">
-              <td colspan="7" style="text-align:center;padding:24px;color:#aaa">No pending registrations. ✅</td>
+              <td colspan="9" style="text-align:center;padding:24px;color:#aaa">No pending registrations. ✅</td>
             </tr>
             <tr th:each="v : ${pendingVoters}">
               <td><span class="pill pill-yellow" th:text="${v.voterId}"></span></td>
@@ -244,6 +244,26 @@ tr:hover td{background:#f8fffe}
               <td th:text="${v.mobileNumber} ?: '—'" style="font-size:12px"></td>
               <td th:text="${v.idType} ?: '—'" style="font-size:12px"></td>
               <td th:text="${v.idNumber} ?: '—'" style="font-size:12px"></td>
+              <td>
+                <a th:href="@{/admin/voter/id-photo/{id}(id=${v.voterId})}" target="_blank"
+                   style="display:inline-block;border:2px solid #e0f2e9;border-radius:6px;overflow:hidden;width:64px;height:48px;background:#f0faf4;text-align:center;line-height:48px;font-size:11px;color:#888;text-decoration:none"
+                   title="Click to view full ID photo">
+                  <img th:src="@{/admin/voter/id-photo/{id}(id=${v.voterId})}"
+                       style="width:64px;height:48px;object-fit:cover;display:block"
+                       onerror="this.parentElement.innerHTML='No photo'"
+                       alt="ID Photo">
+                </a>
+              </td>
+              <td>
+                <a th:href="@{/admin/voter/selfie/{id}(id=${v.voterId})}" target="_blank"
+                   style="display:inline-block;border:2px solid #e0f2e9;border-radius:6px;overflow:hidden;width:48px;height:48px;background:#f0faf4;text-align:center;line-height:48px;font-size:11px;color:#888;text-decoration:none"
+                   title="Click to view full selfie">
+                  <img th:src="@{/admin/voter/selfie/{id}(id=${v.voterId})}"
+                       style="width:48px;height:48px;object-fit:cover;display:block;border-radius:50%"
+                       onerror="this.parentElement.innerHTML='No selfie'"
+                       alt="Selfie">
+                </a>
+              </td>
               <td style="white-space:nowrap">
                 <form method="post" th:action="@{/admin/voter/approve}" style="display:inline">
                   <input type="hidden" name="voterId" th:value="${v.voterId}">

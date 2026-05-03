@@ -206,6 +206,34 @@ public class ElectionService {
         } catch (Exception ignored) {}
     }
 
+    // ── Image storage ─────────────────────────────────────────────────────────
+    public void saveVoterImages(String voterId, byte[] idPhotoBytes, byte[] selfieBytes) {
+        try {
+            db.update("UPDATE voters SET id_photo = ?, selfie_photo = ? WHERE voter_id = ? AND election_id = ?",
+                idPhotoBytes, selfieBytes, voterId, ELECTION_ID);
+        } catch (Exception e) {
+            System.err.println("saveVoterImages failed: " + e.getMessage());
+        }
+    }
+
+    public byte[] getVoterIdPhoto(String voterId) {
+        try {
+            List<byte[]> rows = db.query(
+                "SELECT id_photo FROM voters WHERE voter_id = ? AND election_id = ?",
+                (rs, i) -> rs.getBytes("id_photo"), voterId, ELECTION_ID);
+            return rows.isEmpty() ? null : rows.get(0);
+        } catch (Exception e) { return null; }
+    }
+
+    public byte[] getVoterSelfie(String voterId) {
+        try {
+            List<byte[]> rows = db.query(
+                "SELECT selfie_photo FROM voters WHERE voter_id = ? AND election_id = ?",
+                (rs, i) -> rs.getBytes("selfie_photo"), voterId, ELECTION_ID);
+            return rows.isEmpty() ? null : rows.get(0);
+        } catch (Exception e) { return null; }
+    }
+
     // ── Approval ──────────────────────────────────────────────────────────────
     public void approveVoter(String voterId) {
         db.update("UPDATE voters SET status='approved' WHERE voter_id=? AND election_id=?",
