@@ -21,6 +21,8 @@ public class Voter {
     private String  idType;
     private String  idNumber;
     private boolean hasVoted;
+    private String  status; // pending, approved, rejected
+    private String  rejectionReason;
 
     public Voter() {}
     public Voter(String voterId, String name, boolean hasVoted) {
@@ -73,4 +75,10 @@ public class Voter {
     public void setIdNumber(String v)       { this.idNumber       = v; }
     public void setHasVoted(boolean v)      { this.hasVoted       = v; }
     public void setPassword(String v)       { /* not stored in model */ }
+    public String  getStatus()              { return status; }
+    public String  getRejectionReason()     { return rejectionReason; }
+    public void    setStatus(String v)      { this.status           = v; }
+    public void    setRejectionReason(String v) { this.rejectionReason = v; }
+    public boolean isApproved()             { return "approved".equals(status); }
+    public boolean isPending()              { return status == null || "pending".equals(status); }
 }

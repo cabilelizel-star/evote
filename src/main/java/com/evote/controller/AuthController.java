@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -20,12 +19,8 @@ public class AuthController {
     private final FaceVerificationService faceService;
     private final EmailService            emailService;
 
-    public AuthController(ElectionService svc,
-                          FaceVerificationService faceService,
-                          EmailService emailService) {
-        this.svc          = svc;
-        this.faceService  = faceService;
-        this.emailService = emailService;
+    public AuthController(ElectionService svc, FaceVerificationService faceService, EmailService emailService) {
+        this.svc = svc; this.faceService = faceService; this.emailService = emailService;
     }
 
     // ── Login ─────────────────────────────────────────────────────────────────
@@ -38,18 +33,16 @@ public class AuthController {
             if ("admin".equals(role)) return "redirect:/admin/dashboard";
             if ("voter".equals(role)) return "redirect:/voter/dashboard";
         }
-        if ("registered".equals(success)) model.addAttribute("success", "Account created! You can now sign in.");
+        if ("registered".equals(success)) model.addAttribute("success", "Registration submitted! Awaiting admin approval.");
         if ("reset".equals(success))      model.addAttribute("success", "Password reset successfully!");
         return "login";
     }
 
     @PostMapping("/login")
-    public String doLogin(@RequestParam String username,
-                          @RequestParam String password,
+    public String doLogin(@RequestParam String username, @RequestParam String password,
                           HttpSession session, Model model) {
         if (username.isBlank() || password.isBlank()) {
-            model.addAttribute("error", "Please fill in all fields.");
-            return "login";
+            model.addAttribute("error", "Please fill in all fields."); return "login";
         }
         if ("Admin".equals(username) && "Admin123".equals(password)) {
             session.setAttribute("userId",   "admin");
@@ -59,9 +52,20 @@ public class AuthController {
         }
         Optional<Voter> voter = svc.authenticateVoter(username, password);
         if (voter.isPresent()) {
-            session.setAttribute("userId",   voter.get().getVoterId());
-            session.setAttribute("userName", voter.get().getName());
-            session.setAttribute("hasVoted", voter.get().isHasVoted());
+            Voter v = voter.get();
+            // Check approval status
+            if ("rejected".equals(v.getStatus())) {
+                model.addAttribute("error", "Your registration was rejected. Reason: " +
+                    (v.getRejectionReason() != null ? v.getRejectionReason() : "Contact admin."));
+                return "login";
+            }
+            if (v.isPending()) {
+                model.addAttribute("error", "Your account is pending admin approval. Please wait.");
+                return "login";
+            }
+            session.setAttribute("userId",   v.getVoterId());
+            session.setAttribute("userName", v.getName());
+            session.setAttribute("hasVoted", v.isHasVoted());
             session.setAttribute("role",     "voter");
             return "redirect:/voter/dashboard";
         }
@@ -75,47 +79,39 @@ public class AuthController {
         return "redirect:/login";
     }
 
-    // ── Register — single page, 5 steps ──────────────────────────────────────
+    // ── Register ──────────────────────────────────────────────────────────────
     @GetMapping("/register")
     public String registerPage() { return "register"; }
 
-    // Step 3 action: send OTP via AJAX
     @PostMapping("/register/otp/send")
     @ResponseBody
-    public java.util.Map<String,String> sendOtpAjax(
-            @RequestParam String voterId,
-            @RequestParam String email,
-            @RequestParam String name,
-            HttpSession session) {
+    public java.util.Map<String,String> sendOtpAjax(@RequestParam String voterId,
+                                                     @RequestParam String email,
+                                                     @RequestParam String name) {
         try {
-            if (svc.voterIdExists(voterId)) {
+            if (svc.voterIdExists(voterId))
                 return java.util.Map.of("status","error","message","Voter ID '" + voterId + "' is already taken.");
-            }
             String otp = emailService.generateOtp(voterId);
-            session.setAttribute("reg_otp_voterId", voterId);
             try {
                 emailService.sendOtpEmail(email, name, otp);
                 return java.util.Map.of("status","sent","message","OTP sent to " + email);
             } catch (Exception e) {
-                return java.util.Map.of("status","fallback","otp", otp, "message","Email failed. Use this code: " + otp);
+                return java.util.Map.of("status","fallback","otp",otp,"message","Email failed.");
             }
         } catch (Exception e) {
-            return java.util.Map.of("status","error","message", e.getMessage());
+            return java.util.Map.of("status","error","message",e.getMessage());
         }
     }
 
-    // Step 4 action: verify OTP via AJAX
     @PostMapping("/register/otp/verify")
     @ResponseBody
-    public java.util.Map<String,String> verifyOtpAjax(
-            @RequestParam String voterId,
-            @RequestParam String otp) {
-        boolean valid = emailService.verifyOtp(voterId, otp);
-        if (valid) return java.util.Map.of("status","ok");
-        return java.util.Map.of("status","error","message","Invalid or expired code. Please try again.");
+    public java.util.Map<String,String> verifyOtpAjax(@RequestParam String voterId,
+                                                       @RequestParam String otp) {
+        return emailService.verifyOtp(voterId, otp)
+            ? java.util.Map.of("status","ok")
+            : java.util.Map.of("status","error","message","Invalid or expired code.");
     }
 
-    // Final submit: all data in one POST
     @PostMapping("/register/submit")
     public String submitRegister(
             @RequestParam(required=false) String firstName,
@@ -144,7 +140,6 @@ public class AuthController {
             @RequestParam(required=false) String otpVerified,
             Model model) {
 
-        // Validate
         if (voterId == null || voterId.isBlank()) {
             model.addAttribute("error","Voter ID is required."); return "register";
         }
@@ -166,276 +161,72 @@ public class AuthController {
             try {
                 String base64 = selfieData.contains(",") ? selfieData.split(",")[1] : selfieData;
                 byte[] selfieBytes = java.util.Base64.getDecoder().decode(base64);
-                byte[] idBytes = idPhoto.getBytes();
-                FaceVerificationService.FaceCompareResult result = faceService.compareFaces(idBytes, selfieBytes);
+                FaceVerificationService.FaceCompareResult result = faceService.compareFaces(idPhoto.getBytes(), selfieBytes);
                 if (!result.passed) {
                     model.addAttribute("error","Face verification failed: " + result.message);
-                    model.addAttribute("resumeStep","5");
                     return "register";
                 }
             } catch (Exception e) {
                 System.err.println("Face verification error: " + e.getMessage());
-                // Non-fatal — continue registration
             }
         }
 
-        String fn = firstName != null ? firstName : name;
-        String ln = lastName  != null ? lastName  : "";
+        String fn = firstName != null && !firstName.isBlank() ? firstName : name;
+        String ln = lastName  != null ? lastName : "";
+        // Register with status=pending (awaiting admin approval)
         svc.addVoterFull(voterId, fn, middleName, ln, dateOfBirth, gender,
             street, barangay, city, province, zipCode, mobileNumber, email,
             voterIdNumber, votingDistrict, affiliation, idType, idNumber, password);
-
-        return "redirect:/login?success=registered";
-    }
-    public String sendOtp(
-            // Personal
-            @RequestParam(required=false) String firstName,
-            @RequestParam(required=false) String middleName,
-            @RequestParam(required=false) String lastName,
-            @RequestParam(required=false) String dateOfBirth,
-            @RequestParam(required=false) String gender,
-            // Address
-            @RequestParam(required=false) String street,
-            @RequestParam(required=false) String barangay,
-            @RequestParam(required=false) String city,
-            @RequestParam(required=false) String province,
-            @RequestParam(required=false) String zipCode,
-            // Contact
-            @RequestParam(required=false) String mobileNumber,
-            @RequestParam(required=false) String email,
-            // Voter info
-            @RequestParam(required=false) String voterIdNumber,
-            @RequestParam(required=false) String votingDistrict,
-            @RequestParam(required=false) String affiliation,
-            @RequestParam(required=false) String idType,
-            @RequestParam(required=false) String idNumber,
-            // Account
-            @RequestParam String voterId,
-            @RequestParam String name,
-            @RequestParam String password,
-            @RequestParam String confirm,
-            HttpSession session, Model model) {
-
-        if (voterId == null || voterId.isBlank()) {
-            model.addAttribute("error", "Voter ID is required."); return "register";
-        }
-        if (email == null || email.isBlank()) {
-            model.addAttribute("error", "Email address is required."); return "register";
-        }
-        if (password == null || password.length() < 6) {
-            model.addAttribute("error", "Password must be at least 6 characters."); return "register";
-        }
-        if (!password.equals(confirm)) {
-            model.addAttribute("error", "Passwords do not match."); return "register";
-        }
-        if (svc.voterIdExists(voterId)) {
-            model.addAttribute("error", "Voter ID '" + voterId + "' is already taken."); return "register";
-        }
-
-        // Store all form data in session
-        session.setAttribute("reg_voterId",       voterId);
-        session.setAttribute("reg_name",          name);
-        session.setAttribute("reg_firstName",     firstName);
-        session.setAttribute("reg_middleName",    middleName);
-        session.setAttribute("reg_lastName",      lastName);
-        session.setAttribute("reg_dateOfBirth",   dateOfBirth);
-        session.setAttribute("reg_gender",        gender);
-        session.setAttribute("reg_street",        street);
-        session.setAttribute("reg_barangay",      barangay);
-        session.setAttribute("reg_city",          city);
-        session.setAttribute("reg_province",      province);
-        session.setAttribute("reg_zipCode",       zipCode);
-        session.setAttribute("reg_mobileNumber",  mobileNumber);
-        session.setAttribute("reg_email",         email);
-        session.setAttribute("reg_voterIdNumber", voterIdNumber);
-        session.setAttribute("reg_votingDistrict",votingDistrict);
-        session.setAttribute("reg_affiliation",   affiliation);
-        session.setAttribute("reg_idType",        idType);
-        session.setAttribute("reg_idNumber",      idNumber);
-        session.setAttribute("reg_password",      password);
-
-        // Generate and send OTP
-        String otp = emailService.generateOtp(voterId);
-        String emailError = null;
-        try {
-            emailService.sendOtpEmail(email, name, otp);
-        } catch (Exception e) {
-            emailError = e.getMessage();
-            System.err.println("OTP email failed: " + e.getMessage());
-        }
-        session.setAttribute("reg_otp_fallback", emailError != null ? otp : null);
-
-        return "redirect:/register/verify-otp";
-    }
-
-    // ── Register — Step 3: verify OTP ────────────────────────────────────────
-    @GetMapping("/register/verify-otp")
-    public String otpPage(HttpSession session, Model model) {
-        if (session.getAttribute("reg_voterId") == null) return "redirect:/register";
-        model.addAttribute("email", session.getAttribute("reg_email"));
-        // Show fallback OTP on screen if email failed
-        String fallback = (String) session.getAttribute("reg_otp_fallback");
-        if (fallback != null) {
-            model.addAttribute("otpFallback", fallback);
-        }
-        return "otp-verify";
-    }
-
-    @PostMapping("/register/verify-otp")
-    public String verifyOtp(@RequestParam String otp,
-                            HttpSession session, Model model) {
-        String voterId = (String) session.getAttribute("reg_voterId");
-        if (voterId == null) return "redirect:/register";
-
-        if (!emailService.verifyOtp(voterId, otp)) {
-            model.addAttribute("error", "Invalid or expired OTP. Please try again.");
-            model.addAttribute("email", session.getAttribute("reg_email"));
-            return "otp-verify";
-        }
-
-        session.setAttribute("otp_verified", true);
-        return "redirect:/register/complete";
-    }
-
-    // ── Register — Step 4: complete with ID + face ────────────────────────────
-    @GetMapping("/register/complete")
-    public String completePage(HttpSession session) {
-        if (!Boolean.TRUE.equals(session.getAttribute("otp_verified"))) return "redirect:/register";
-        return "register-complete";
-    }
-
-    @PostMapping("/register/complete")
-    public String doComplete(@RequestParam(required = false) MultipartFile idPhoto,
-                             @RequestParam(required = false) String selfieData,
-                             HttpSession session, Model model) {
-        if (!Boolean.TRUE.equals(session.getAttribute("otp_verified"))) return "redirect:/register";
-
-        String voterId       = (String) session.getAttribute("reg_voterId");
-        String name          = (String) session.getAttribute("reg_name");
-        String email         = (String) session.getAttribute("reg_email");
-        String password      = (String) session.getAttribute("reg_password");
-        String firstName     = (String) session.getAttribute("reg_firstName");
-        String middleName    = (String) session.getAttribute("reg_middleName");
-        String lastName      = (String) session.getAttribute("reg_lastName");
-        String dob           = (String) session.getAttribute("reg_dateOfBirth");
-        String gender        = (String) session.getAttribute("reg_gender");
-        String street        = (String) session.getAttribute("reg_street");
-        String barangay      = (String) session.getAttribute("reg_barangay");
-        String city          = (String) session.getAttribute("reg_city");
-        String province      = (String) session.getAttribute("reg_province");
-        String zipCode       = (String) session.getAttribute("reg_zipCode");
-        String mobile        = (String) session.getAttribute("reg_mobileNumber");
-        String voterIdNum    = (String) session.getAttribute("reg_voterIdNumber");
-        String district      = (String) session.getAttribute("reg_votingDistrict");
-        String affiliation   = (String) session.getAttribute("reg_affiliation");
-        String idTypeS       = (String) session.getAttribute("reg_idType");
-        String idNumberS     = (String) session.getAttribute("reg_idNumber");
-
-        // Face verification — optional if no photo provided
-        if (idPhoto != null && !idPhoto.isEmpty() && selfieData != null && !selfieData.isBlank()) {
-            try {
-                String base64      = selfieData.contains(",") ? selfieData.split(",")[1] : selfieData;
-                byte[] selfieBytes = java.util.Base64.getDecoder().decode(base64);
-                byte[] idBytes     = idPhoto.getBytes();
-                FaceVerificationService.FaceCompareResult result = faceService.compareFaces(idBytes, selfieBytes);
-                if (!result.passed) {
-                    model.addAttribute("error", "⚠ " + result.message +
-                        " You can retake your selfie or skip verification.");
-                    return "register-complete";
-                }
-                System.out.println("Face verification passed: " + result.message);
-            } catch (Exception e) {
-                System.err.println("Face verification error: " + e.getMessage());
-                model.addAttribute("error", "⚠ Face verification error: " + e.getMessage() +
-                    " You may skip this step if the issue persists.");
-                return "register-complete";
-            }
-        } else {
-            System.out.println("Face verification skipped — no photo provided");
-        }
-
-        // Use session name as full name fallback
-        String fn = firstName != null ? firstName : name;
-        String ln = lastName  != null ? lastName  : "";
-
-        svc.addVoterFull(voterId, fn, middleName, ln, dob, gender,
-            street, barangay, city, province, zipCode, mobile, email,
-            voterIdNum, district, affiliation, idTypeS, idNumberS, password);
-
-        // Clear session
-        String[] keys = {"reg_voterId","reg_name","reg_firstName","reg_middleName","reg_lastName",
-            "reg_dateOfBirth","reg_gender","reg_street","reg_barangay","reg_city","reg_province",
-            "reg_zipCode","reg_mobileNumber","reg_email","reg_voterIdNumber","reg_votingDistrict",
-            "reg_affiliation","reg_idType","reg_idNumber","reg_password","otp_verified","reg_otp_fallback"};
-        for (String k : keys) session.removeAttribute(k);
+        svc.logActivity(voterId, "Registered — awaiting admin approval");
 
         return "redirect:/login?success=registered";
     }
 
-    // ── Forgot password (OTP-based) ───────────────────────────────────────────
+    // ── Forgot password ───────────────────────────────────────────────────────
     @GetMapping("/forgot-password")
     public String forgotPage() { return "forgot-password"; }
 
     @PostMapping("/forgot-password")
     public String doForgot(@RequestParam String step,
-                           @RequestParam(required = false) String voterId,
-                           @RequestParam(required = false) String email,
-                           @RequestParam(required = false) String otp,
-                           @RequestParam(required = false) String newPassword,
-                           @RequestParam(required = false) String confirm,
+                           @RequestParam(required=false) String voterId,
+                           @RequestParam(required=false) String email,
+                           @RequestParam(required=false) String otp,
+                           @RequestParam(required=false) String newPassword,
+                           @RequestParam(required=false) String confirm,
                            Model model) {
         switch (step) {
-
             case "request" -> {
                 if (voterId == null || voterId.isBlank() || email == null || email.isBlank()) {
-                    model.addAttribute("error", "Please fill in all fields.");
-                    return "forgot-password";
+                    model.addAttribute("error","Please fill in all fields."); return "forgot-password";
                 }
-                // Validate voter exists BEFORE generating OTP
-                Optional<com.evote.model.Voter> voter = svc.findVoterByIdAndEmail(voterId, email);
+                Optional<Voter> voter = svc.findVoterByIdAndEmail(voterId, email);
                 if (voter.isEmpty()) {
-                    model.addAttribute("error", "No account found with that Voter ID and email combination.");
-                    return "forgot-password";
+                    model.addAttribute("error","No account found with that Voter ID and email."); return "forgot-password";
                 }
-                // Generate and send OTP only after validation
                 String generatedOtp = emailService.generateOtp(voterId);
                 String fallback = null;
-                try {
-                    emailService.sendOtpEmail(email, voter.get().getName(), generatedOtp);
-                } catch (Exception e) {
-                    fallback = generatedOtp;
-                    System.err.println("Reset OTP email failed: " + e.getMessage());
-                }
-                String masked = email.replaceAll("(?<=.{2}).(?=.*@)", "*");
-                model.addAttribute("step",        "otp");
-                model.addAttribute("voterId",     voterId);
-                model.addAttribute("maskedEmail", masked);
-                if (fallback != null) model.addAttribute("otpFallback", fallback);
+                try { emailService.sendOtpEmail(email, voter.get().getName(), generatedOtp); }
+                catch (Exception e) { fallback = generatedOtp; }
+                String masked = email.replaceAll("(?<=.{2}).(?=.*@)","*");
+                model.addAttribute("step","otp"); model.addAttribute("voterId",voterId);
+                model.addAttribute("maskedEmail",masked);
+                if (fallback != null) model.addAttribute("otpFallback",fallback);
             }
-
             case "verify-otp" -> {
                 if (!emailService.verifyOtp(voterId, otp)) {
-                    model.addAttribute("error",   "Invalid or expired code. Please try again.");
-                    model.addAttribute("step",    "otp");
-                    model.addAttribute("voterId", voterId);
-                    return "forgot-password";
+                    model.addAttribute("error","Invalid or expired code.");
+                    model.addAttribute("step","otp"); model.addAttribute("voterId",voterId); return "forgot-password";
                 }
-                model.addAttribute("step",    "reset");
-                model.addAttribute("voterId", voterId);
+                model.addAttribute("step","reset"); model.addAttribute("voterId",voterId);
             }
-
             case "reset" -> {
                 if (newPassword == null || newPassword.length() < 6) {
-                    model.addAttribute("error",   "Password must be at least 6 characters.");
-                    model.addAttribute("step",    "reset");
-                    model.addAttribute("voterId", voterId);
-                    return "forgot-password";
+                    model.addAttribute("error","Password must be at least 6 characters.");
+                    model.addAttribute("step","reset"); model.addAttribute("voterId",voterId); return "forgot-password";
                 }
                 if (!newPassword.equals(confirm)) {
-                    model.addAttribute("error",   "Passwords do not match.");
-                    model.addAttribute("step",    "reset");
-                    model.addAttribute("voterId", voterId);
-                    return "forgot-password";
+                    model.addAttribute("error","Passwords do not match.");
+                    model.addAttribute("step","reset"); model.addAttribute("voterId",voterId); return "forgot-password";
                 }
                 svc.updatePassword(voterId, newPassword);
                 return "redirect:/login?success=reset";

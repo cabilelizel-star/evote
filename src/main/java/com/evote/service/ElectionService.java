@@ -105,8 +105,8 @@ public class ElectionService {
         db.update("INSERT IGNORE INTO voters " +
             "(voter_id, election_id, name, first_name, middle_name, last_name, date_of_birth, gender, " +
             "street, barangay, city, province, zip_code, mobile_number, email, " +
-            "voter_id_number, voting_district, affiliation, id_type, id_number, password) " +
-            "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            "voter_id_number, voting_district, affiliation, id_type, id_number, password, status) " +
+            "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'pending')",
             voterId, ELECTION_ID, name, firstName, middleName, lastName, dob, gender,
             street, barangay, city, province, zip, mobile, email,
             voterIdNumber, votingDistrict, affiliation, idType, idNumber, password);
@@ -200,11 +200,29 @@ public class ElectionService {
 
     // ── Voter blocking ────────────────────────────────────────────────────────
     public void setVoterBlocked(String voterId, boolean blocked) {
-        // Add is_blocked column if not exists — handled gracefully
         try {
             db.update("UPDATE voters SET is_blocked = ? WHERE voter_id = ? AND election_id = ?",
                 blocked, voterId, ELECTION_ID);
         } catch (Exception ignored) {}
+    }
+
+    // ── Approval ──────────────────────────────────────────────────────────────
+    public void approveVoter(String voterId) {
+        db.update("UPDATE voters SET status='approved' WHERE voter_id=? AND election_id=?",
+            voterId, ELECTION_ID);
+    }
+
+    public void rejectVoter(String voterId, String reason) {
+        db.update("UPDATE voters SET status='rejected', rejection_reason=? WHERE voter_id=? AND election_id=?",
+            reason, voterId, ELECTION_ID);
+    }
+
+    public List<Voter> getPendingVoters() {
+        return db.query(
+            "SELECT voter_id, name, has_voted, first_name, last_name, email, mobile_number, " +
+            "id_type, id_number, status, rejection_reason FROM voters " +
+            "WHERE election_id=? AND (status='pending' OR status IS NULL) ORDER BY created_at DESC",
+            voterMapper(), ELECTION_ID);
     }
 
     // ── Audit log ─────────────────────────────────────────────────────────────
@@ -255,6 +273,8 @@ public class ElectionService {
             try { v.setAffiliation(rs.getString("affiliation")); }   catch (Exception ignored) {}
             try { v.setIdType(rs.getString("id_type")); }            catch (Exception ignored) {}
             try { v.setIdNumber(rs.getString("id_number")); }        catch (Exception ignored) {}
+            try { v.setStatus(rs.getString("status")); }             catch (Exception ignored) {}
+            try { v.setRejectionReason(rs.getString("rejection_reason")); } catch (Exception ignored) {}
             return v;
         };
     }

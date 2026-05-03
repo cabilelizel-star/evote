@@ -23,22 +23,69 @@ public class AdminController {
     public String dashboard(HttpSession session, Model model) {
         if (!"admin".equals(session.getAttribute("role"))) return "redirect:/login";
         try {
-            model.addAttribute("election",   svc.getElection());
-            model.addAttribute("candidates", svc.getCandidates());
-            model.addAttribute("voters",     svc.getVoters());
-            model.addAttribute("totalVotes", svc.getTotalVotes());
-            model.addAttribute("turnoutPct", svc.getTurnoutPercent());
-            model.addAttribute("auditLogs",  svc.getAuditLogs());
+            model.addAttribute("election",      svc.getElection());
+            model.addAttribute("candidates",    svc.getCandidates());
+            model.addAttribute("voters",        svc.getVoters());
+            model.addAttribute("pendingVoters", svc.getPendingVoters());
+            model.addAttribute("totalVotes",    svc.getTotalVotes());
+            model.addAttribute("turnoutPct",    svc.getTurnoutPercent());
+            model.addAttribute("auditLogs",     svc.getAuditLogs());
         } catch (Exception e) {
-            model.addAttribute("election",   new com.evote.model.Election(1, "General Election 2025", false));
-            model.addAttribute("candidates", java.util.Collections.emptyList());
-            model.addAttribute("voters",     java.util.Collections.emptyList());
-            model.addAttribute("totalVotes", 0);
-            model.addAttribute("turnoutPct", 0);
-            model.addAttribute("auditLogs",  java.util.Collections.emptyList());
-            model.addAttribute("dbError",    e.getMessage());
+            model.addAttribute("election",      new com.evote.model.Election(1, "General Election 2025", false));
+            model.addAttribute("candidates",    java.util.Collections.emptyList());
+            model.addAttribute("voters",        java.util.Collections.emptyList());
+            model.addAttribute("pendingVoters", java.util.Collections.emptyList());
+            model.addAttribute("totalVotes",    0);
+            model.addAttribute("turnoutPct",    0);
+            model.addAttribute("auditLogs",     java.util.Collections.emptyList());
+            model.addAttribute("dbError",       e.getMessage());
         }
         return "admin/dashboard";
+    }
+
+    // ── Approval actions ──────────────────────────────────────────────────────
+    @PostMapping("/voter/approve")
+    public String approveVoter(@RequestParam String voterId, HttpSession session) {
+        if (!"admin".equals(session.getAttribute("role"))) return "redirect:/login";
+        svc.approveVoter(voterId);
+        svc.logActivity("Admin", "Approved voter: " + voterId);
+        // Notify voter by email
+        new Thread(() -> {
+            try {
+                svc.findVoterFull(voterId).ifPresent(v -> {
+                    if (v.getEmail() != null && !v.getEmail().isBlank()) {
+                        emailService.sendAnnouncement(v.getEmail(), v.getName(),
+                            "✅ Registration Approved!",
+                            "Your voter registration has been approved by the administrator. " +
+                            "You can now log in and participate in the election.");
+                    }
+                });
+            } catch (Exception ignored) {}
+        }).start();
+        return "redirect:/admin/dashboard?tab=approvals";
+    }
+
+    @PostMapping("/voter/reject")
+    public String rejectVoter(@RequestParam String voterId,
+                              @RequestParam(required=false) String reason,
+                              HttpSession session) {
+        if (!"admin".equals(session.getAttribute("role"))) return "redirect:/login";
+        String r = (reason != null && !reason.isBlank()) ? reason : "Does not meet requirements.";
+        svc.rejectVoter(voterId, r);
+        svc.logActivity("Admin", "Rejected voter: " + voterId + " — " + r);
+        new Thread(() -> {
+            try {
+                svc.findVoterFull(voterId).ifPresent(v -> {
+                    if (v.getEmail() != null && !v.getEmail().isBlank()) {
+                        emailService.sendAnnouncement(v.getEmail(), v.getName(),
+                            "❌ Registration Rejected",
+                            "Your voter registration was not approved. Reason: " + r +
+                            "\n\nPlease contact the administrator for more information.");
+                    }
+                });
+            } catch (Exception ignored) {}
+        }).start();
+        return "redirect:/admin/dashboard?tab=approvals";
     }
 
     // ── Candidate actions ─────────────────────────────────────────────────────

@@ -189,6 +189,11 @@
         <div class="stat-label">My Vote</div>
         <div class="stat-value" style="font-size:18px" th:text="${hasVoted} ? 'Voted ✅' : 'Not Yet ⏳'"></div>
       </div>
+      <div class="stat-card" th:classappend="${voter != null and voter.isApproved()} ? '' : 'yellow'">
+        <div class="stat-label">Account Status</div>
+        <div class="stat-value" style="font-size:14px;margin-top:6px"
+             th:text="${voter == null} ? 'Unknown' : (voter.isApproved() ? '✅ Approved' : (voter.isPending() ? '⏳ Pending' : '❌ Rejected'))"></div>
+      </div>
     </div>
 
     <!-- Voter info card -->
@@ -240,8 +245,28 @@
          Your vote is secure and has been counted. A confirmation was sent to your email.</p>
     </div>
 
+    <!-- Pending approval -->
+    <div th:if="${voter != null and voter.isPending()}"
+         style="background:#fff8f0;border:2px solid #f59e0b;border-radius:12px;padding:28px;text-align:center;margin-bottom:16px">
+      <div style="font-size:40px;margin-bottom:10px">⏳</div>
+      <h3 style="font-size:18px;font-weight:800;color:#d68910;margin-bottom:8px">Account Pending Approval</h3>
+      <p style="color:#555;font-size:13px">Your registration is under review by the administrator.<br>
+         You will be notified by email once approved. You cannot vote until approved.</p>
+    </div>
+
+    <!-- Rejected -->
+    <div th:if="${voter != null and 'rejected'.equals(voter.status)}"
+         style="background:#fff0f0;border:2px solid #ef4444;border-radius:12px;padding:28px;text-align:center;margin-bottom:16px">
+      <div style="font-size:40px;margin-bottom:10px">❌</div>
+      <h3 style="font-size:18px;font-weight:800;color:#dc2626;margin-bottom:8px">Registration Rejected</h3>
+      <p style="color:#555;font-size:13px">
+        Reason: <strong th:text="${voter.rejectionReason} ?: 'Contact the administrator.'"></strong><br>
+        Please contact the election administrator for assistance.
+      </p>
+    </div>
+
     <!-- Voting form -->
-    <div th:if="${election != null and election.open and !hasVoted}">
+    <div th:if="${election != null and election.open and !hasVoted and (voter == null or voter.isApproved())}">
       <div class="election-card open">
         <div class="election-title" th:text="${election.title}"></div>
         <div class="election-meta">
