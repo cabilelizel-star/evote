@@ -64,6 +64,16 @@ public class ElectionService {
         return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
     }
 
+    public Optional<Voter> findVoterFull(String voterId) {
+        List<Voter> list = db.query(
+            "SELECT voter_id, name, has_voted, first_name, middle_name, last_name, " +
+            "date_of_birth, gender, street, barangay, city, province, zip_code, " +
+            "mobile_number, email, voter_id_number, voting_district, affiliation, " +
+            "id_type, id_number FROM voters WHERE voter_id = ? AND election_id = ?",
+            voterMapper(), voterId, ELECTION_ID);
+        return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
+    }
+
     public Optional<Voter> findVoterByIdAndEmail(String voterId, String email) {
         List<Voter> list = db.query(
             "SELECT voter_id, name, has_voted, email FROM voters " +
@@ -142,6 +152,24 @@ public class ElectionService {
         Integer n = db.queryForObject(
             "SELECT COUNT(*) FROM votes WHERE election_id = ?", Integer.class, ELECTION_ID);
         return n == null ? 0 : n;
+    }
+
+    public int getTurnoutPercent() {
+        int total  = getVoters().size();
+        int voted  = getTotalVotes();
+        return total > 0 ? (int) Math.round(voted * 100.0 / total) : 0;
+    }
+
+    public void updateVoterContact(String voterId, String mobile, String email) {
+        db.update("UPDATE voters SET mobile_number=?, email=? WHERE voter_id=? AND election_id=?",
+            mobile, email, voterId, ELECTION_ID);
+    }
+
+    public boolean verifyVoterPassword(String voterId, String password) {
+        Integer count = db.queryForObject(
+            "SELECT COUNT(*) FROM voters WHERE voter_id=? AND password=? AND election_id=?",
+            Integer.class, voterId, password, ELECTION_ID);
+        return count != null && count > 0;
     }
 
     // ── Security questions ────────────────────────────────────────────────────

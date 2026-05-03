@@ -1,6 +1,7 @@
 package com.evote.controller;
 
 import com.evote.model.Candidate;
+import com.evote.model.Voter;
 import com.evote.service.ElectionService;
 import com.evote.service.EmailService;
 import jakarta.servlet.http.HttpSession;
@@ -25,18 +26,24 @@ public class VoterController {
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model) {
         if (!"voter".equals(session.getAttribute("role"))) return "redirect:/login";
-
+        String voterId = (String) session.getAttribute("userId");
         try {
-            model.addAttribute("election",   svc.getElection());
+            com.evote.model.Election election = svc.getElection();
+            Optional<Voter> voterOpt = svc.findVoterFull(voterId);
+            Voter voter = voterOpt.orElse(null);
+
+            model.addAttribute("election",   election);
             model.addAttribute("candidates", svc.getCandidates());
+            model.addAttribute("voter",      voter);
             model.addAttribute("userName",   session.getAttribute("userName"));
-            model.addAttribute("userId",     session.getAttribute("userId"));
+            model.addAttribute("userId",     voterId);
             model.addAttribute("hasVoted",   session.getAttribute("hasVoted"));
+            model.addAttribute("turnoutPct", svc.getTurnoutPercent());
         } catch (Exception e) {
             model.addAttribute("election",   new com.evote.model.Election(1, "General Election 2025", false));
             model.addAttribute("candidates", java.util.Collections.emptyList());
             model.addAttribute("userName",   session.getAttribute("userName"));
-            model.addAttribute("userId",     session.getAttribute("userId"));
+            model.addAttribute("userId",     voterId);
             model.addAttribute("hasVoted",   session.getAttribute("hasVoted"));
             model.addAttribute("dbError",    e.getMessage());
         }
@@ -44,30 +51,51 @@ public class VoterController {
     }
 
     @PostMapping("/vote")
-    public String castVote(@RequestParam String candidateId,
-                           HttpSession session) {
+    public String castVote(@RequestParam String candidateId, HttpSession session) {
         if (!"voter".equals(session.getAttribute("role"))) return "redirect:/login";
-
         String voterId = (String) session.getAttribute("userId");
         String result  = svc.castVote(voterId, candidateId);
-
         if ("ok".equals(result)) {
             session.setAttribute("hasVoted", true);
-            // Send vote confirmation email in background
-            Optional<com.evote.model.Voter> voter = svc.findVoter(voterId);
+            Optional<Voter> voter = svc.findVoter(voterId);
             Optional<Candidate> candidate = svc.getCandidates().stream()
                 .filter(c -> c.getCandidateId().equals(candidateId)).findFirst();
             if (voter.isPresent() && candidate.isPresent()
                     && voter.get().getEmail() != null && !voter.get().getEmail().isBlank()) {
-                String email     = voter.get().getEmail();
-                String name      = voter.get().getName();
-                String cName     = candidate.get().getName();
-                String party     = candidate.get().getParty();
-                String elTitle   = svc.getElection().getTitle();
-                new Thread(() -> emailService.sendVoteConfirmation(email, name, cName, party, elTitle)).start();
+                String em = voter.get().getEmail(), nm = voter.get().getName();
+                String cn = candidate.get().getName(), pt = candidate.get().getParty();
+                String et = svc.getElection().getTitle();
+                new Thread(() -> emailService.sendVoteConfirmation(em, nm, cn, pt, et)).start();
             }
             return "redirect:/voter/dashboard?success=voted";
         }
         return "redirect:/voter/dashboard?error=" + result;
+    }
+
+    @PostMapping("/profile/update")
+    public String updateProfile(@RequestParam(required=false) String contactNumber,
+                                @RequestParam(required=false) String email,
+                                HttpSession session) {
+        if (!"voter".equals(session.getAttribute("role"))) return "redirect:/login";
+        String voterId = (String) session.getAttribute("userId");
+        svc.updateVoterContact(voterId, contactNumber, email);
+        return "redirect:/voter/dashboard?tab=profile&success=updated";
+    }
+
+    @PostMapping("/profile/change-password")
+    public String changePassword(@RequestParam String currentPassword,
+                                 @RequestParam String newPassword,
+                                 @RequestParam String confirmPassword,
+                                 HttpSession session, Model model) {
+        if (!"voter".equals(session.getAttribute("role"))) return "redirect:/login";
+        String voterId = (String) session.getAttribute("userId");
+        if (!svc.verifyVoterPassword(voterId, currentPassword)) {
+            return "redirect:/voter/dashboard?tab=profile&error=wrongpassword";
+        }
+        if (!newPassword.equals(confirmPassword) || newPassword.length() < 6) {
+            return "redirect:/voter/dashboard?tab=profile&error=passwordmismatch";
+        }
+        svc.updatePassword(voterId, newPassword);
+        return "redirect:/voter/dashboard?tab=profile&success=passwordchanged";
     }
 }
