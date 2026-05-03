@@ -277,9 +277,62 @@ input[type="date"] {
 }
 @media (max-width: 640px) {
     .grid-2, .grid-3 { grid-template-columns: 1fr; }
-    .auth-card { width: 95vw; padding: 28px 20px; }
+    .auth-card { width: 95vw; padding: 24px 16px; }
     .dash-container { padding: 0 12px; }
-    .navbar { padding: 0 16px; }
+    .navbar { padding: 0 12px; height: 54px; }
+    .navbar .brand { font-size: 15px; }
+    .navbar .nav-right { gap: 8px; font-size: 12px; }
     .form-row { flex-direction: column; }
-    .navbar .brand { font-size: 16px; }
+    .auth-body { padding: 12px; align-items: flex-start; padding-top: 20px; }
+    table { font-size: 12px; }
+    th, td { padding: 8px 10px; }
+    .btn-primary { font-size: 15px; padding: 13px; }
+    /* Sidebar layouts stack vertically */
+    .vd-layout, .ad-layout { grid-template-columns: 1fr !important; }
+    .vd-sidebar, .ad-sidebar {
+        position: static !important;
+        height: auto !important;
+        border-right: none !important;
+        border-bottom: 1px solid #e0f2e9;
+    }
+    .vd-main, .ad-main { padding: 14px 12px !important; }
+    /* Sidebar nav becomes horizontal scrollable tabs */
+    .sidebar-nav, .ad-nav-links {
+        display: flex !important;
+        flex-direction: row !important;
+        overflow-x: auto !important;
+        padding: 6px 8px !important;
+        gap: 4px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+    .sidebar-nav::-webkit-scrollbar, .ad-nav-links::-webkit-scrollbar { display: none; }
+    .sidebar-nav a, .ad-nav-links a {
+        flex-shrink: 0;
+        padding: 8px 12px !important;
+        border-left: none !important;
+        border-bottom: 3px solid transparent;
+        border-radius: 8px;
+        font-size: 12px !important;
+        white-space: nowrap;
+    }
+    .sidebar-nav a.active, .ad-nav-links a.active {
+        border-bottom-color: #2d9e5f;
+        background: #f0faf4;
+        color: #1a6b3c;
+    }
+    .sidebar-profile, .sidebar-head { padding: 12px 16px; }
+    .avatar-circle, .admin-avatar { width: 48px !important; height: 48px !important; font-size: 20px !important; }
+    .info-grid { grid-template-columns: 1fr !important; }
+    .stat-row { grid-template-columns: 1fr 1fr !important; }
+    .candidate-grid { grid-template-columns: 1fr !important; }
+    .card { padding: 16px 14px !important; }
+    .vd-nav, .ad-nav { padding: 0 12px !important; height: 54px !important; }
+    .vd-nav .brand, .ad-nav .brand { font-size: 15px !important; }
+    .vd-nav .nav-right, .ad-nav .nav-right { gap: 8px !important; font-size: 12px !important; }
+    .otp-input { width: 40px !important; height: 48px !important; font-size: 20px !important; }
+    .prog-step .dot { width: 24px !important; height: 24px !important; font-size: 11px !important; }
+    .prog-step .lbl { font-size: 9px !important; }
+    .result-name { width: 100px !important; font-size: 12px !important; }
+    .sec-title, .section-title { font-size: 17px !important; }
 }

@@ -1,21 +1,17 @@
 package com.evote.service;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
 import java.net.http.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Sends emails via Resend HTTP API (https://resend.com) — works on Railway.
- * Free tier: 3,000 emails/month, 100/day.
- * Set RESEND_API_KEY in Railway Variables.
- *
- * Fallback: if no API key, OTP is shown on screen.
+ * Sends emails via Resend HTTP API — works on Railway.
+ * OTPs are stored in the database so they survive app restarts.
  */
 @Service
 public class EmailService {
@@ -27,24 +23,51 @@ public class EmailService {
     private String fromEmail;
 
     private static final String RESEND_URL = "https://api.resend.com/emails";
-    private final Map<String, long[]> otpStore = new ConcurrentHashMap<>();
     private final HttpClient httpClient = HttpClient.newHttpClient();
+    private final JdbcTemplate db;
 
-    // ── OTP ───────────────────────────────────────────────────────────────────
+    public EmailService(JdbcTemplate db) {
+        this.db = db;
+    }
+
+    // ── OTP — stored in DB so restarts don't lose them ────────────────────────
     public String generateOtp(String voterId) {
         String otp = String.format("%06d", new Random().nextInt(1000000));
         long expiry = System.currentTimeMillis() + 10 * 60 * 1000; // 10 min
-        otpStore.put(voterId, new long[]{Long.parseLong(otp), expiry});
+        try {
+            db.update("INSERT INTO otp_store (voter_id, otp_code, expires_at) VALUES (?,?,?) " +
+                      "ON DUPLICATE KEY UPDATE otp_code=VALUES(otp_code), expires_at=VALUES(expires_at)",
+                voterId, otp, expiry);
+        } catch (Exception e) {
+            System.err.println("OTP DB store failed: " + e.getMessage());
+        }
         return otp;
     }
 
     public boolean verifyOtp(String voterId, String inputOtp) {
-        long[] data = otpStore.get(voterId);
-        if (data == null) return false;
-        if (System.currentTimeMillis() > data[1]) { otpStore.remove(voterId); return false; }
-        boolean valid = String.valueOf((long) data[0]).equals(inputOtp.trim());
-        if (valid) otpStore.remove(voterId);
-        return valid;
+        try {
+            var rows = db.queryForList(
+                "SELECT otp_code, expires_at FROM otp_store WHERE voter_id = ?", voterId);
+            if (rows.isEmpty()) {
+                System.err.println("OTP not found in DB for voter: " + voterId);
+                return false;
+            }
+            String stored  = (String) rows.get(0).get("otp_code");
+            long   expiry  = ((Number) rows.get(0).get("expires_at")).longValue();
+            long   now     = System.currentTimeMillis();
+            System.out.println("OTP verify — stored: " + stored + " input: " + inputOtp.trim() +
+                               " expired: " + (now > expiry) + " remaining: " + ((expiry - now)/1000) + "s");
+            if (now > expiry) {
+                db.update("DELETE FROM otp_store WHERE voter_id = ?", voterId);
+                return false;
+            }
+            boolean valid = stored.equals(inputOtp.trim());
+            if (valid) db.update("DELETE FROM otp_store WHERE voter_id = ?", voterId);
+            return valid;
+        } catch (Exception e) {
+            System.err.println("OTP verify DB error: " + e.getMessage());
+            return false;
+        }
     }
 
     // ── Send OTP ──────────────────────────────────────────────────────────────
