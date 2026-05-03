@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -74,12 +75,118 @@ public class AuthController {
         return "redirect:/login";
     }
 
-    // ── Register — Step 1: show form ──────────────────────────────────────────
+    // ── Register — single page, 5 steps ──────────────────────────────────────
     @GetMapping("/register")
     public String registerPage() { return "register"; }
 
-    // ── Register — Step 2: send OTP ───────────────────────────────────────────
-    @PostMapping("/register/send-otp")
+    // Step 3 action: send OTP via AJAX
+    @PostMapping("/register/otp/send")
+    @ResponseBody
+    public java.util.Map<String,String> sendOtpAjax(
+            @RequestParam String voterId,
+            @RequestParam String email,
+            @RequestParam String name,
+            HttpSession session) {
+        try {
+            if (svc.voterIdExists(voterId)) {
+                return java.util.Map.of("status","error","message","Voter ID '" + voterId + "' is already taken.");
+            }
+            String otp = emailService.generateOtp(voterId);
+            session.setAttribute("reg_otp_voterId", voterId);
+            try {
+                emailService.sendOtpEmail(email, name, otp);
+                return java.util.Map.of("status","sent","message","OTP sent to " + email);
+            } catch (Exception e) {
+                return java.util.Map.of("status","fallback","otp", otp, "message","Email failed. Use this code: " + otp);
+            }
+        } catch (Exception e) {
+            return java.util.Map.of("status","error","message", e.getMessage());
+        }
+    }
+
+    // Step 4 action: verify OTP via AJAX
+    @PostMapping("/register/otp/verify")
+    @ResponseBody
+    public java.util.Map<String,String> verifyOtpAjax(
+            @RequestParam String voterId,
+            @RequestParam String otp) {
+        boolean valid = emailService.verifyOtp(voterId, otp);
+        if (valid) return java.util.Map.of("status","ok");
+        return java.util.Map.of("status","error","message","Invalid or expired code. Please try again.");
+    }
+
+    // Final submit: all data in one POST
+    @PostMapping("/register/submit")
+    public String submitRegister(
+            @RequestParam(required=false) String firstName,
+            @RequestParam(required=false) String middleName,
+            @RequestParam(required=false) String lastName,
+            @RequestParam(required=false) String dateOfBirth,
+            @RequestParam(required=false) String gender,
+            @RequestParam(required=false) String street,
+            @RequestParam(required=false) String barangay,
+            @RequestParam(required=false) String city,
+            @RequestParam(required=false) String province,
+            @RequestParam(required=false) String zipCode,
+            @RequestParam(required=false) String mobileNumber,
+            @RequestParam(required=false) String email,
+            @RequestParam(required=false) String voterIdNumber,
+            @RequestParam(required=false) String votingDistrict,
+            @RequestParam(required=false) String affiliation,
+            @RequestParam(required=false) String idType,
+            @RequestParam(required=false) String idNumber,
+            @RequestParam(required=false) MultipartFile idPhoto,
+            @RequestParam(required=false) String selfieData,
+            @RequestParam String voterId,
+            @RequestParam String name,
+            @RequestParam String password,
+            @RequestParam String confirm,
+            @RequestParam(required=false) String otpVerified,
+            Model model) {
+
+        // Validate
+        if (voterId == null || voterId.isBlank()) {
+            model.addAttribute("error","Voter ID is required."); return "register";
+        }
+        if (password == null || password.length() < 6) {
+            model.addAttribute("error","Password must be at least 6 characters."); return "register";
+        }
+        if (!password.equals(confirm)) {
+            model.addAttribute("error","Passwords do not match."); return "register";
+        }
+        if (!"true".equals(otpVerified)) {
+            model.addAttribute("error","Please verify your email with the OTP code."); return "register";
+        }
+        if (svc.voterIdExists(voterId)) {
+            model.addAttribute("error","Voter ID '" + voterId + "' is already taken."); return "register";
+        }
+
+        // Face verification (optional)
+        if (idPhoto != null && !idPhoto.isEmpty() && selfieData != null && !selfieData.isBlank()) {
+            try {
+                String base64 = selfieData.contains(",") ? selfieData.split(",")[1] : selfieData;
+                byte[] selfieBytes = java.util.Base64.getDecoder().decode(base64);
+                byte[] idBytes = idPhoto.getBytes();
+                FaceVerificationService.FaceCompareResult result = faceService.compareFaces(idBytes, selfieBytes);
+                if (!result.passed) {
+                    model.addAttribute("error","Face verification failed: " + result.message);
+                    model.addAttribute("resumeStep","5");
+                    return "register";
+                }
+            } catch (Exception e) {
+                System.err.println("Face verification error: " + e.getMessage());
+                // Non-fatal — continue registration
+            }
+        }
+
+        String fn = firstName != null ? firstName : name;
+        String ln = lastName  != null ? lastName  : "";
+        svc.addVoterFull(voterId, fn, middleName, ln, dateOfBirth, gender,
+            street, barangay, city, province, zipCode, mobileNumber, email,
+            voterIdNumber, votingDistrict, affiliation, idType, idNumber, password);
+
+        return "redirect:/login?success=registered";
+    }
     public String sendOtp(
             // Personal
             @RequestParam(required=false) String firstName,

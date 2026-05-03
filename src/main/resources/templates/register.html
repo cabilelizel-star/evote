@@ -1,573 +1,528 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>E-Vote — Create Account</title>
-    <style>
-        *{box-sizing:border-box;margin:0;padding:0}
-        body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0faf4;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:32px 16px}
-        .card{background:#fff;border-radius:20px;padding:40px 48px;width:100%;max-width:640px;box-shadow:0 8px 40px rgba(26,107,60,.10)}
-        h1{font-size:28px;font-weight:900;color:#111;text-align:center;margin-bottom:6px}
-        .subtitle{text-align:center;font-size:13px;color:#888;margin-bottom:28px}
-
-        /* Progress bar */
-        .progress-wrap{display:flex;align-items:center;margin-bottom:32px;gap:0}
-        .prog-step{flex:1;text-align:center;position:relative}
-        .prog-step .dot{width:32px;height:32px;border-radius:50%;background:#e5e7eb;color:#aaa;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 6px;transition:all .3s}
-        .prog-step .lbl{font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.5px}
-        .prog-step.active .dot{background:#2d9e5f;color:#fff}
-        .prog-step.done .dot{background:#1a6b3c;color:#fff}
-        .prog-step.active .lbl,.prog-step.done .lbl{color:#1a6b3c}
-        .prog-line{flex:1;height:2px;background:#e5e7eb;margin-bottom:22px;transition:background .3s}
-        .prog-line.done{background:#2d9e5f}
-
-        /* Step panels */
-        .step-panel{display:none}
-        .step-panel.active{display:block}
-
-        /* Section headers */
-        .section-title{font-size:13px;font-weight:800;color:#2d9e5f;text-transform:uppercase;letter-spacing:1px;margin:20px 0 14px;padding-bottom:6px;border-bottom:2px solid #e0f2e9}
-        .section-title:first-child{margin-top:0}
-
-        /* Fields */
-        .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-        .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
-        .field{margin-bottom:16px}
-        .field label{display:block;font-size:11px;font-weight:700;color:#888;letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px}
-        .field input,.field select{width:100%;padding:11px 16px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;color:#222;background:#fff;outline:none;transition:border-color .2s,box-shadow .2s;text-transform:capitalize}
-        .field input[type=email],.field input[type=password],.field input[type=date],.field input[type=number]{text-transform:none}
-        .field input:focus,.field select:focus{border-color:#2d9e5f;box-shadow:0 0 0 3px rgba(45,158,95,.10)}
-        .field input::placeholder{color:#bbb}
-        .field .hint{font-size:11px;color:#aaa;margin-top:4px}
-        .required{color:#e74c3c}
-
-        /* Buttons */
-        .btn-row{display:flex;gap:12px;margin-top:24px}
-        .btn-next{flex:1;padding:13px;background:#2d9e5f;border:none;border-radius:50px;color:#fff;font-size:15px;font-weight:800;letter-spacing:.5px;cursor:pointer;transition:background .2s}
-        .btn-next:hover{background:#1a6b3c}
-        .btn-back{padding:13px 24px;background:#f3f4f6;border:none;border-radius:50px;color:#555;font-size:15px;font-weight:700;cursor:pointer;transition:background .2s}
-        .btn-back:hover{background:#e5e7eb}
-
-        /* Terms */
-        .terms-row{display:flex;align-items:flex-start;gap:10px;margin:20px 0;font-size:13px;color:#555;line-height:1.5}
-        .terms-row input{width:18px;height:18px;margin-top:1px;accent-color:#2d9e5f;cursor:pointer;flex-shrink:0}
-        .terms-row a{color:#1a6b3c;font-weight:700;text-decoration:underline;cursor:pointer}
-
-        /* Alert */
-        .alert-error{background:#fff0f0;color:#c0392b;border:1px solid #f5c6c6;border-radius:8px;padding:12px 16px;font-size:13px;margin-bottom:20px}
-
-        /* Footer */
-        .footer-link{text-align:center;font-size:14px;color:#888;margin-top:20px}
-        .footer-link a{color:#2d9e5f;font-weight:700;text-decoration:none}
-
-        /* Terms Modal */
-        .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center}
-        .modal-overlay.active{display:flex}
-        .modal{background:#fff;border-radius:16px;width:520px;max-width:95vw;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.2);overflow:hidden}
-        .modal-header{padding:16px 24px;background:#f0faf4;border-bottom:2px solid #e0f2e9;display:flex;align-items:center;gap:10px}
-        .modal-header h2{color:#1a6b3c;font-size:16px;font-weight:800;margin:0}
-        .modal-body{padding:20px 24px;overflow-y:auto;flex:1;color:#444;font-size:13px;line-height:1.75}
-        .modal-body h3{color:#1a6b3c;font-size:13px;margin:14px 0 5px;font-weight:700}
-        .modal-body h3:first-child{margin-top:0}
-        .modal-body p{margin-bottom:8px}
-        .modal-footer{padding:14px 24px;border-top:2px solid #e0f2e9;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:#f8fffe}
-        .modal-footer label{display:flex;align-items:center;gap:8px;color:#444;font-size:13px;cursor:pointer;font-weight:600}
-        .scroll-hint{text-align:center;font-size:11px;color:#aaa;padding:6px 0 0}
-        .btn-agree{padding:10px 24px;background:#2d9e5f;border:none;border-radius:50px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;opacity:.4;pointer-events:none}
-        .btn-agree.enabled{opacity:1;pointer-events:all}
-        .btn-cancel-modal{padding:10px 18px;background:transparent;border:1.5px solid #c8e6d4;border-radius:50px;color:#2d9e5f;font-size:13px;font-weight:600;cursor:pointer}
-
-        @media(max-width:560px){
-            .card{padding:28px 16px}
-            .grid-2,.grid-3{grid-template-columns:1fr}
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E-Vote — Create Account</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0faf4;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px}
+.card{background:#fff;border-radius:20px;padding:36px 40px;width:100%;max-width:620px;box-shadow:0 8px 40px rgba(26,107,60,.10)}
+h1{font-size:26px;font-weight:900;color:#111;text-align:center;margin-bottom:4px}
+.subtitle{text-align:center;font-size:13px;color:#888;margin-bottom:24px}
+/* Progress */
+.prog-wrap{display:flex;align-items:center;margin-bottom:28px}
+.prog-step{flex:1;text-align:center}
+.prog-step .dot{width:36px;height:36px;border-radius:50%;background:#e5e7eb;color:#aaa;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 5px;transition:all .3s;border:2px solid #e5e7eb}
+.prog-step .lbl{font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.5px}
+.prog-step.active .dot{background:#2d9e5f;color:#fff;border-color:#2d9e5f;box-shadow:0 0 0 4px rgba(45,158,95,.2)}
+.prog-step.done .dot{background:#1a6b3c;color:#fff;border-color:#1a6b3c}
+.prog-step.active .lbl,.prog-step.done .lbl{color:#1a6b3c}
+.prog-line{flex:1;height:2px;background:#e5e7eb;margin-bottom:20px;transition:background .3s}
+.prog-line.done{background:#2d9e5f}
+/* Steps */
+.step-panel{display:none}.step-panel.active{display:block}
+.sec-title{font-size:12px;font-weight:800;color:#2d9e5f;text-transform:uppercase;letter-spacing:1px;margin:18px 0 12px;padding-bottom:6px;border-bottom:2px solid #e0f2e9}
+.sec-title:first-child{margin-top:0}
+/* Fields */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;font-weight:700;color:#888;letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px}
+.field input,.field select{width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;color:#222;background:#fff;outline:none;transition:border-color .2s,box-shadow .2s;text-transform:capitalize}
+.field input[type=email],.field input[type=password],.field input[type=date],.field input[type=number]{text-transform:none}
+.field input:focus,.field select:focus{border-color:#2d9e5f;box-shadow:0 0 0 3px rgba(45,158,95,.10)}
+.field input::placeholder{color:#bbb}
+.field .hint{font-size:11px;color:#aaa;margin-top:4px}
+.req{color:#e74c3c}
+/* Buttons */
+.btn-row{display:flex;gap:10px;margin-top:20px}
+.btn-next{flex:1;padding:13px;background:#2d9e5f;border:none;border-radius:50px;color:#fff;font-size:15px;font-weight:800;cursor:pointer;transition:background .2s}
+.btn-next:hover{background:#1a6b3c}
+.btn-back{padding:13px 20px;background:#f3f4f6;border:none;border-radius:50px;color:#555;font-size:15px;font-weight:700;cursor:pointer}
+.btn-back:hover{background:#e5e7eb}
+/* OTP */
+.otp-row{display:flex;gap:8px;justify-content:center;margin:16px 0}
+.otp-box{width:46px;height:54px;text-align:center;font-size:22px;font-weight:800;color:#1a6b3c;border:1.5px solid #d1d5db;border-radius:10px;outline:none;background:#fff;transition:border-color .2s,box-shadow .2s}
+.otp-box:focus{border-color:#2d9e5f;box-shadow:0 0 0 3px rgba(45,158,95,.12)}
+.otp-status{padding:10px 14px;border-radius:8px;font-size:13px;margin:10px 0;text-align:center}
+.otp-ok{background:#f0faf4;color:#1a6b3c;border:1px solid #a8dfc0}
+.otp-err{background:#fff0f0;color:#c0392b;border:1px solid #f5c6c6}
+.otp-info{background:#f0f9ff;color:#0369a1;border:1px solid #bae6fd}
+/* Camera */
+.cam-wrap{position:relative;border-radius:12px;overflow:hidden;background:#000;margin-bottom:12px}
+#camFeed{width:100%;display:block;border-radius:12px}
+.face-oval{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:160px;height:200px;border:3px solid rgba(45,158,95,.85);border-radius:50%;pointer-events:none}
+.cam-hint{position:absolute;bottom:8px;left:0;right:0;text-align:center;color:#fff;font-size:12px;text-shadow:0 1px 3px rgba(0,0,0,.8)}
+#selfiePreview{width:100%;border-radius:12px;display:none;border:3px solid #2d9e5f;margin-bottom:10px}
+/* Upload */
+.upload-area{border:2px dashed #c8e6d4;border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;margin-bottom:12px}
+.upload-area:hover,.upload-area.has-file{border-color:#2d9e5f;background:#f8fffe}
+#idPreview{max-width:100%;max-height:160px;border-radius:8px;margin-top:8px;display:none}
+/* ID type */
+.id-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.id-card{border:2px solid #e5e7eb;border-radius:8px;padding:10px;text-align:center;cursor:pointer;transition:border-color .2s}
+.id-card:hover{border-color:#2d9e5f}.id-card.sel{border-color:#1a6b3c;background:#f0faf4}
+.id-card input{display:none}.id-card .ico{font-size:20px;margin-bottom:4px}.id-card .lbl{font-size:11px;font-weight:700;color:#333}
+/* Terms */
+.terms-row{display:flex;align-items:flex-start;gap:10px;margin:14px 0;font-size:13px;color:#555;line-height:1.5}
+.terms-row input{width:18px;height:18px;margin-top:1px;accent-color:#2d9e5f;cursor:pointer;flex-shrink:0}
+.terms-row a{color:#1a6b3c;font-weight:700;text-decoration:underline;cursor:pointer}
+/* Alert */
+.alert-err{background:#fff0f0;color:#c0392b;border:1px solid #f5c6c6;border-radius:8px;padding:12px 16px;font-size:13px;margin-bottom:16px}
+/* Footer */
+.footer-link{text-align:center;font-size:14px;color:#888;margin-top:16px}
+.footer-link a{color:#2d9e5f;font-weight:700;text-decoration:none}
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center}
+.modal-overlay.active{display:flex}
+.modal{background:#fff;border-radius:16px;width:500px;max-width:95vw;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.2);overflow:hidden}
+.modal-header{padding:16px 20px;background:#f0faf4;border-bottom:2px solid #e0f2e9;display:flex;align-items:center;gap:10px}
+.modal-header h2{color:#1a6b3c;font-size:16px;font-weight:800;margin:0}
+.modal-body{padding:18px 20px;overflow-y:auto;flex:1;color:#444;font-size:13px;line-height:1.75}
+.modal-body h3{color:#1a6b3c;font-size:13px;margin:12px 0 4px;font-weight:700}
+.modal-body h3:first-child{margin-top:0}
+.modal-body p{margin-bottom:8px}
+.modal-footer{padding:12px 20px;border-top:2px solid #e0f2e9;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:#f8fffe}
+.modal-footer label{display:flex;align-items:center;gap:8px;color:#444;font-size:13px;cursor:pointer;font-weight:600}
+.scroll-hint{text-align:center;font-size:11px;color:#aaa;padding:6px 0 0}
+.btn-agree{padding:10px 22px;background:#2d9e5f;border:none;border-radius:50px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;opacity:.4;pointer-events:none}
+.btn-agree.enabled{opacity:1;pointer-events:all}
+.btn-cancel-modal{padding:10px 16px;background:transparent;border:1.5px solid #c8e6d4;border-radius:50px;color:#2d9e5f;font-size:13px;font-weight:600;cursor:pointer}
+@media(max-width:560px){.card{padding:24px 16px}.g2,.g3{grid-template-columns:1fr}.id-grid{grid-template-columns:1fr 1fr}.otp-box{width:38px;height:46px;font-size:18px}}
+</style>
 </head>
 <body>
 
 <!-- Terms Modal -->
 <div class="modal-overlay" id="termsModal">
-    <div class="modal">
-        <div class="modal-header"><span>📋</span><h2>Terms &amp; Conditions / Privacy Policy</h2></div>
-        <div class="modal-body" id="modalBody" onscroll="checkScroll()">
-            <h3>1. Eligibility</h3>
-            <p>By registering, you confirm that you are a qualified voter and all information provided is accurate, complete, and truthful. Providing false information is a violation of this agreement.</p>
-            <h3>2. One Vote Per Voter</h3>
-            <p>Each registered voter may cast exactly one (1) vote per election. Multiple voting attempts are strictly prohibited and may result in disqualification.</p>
-            <h3>3. Identity Verification</h3>
-            <p>You consent to identity verification using your uploaded valid ID and selfie photo. This data is used solely for voter identity verification and will not be shared with third parties.</p>
-            <h3>4. Confidentiality of Credentials</h3>
-            <p>You are responsible for keeping your Voter ID and password confidential. Do not share your login credentials with anyone.</p>
-            <h3>5. Data Privacy (R.A. 10173)</h3>
-            <p>Your personal information is collected and processed in compliance with the Data Privacy Act of 2012. It is used solely for voter verification and election administration purposes. You have the right to access, correct, and request deletion of your personal data.</p>
-            <h3>6. Election Integrity</h3>
-            <p>Any attempt to manipulate, tamper with, or interfere with the voting process — including hacking, impersonation, or coercion — is strictly prohibited and may be subject to legal action under applicable laws.</p>
-            <h3>7. Finality of Vote</h3>
-            <p>Once your vote has been cast and confirmed, it is final and cannot be changed or withdrawn. Please review your choice carefully before submitting.</p>
-            <h3>8. OTP Verification</h3>
-            <p>An OTP (One-Time Password) will be sent to your registered email address to verify your identity. This OTP expires in 10 minutes and must not be shared with anyone.</p>
-            <h3>9. Acceptance</h3>
-            <p>By clicking "I Agree", you acknowledge that you have read, understood, and agree to be bound by these Terms &amp; Conditions and Privacy Policy.</p>
-            <div class="scroll-hint" id="scrollHint">↓ Scroll down to read all terms</div>
-        </div>
-        <div class="modal-footer">
-            <label><input type="checkbox" id="agreeCheck" onchange="toggleAgree()" disabled> I agree to the Terms &amp; Conditions and Privacy Policy</label>
-            <div style="display:flex;gap:8px">
-                <button class="btn-cancel-modal" onclick="closeModal()">Cancel</button>
-                <button class="btn-agree" id="agreeBtn" onclick="acceptTerms()">I Agree ✓</button>
-            </div>
-        </div>
+  <div class="modal">
+    <div class="modal-header"><span>📋</span><h2>Terms &amp; Conditions / Privacy Policy</h2></div>
+    <div class="modal-body" id="modalBody" onscroll="chkScroll()">
+      <h3>1. Eligibility</h3><p>You confirm all information provided is accurate and truthful.</p>
+      <h3>2. One Vote Per Voter</h3><p>Each voter may cast exactly one vote per election.</p>
+      <h3>3. Identity Verification</h3><p>You consent to face verification using your uploaded ID and selfie for identity purposes only.</p>
+      <h3>4. Confidentiality</h3><p>Keep your Voter ID and password confidential at all times.</p>
+      <h3>5. Data Privacy (R.A. 10173)</h3><p>Your personal information is collected and processed in compliance with the Data Privacy Act of 2012, solely for voter verification and election administration.</p>
+      <h3>6. Election Integrity</h3><p>Any attempt to manipulate the voting process is strictly prohibited and may result in legal action.</p>
+      <h3>7. Finality of Vote</h3><p>Once cast, your vote is final and cannot be changed.</p>
+      <h3>8. OTP Verification</h3><p>An OTP sent to your email verifies your identity. It expires in 10 minutes and must not be shared.</p>
+      <h3>9. Acceptance</h3><p>By clicking "I Agree", you accept these Terms &amp; Conditions and Privacy Policy in full.</p>
+      <div class="scroll-hint" id="scrollHint">↓ Scroll to read all terms</div>
     </div>
+    <div class="modal-footer">
+      <label><input type="checkbox" id="agreeCheck" onchange="toggleAgree()" disabled> I agree to the Terms &amp; Conditions and Privacy Policy</label>
+      <div style="display:flex;gap:8px">
+        <button class="btn-cancel-modal" onclick="closeModal()">Cancel</button>
+        <button class="btn-agree" id="agreeBtn" onclick="acceptTerms()">I Agree ✓</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="card">
-    <div style="text-align:center;font-size:32px;margin-bottom:8px">🗳</div>
-    <h1>Create Account</h1>
-    <p class="subtitle">E-Vote System — Voter Registration</p>
+  <div style="text-align:center;font-size:28px;margin-bottom:6px">🗳</div>
+  <h1>Create Account</h1>
+  <p class="subtitle">E-Vote System — Voter Registration</p>
 
-    <!-- Progress -->
-    <div class="progress-wrap">
-        <div class="prog-step active" id="ps1"><div class="dot">1</div><div class="lbl">Personal</div></div>
-        <div class="prog-line" id="pl1"></div>
-        <div class="prog-step" id="ps2"><div class="dot">2</div><div class="lbl">Address</div></div>
-        <div class="prog-line" id="pl2"></div>
-        <div class="prog-step" id="ps3"><div class="dot">3</div><div class="lbl">Contact</div></div>
-        <div class="prog-line" id="pl3"></div>
-        <div class="prog-step" id="ps4"><div class="dot">4</div><div class="lbl">Voter Info</div></div>
-        <div class="prog-line" id="pl4"></div>
-        <div class="prog-step" id="ps5"><div class="dot">5</div><div class="lbl">Account</div></div>
+  <!-- Progress bar -->
+  <div class="prog-wrap">
+    <div class="prog-step active" id="ps1"><div class="dot">1</div><div class="lbl">Step 1</div></div>
+    <div class="prog-line" id="pl1"></div>
+    <div class="prog-step" id="ps2"><div class="dot">2</div><div class="lbl">Step 2</div></div>
+    <div class="prog-line" id="pl2"></div>
+    <div class="prog-step" id="ps3"><div class="dot">3</div><div class="lbl">Step 3</div></div>
+    <div class="prog-line" id="pl3"></div>
+    <div class="prog-step" id="ps4"><div class="dot">4</div><div class="lbl">Step 4</div></div>
+    <div class="prog-line" id="pl4"></div>
+    <div class="prog-step" id="ps5"><div class="dot">5</div><div class="lbl">Step 5</div></div>
+  </div>
+
+  <div id="stepError" class="alert-err" style="display:none"></div>
+  <div th:if="${error}" class="alert-err" th:text="${error}"></div>
+
+  <form method="post" th:action="@{/register/submit}" id="regForm" enctype="multipart/form-data">
+    <input type="hidden" name="selfieData" id="selfieData">
+    <input type="hidden" name="otpVerified" id="otpVerified" value="false">
+    <input type="hidden" name="name" id="fullName">
+
+    <!-- ── STEP 1: Personal ──────────────────────────────── -->
+    <div class="step-panel active" id="sp1">
+      <div class="sec-title">🪪 Personal Information</div>
+      <div class="g3">
+        <div class="field"><label>First Name <span class="req">*</span></label><input type="text" name="firstName" id="fn" placeholder="Juan" required></div>
+        <div class="field"><label>Middle Name</label><input type="text" name="middleName" placeholder="Santos"></div>
+        <div class="field"><label>Last Name <span class="req">*</span></label><input type="text" name="lastName" id="ln" placeholder="dela Cruz" required></div>
+      </div>
+      <div class="g2">
+        <div class="field"><label>Date of Birth <span class="req">*</span></label><input type="date" name="dateOfBirth" id="dob" required><div class="hint">Must be 18+</div></div>
+        <div class="field"><label>Gender</label>
+          <select name="gender"><option value="" disabled selected>Select gender</option><option>Male</option><option>Female</option><option>Other</option><option>Prefer not to say</option></select>
+        </div>
+      </div>
+      <div class="btn-row"><button type="button" class="btn-next" onclick="next(1)">Next →</button></div>
     </div>
 
-    <div th:if="${error}" class="alert-error" th:text="${error}"></div>
-
-    <form method="post" th:action="@{/register/send-otp}" id="regForm">
-
-        <!-- ── Step 1: Personal Information ──────────────────── -->
-        <div class="step-panel active" id="sp1">
-            <div class="section-title">🪪 Personal Information</div>
-            <div class="grid-3">
-                <div class="field">
-                    <label>First Name <span class="required">*</span></label>
-                    <input type="text" name="firstName" id="firstName" placeholder="Juan" required>
-                </div>
-                <div class="field">
-                    <label>Middle Name</label>
-                    <input type="text" name="middleName" placeholder="Santos">
-                </div>
-                <div class="field">
-                    <label>Last Name <span class="required">*</span></label>
-                    <input type="text" name="lastName" id="lastName" placeholder="dela Cruz" required>
-                </div>
-            </div>
-            <div class="grid-2">
-                <div class="field">
-                    <label>Date of Birth <span class="required">*</span></label>
-                    <input type="date" name="dateOfBirth" id="dob" required>
-                    <div class="hint">Must be 18 years or older</div>
-                </div>
-                <div class="field">
-                    <label>Gender</label>
-                    <select name="gender">
-                        <option value="" disabled selected>Select gender</option>
-                        <option>Male</option>
-                        <option>Female</option>
-                        <option>Other</option>
-                        <option>Prefer not to say</option>
-                    </select>
-                </div>
-            </div>
-            <div class="btn-row">
-                <button type="button" class="btn-next" onclick="nextStep(1)">Next: Address →</button>
-            </div>
+    <!-- ── STEP 2: Address ───────────────────────────────── -->
+    <div class="step-panel" id="sp2">
+      <div class="sec-title">📍 Address Information</div>
+      <div class="field"><label>House/Unit No. &amp; Street <span class="req">*</span></label><input type="text" name="street" placeholder="123 Rizal Street" required></div>
+      <div class="g2">
+        <div class="field"><label>Barangay <span class="req">*</span></label>
+          <select name="barangay" id="brgySelect" required><option value="" disabled selected>Select city first</option></select>
         </div>
-
-        <!-- ── Step 2: Address Information ───────────────────── -->
-        <div class="step-panel" id="sp2">
-            <div class="section-title">📍 Address Information</div>
-            <div class="field">
-                <label>House/Unit No. &amp; Street <span class="required">*</span></label>
-                <input type="text" name="street" placeholder="123 Rizal Street" required>
-            </div>
-            <div class="grid-2">
-                <div class="field">
-                    <label>Barangay <span class="required">*</span></label>
-                    <select name="barangay" id="barangaySelect" required>
-                        <option value="" disabled selected>Select city first</option>
-                    </select>
-                </div>
-                <div class="field">
-                    <label>City / Municipality <span class="required">*</span></label>
-                    <select name="city" id="citySelect" onchange="onCityChange(this.value)" required>
-                        <option value="" disabled selected>Select city/municipality</option>
-                        <option value="Alaminos">Alaminos</option>
-                        <option value="Bay">Bay</option>
-                        <option value="Biñan">Biñan</option>
-                        <option value="Cabuyao">Cabuyao</option>
-                        <option value="Calamba">Calamba</option>
-                        <option value="Calauan">Calauan</option>
-                        <option value="Cavinti">Cavinti</option>
-                        <option value="Famy">Famy</option>
-                        <option value="Kalayaan">Kalayaan</option>
-                        <option value="Liliw">Liliw</option>
-                        <option value="Los Baños">Los Baños</option>
-                        <option value="Luisiana">Luisiana</option>
-                        <option value="Lumban">Lumban</option>
-                        <option value="Mabitac">Mabitac</option>
-                        <option value="Magdalena">Magdalena</option>
-                        <option value="Majayjay">Majayjay</option>
-                        <option value="Nagcarlan">Nagcarlan</option>
-                        <option value="Paete">Paete</option>
-                        <option value="Pagsanjan">Pagsanjan</option>
-                        <option value="Pakil">Pakil</option>
-                        <option value="Pangil">Pangil</option>
-                        <option value="Pila">Pila</option>
-                        <option value="Rizal">Rizal</option>
-                        <option value="San Pablo">San Pablo</option>
-                        <option value="San Pedro">San Pedro</option>
-                        <option value="Santa Cruz">Santa Cruz</option>
-                        <option value="Santa Maria">Santa Maria</option>
-                        <option value="Santo Tomas">Santo Tomas</option>
-                        <option value="Siniloan">Siniloan</option>
-                        <option value="Victoria">Victoria</option>
-                    </select>
-                </div>
-            </div>
-            <div class="grid-2">
-                <div class="field">
-                    <label>Province</label>
-                    <input type="text" name="province" id="provinceField" value="Laguna" readonly
-                           style="background:#f0faf4;color:#1a6b3c;font-weight:700;cursor:not-allowed">
-                </div>
-                <div class="field">
-                    <label>ZIP Code</label>
-                    <input type="text" name="zipCode" id="zipField" placeholder="Auto-filled" readonly
-                           style="background:#f0faf4;color:#1a6b3c;font-weight:700;cursor:not-allowed">
-                </div>
-            </div>
-            <div class="btn-row">
-                <button type="button" class="btn-back" onclick="goStep(1)">← Back</button>
-                <button type="button" class="btn-next" onclick="nextStep(2)">Next: Contact →</button>
-            </div>
+        <div class="field"><label>City / Municipality <span class="req">*</span></label>
+          <select name="city" id="citySelect" onchange="onCity(this.value)" required>
+            <option value="" disabled selected>Select city</option>
+            <option>Alaminos</option><option>Bay</option><option>Biñan</option><option>Cabuyao</option>
+            <option>Calamba</option><option>Calauan</option><option>Cavinti</option><option>Famy</option>
+            <option>Kalayaan</option><option>Liliw</option><option>Los Baños</option><option>Luisiana</option>
+            <option>Lumban</option><option>Mabitac</option><option>Magdalena</option><option>Majayjay</option>
+            <option>Nagcarlan</option><option>Paete</option><option>Pagsanjan</option><option>Pakil</option>
+            <option>Pangil</option><option>Pila</option><option>Rizal</option><option>San Pablo</option>
+            <option>San Pedro</option><option>Santa Cruz</option><option>Santa Maria</option>
+            <option>Santo Tomas</option><option>Siniloan</option><option>Victoria</option>
+          </select>
         </div>
-
-        <!-- ── Step 3: Contact Information ───────────────────── -->
-        <div class="step-panel" id="sp3">
-            <div class="section-title">📞 Contact Information</div>
-            <div class="field">
-                <label>Mobile Number <span class="required">*</span></label>
-                <input type="tel" name="mobileNumber" id="mobile" placeholder="09XXXXXXXXX" pattern="09[0-9]{9}" required>
-                <div class="hint">Philippine format: 09XXXXXXXXX (11 digits)</div>
-            </div>
-            <div class="field">
-                <label>Email Address <span class="required">*</span></label>
-                <input type="email" name="email" id="emailField" placeholder="example@gmail.com" required>
-                <div class="hint">An OTP will be sent to this email for verification</div>
-            </div>
-            <div class="btn-row">
-                <button type="button" class="btn-back" onclick="goStep(2)">← Back</button>
-                <button type="button" class="btn-next" onclick="nextStep(3)">Next: Voter Info →</button>
-            </div>
-        </div>
-
-        <!-- ── Step 4: Voter-Specific Information ────────────── -->
-        <div class="step-panel" id="sp4">
-            <div class="section-title">🗳 Voter Information</div>
-            <div class="grid-2">
-                <div class="field">
-                    <label>Voter ID Number</label>
-                    <input type="text" name="voterIdNumber" placeholder="e.g. 1234-5678-9012">
-                    <div class="hint">Your existing voter registration number (if any)</div>
-                </div>
-                <div class="field">
-                    <label>Voting District / Precinct</label>
-                    <input type="text" name="votingDistrict" placeholder="e.g. Precinct 001A">
-                </div>
-            </div>
-            <div class="field">
-                <label>Affiliation</label>
-                <input type="text" name="affiliation" placeholder="e.g. School, Organization, Community">
-            </div>
-            <div class="section-title" style="margin-top:20px">🆔 Identity Verification</div>
-            <div class="grid-2">
-                <div class="field">
-                    <label>Valid ID Type <span class="required">*</span></label>
-                    <select name="idType" required>
-                        <option value="" disabled selected>Select ID type</option>
-                        <option>Philippine Passport</option>
-                        <option>National ID (PhilSys)</option>
-                        <option>Driver's License</option>
-                        <option>Voter's ID</option>
-                        <option>SSS ID</option>
-                        <option>GSIS ID</option>
-                        <option>PhilHealth ID</option>
-                        <option>Postal ID</option>
-                        <option>PRC ID</option>
-                        <option>School ID</option>
-                    </select>
-                </div>
-                <div class="field">
-                    <label>ID Number <span class="required">*</span></label>
-                    <input type="text" name="idNumber" placeholder="Enter ID number" required>
-                </div>
-            </div>
-            <div class="btn-row">
-                <button type="button" class="btn-back" onclick="goStep(3)">← Back</button>
-                <button type="button" class="btn-next" onclick="nextStep(4)">Next: Account →</button>
-            </div>
-        </div>
-
-        <!-- ── Step 5: Account Credentials ──────────────────── -->
-        <div class="step-panel" id="sp5">
-            <div class="section-title">🔐 Account Credentials</div>
-            <div class="field">
-                <label>Username / Voter ID <span class="required">*</span></label>
-                <input type="text" name="voterId" id="voterId" placeholder="Choose a unique Voter ID (e.g. V001)" required>
-                <div class="hint">This will be your login username</div>
-            </div>
-            <div class="grid-2">
-                <div class="field">
-                    <label>Password <span class="required">*</span></label>
-                    <input type="password" name="password" id="pwField" placeholder="Min. 6 characters" required>
-                </div>
-                <div class="field">
-                    <label>Confirm Password <span class="required">*</span></label>
-                    <input type="password" name="confirm" id="confirmField" placeholder="Re-enter password" required>
-                </div>
-            </div>
-
-            <div class="section-title" style="margin-top:20px">✅ Agreements</div>
-            <div class="terms-row">
-                <input type="checkbox" id="termsCheck" required>
-                <label for="termsCheck">
-                    I have read and agree to the
-                    <a onclick="openModal()">Terms &amp; Conditions</a>
-                    and
-                    <a onclick="openModal()">Privacy Policy</a>
-                    of the E-Vote System.
-                </label>
-            </div>
-            <div class="terms-row">
-                <input type="checkbox" id="privacyCheck" required>
-                <label for="privacyCheck">
-                    I consent to the collection and processing of my personal data in accordance with the
-                    <strong>Data Privacy Act of 2012 (R.A. 10173)</strong>.
-                </label>
-            </div>
-
-            <!-- Hidden field for full name (auto-built from first+last) -->
-            <input type="hidden" name="name" id="fullNameHidden">
-
-            <div class="btn-row">
-                <button type="button" class="btn-back" onclick="goStep(4)">← Back</button>
-                <button type="button" class="btn-next" onclick="submitForm()">Send OTP to Email →</button>
-            </div>
-        </div>
-
-    </form>
-
-    <div class="footer-link">
-        Already have an account? <a th:href="@{/login}">Sign in</a>
+      </div>
+      <div class="g2">
+        <div class="field"><label>Province</label><input type="text" name="province" value="Laguna" readonly style="background:#f0faf4;color:#1a6b3c;font-weight:700;cursor:not-allowed"></div>
+        <div class="field"><label>ZIP Code</label><input type="text" name="zipCode" id="zipField" placeholder="Auto-filled" readonly style="background:#f0faf4;color:#1a6b3c;font-weight:700;cursor:not-allowed"></div>
+      </div>
+      <div class="btn-row"><button type="button" class="btn-back" onclick="go(1)">← Back</button><button type="button" class="btn-next" onclick="next(2)">Next →</button></div>
     </div>
+
+    <!-- ── STEP 3: Contact + OTP ─────────────────────────── -->
+    <div class="step-panel" id="sp3">
+      <div class="sec-title">📞 Contact &amp; Email Verification</div>
+      <div class="field"><label>Mobile Number <span class="req">*</span></label><input type="tel" name="mobileNumber" id="mobile" placeholder="09XXXXXXXXX" required><div class="hint">Philippine format: 09XXXXXXXXX</div></div>
+      <div class="field"><label>Email Address <span class="req">*</span></label><input type="email" name="email" id="emailField" placeholder="example@gmail.com" required><div class="hint">An OTP will be sent here</div></div>
+      <button type="button" class="btn-next" id="sendOtpBtn" onclick="sendOtp()" style="width:100%;margin-bottom:14px">📧 Send OTP Code</button>
+
+      <!-- OTP entry (hidden until sent) -->
+      <div id="otpSection" style="display:none">
+        <div class="sec-title" style="margin-top:0">🔢 Enter OTP Code</div>
+        <p style="font-size:13px;color:#555;margin-bottom:4px">Enter the 6-digit code sent to your email.</p>
+        <div class="otp-row">
+          <input class="otp-box" type="text" maxlength="1" id="o1" oninput="om(this,'o2')" onkeydown="ob(event,this,'')">
+          <input class="otp-box" type="text" maxlength="1" id="o2" oninput="om(this,'o3')" onkeydown="ob(event,this,'o1')">
+          <input class="otp-box" type="text" maxlength="1" id="o3" oninput="om(this,'o4')" onkeydown="ob(event,this,'o2')">
+          <input class="otp-box" type="text" maxlength="1" id="o4" oninput="om(this,'o5')" onkeydown="ob(event,this,'o3')">
+          <input class="otp-box" type="text" maxlength="1" id="o5" oninput="om(this,'o6')" onkeydown="ob(event,this,'o4')">
+          <input class="otp-box" type="text" maxlength="1" id="o6" oninput="om(this,'')"   onkeydown="ob(event,this,'o5')">
+        </div>
+        <div id="otpMsg"></div>
+        <button type="button" class="btn-next" id="verifyOtpBtn" onclick="verifyOtp()" style="width:100%;margin-bottom:8px">✓ Verify Code</button>
+        <p style="text-align:center;font-size:12px;color:#aaa">Code expires in <span id="otpTimer">10:00</span> &nbsp;|&nbsp; <a href="#" onclick="sendOtp();return false" style="color:#2d9e5f;font-weight:700">Resend</a></p>
+      </div>
+
+      <div class="btn-row" style="margin-top:16px"><button type="button" class="btn-back" onclick="go(2)">← Back</button><button type="button" class="btn-next" id="step3Next" onclick="next(3)" disabled>Next →</button></div>
+    </div>
+
+    <!-- ── STEP 4: Voter Info + ID ───────────────────────── -->
+    <div class="step-panel" id="sp4">
+      <div class="sec-title">🗳 Voter Information</div>
+      <div class="g2">
+        <div class="field"><label>Voter ID Number</label><input type="text" name="voterIdNumber" placeholder="e.g. 1234-5678-9012"><div class="hint">Existing registration number (if any)</div></div>
+        <div class="field"><label>Voting District / Precinct</label><input type="text" name="votingDistrict" placeholder="e.g. Precinct 001A"></div>
+      </div>
+      <div class="field"><label>Affiliation</label><input type="text" name="affiliation" placeholder="e.g. School, Organization"></div>
+
+      <div class="sec-title">🆔 Valid ID</div>
+      <div class="id-grid">
+        <label class="id-card" onclick="selId(this,'Philippine Passport')"><input type="radio" name="idType" value="Philippine Passport"><div class="ico">📘</div><div class="lbl">Passport</div></label>
+        <label class="id-card" onclick="selId(this,'National ID (PhilSys)')"><input type="radio" name="idType" value="National ID (PhilSys)"><div class="ico">🪪</div><div class="lbl">National ID</div></label>
+        <label class="id-card" onclick="selId(this,'Driver\'s License')"><input type="radio" name="idType" value="Driver's License"><div class="ico">🚗</div><div class="lbl">Driver's License</div></label>
+        <label class="id-card" onclick="selId(this,'Voter\'s ID')"><input type="radio" name="idType" value="Voter's ID"><div class="ico">🗳</div><div class="lbl">Voter's ID</div></label>
+        <label class="id-card" onclick="selId(this,'SSS ID')"><input type="radio" name="idType" value="SSS ID"><div class="ico">��</div><div class="lbl">SSS ID</div></label>
+        <label class="id-card" onclick="selId(this,'PhilHealth ID')"><input type="radio" name="idType" value="PhilHealth ID"><div class="ico">🏥</div><div class="lbl">PhilHealth ID</div></label>
+      </div>
+      <div class="field"><label>ID Number</label><input type="text" name="idNumber" placeholder="Enter your ID number"></div>
+      <div class="upload-area" id="uploadArea" onclick="document.getElementById('idPhoto').click()">
+        <div style="font-size:28px;margin-bottom:6px">📤</div>
+        <p style="font-size:13px;color:#666;font-weight:600">Click to upload ID photo</p>
+        <p style="font-size:11px;color:#aaa;margin-top:3px">JPG or PNG — max 10MB</p>
+        <img id="idPreview" src="" alt="">
+      </div>
+      <input type="file" name="idPhoto" id="idPhoto" accept="image/*" style="display:none" onchange="prevId(this)">
+
+      <div class="btn-row"><button type="button" class="btn-back" onclick="go(3)">← Back</button><button type="button" class="btn-next" onclick="next(4)">Next →</button></div>
+    </div>
+
+    <!-- ── STEP 5: Account + Face + Terms ───────────────── -->
+    <div class="step-panel" id="sp5">
+      <div class="sec-title">🔐 Account Credentials</div>
+      <div class="field"><label>Username / Voter ID <span class="req">*</span></label><input type="text" name="voterId" id="voterId" placeholder="Choose a unique Voter ID (e.g. V001)" required><div class="hint">This will be your login username</div></div>
+      <div class="g2">
+        <div class="field"><label>Password <span class="req">*</span></label><input type="password" name="password" id="pw" placeholder="Min. 6 characters" required></div>
+        <div class="field"><label>Confirm Password <span class="req">*</span></label><input type="password" name="confirm" id="cpw" placeholder="Re-enter password" required></div>
+      </div>
+
+      <div class="sec-title">📸 Face Verification</div>
+      <p style="font-size:13px;color:#555;margin-bottom:12px">Take a selfie to verify your identity matches your ID. <span style="color:#888">(Optional — you may skip)</span></p>
+      <div id="camSection">
+        <div class="cam-wrap"><video id="camFeed" autoplay playsinline muted></video><div class="face-oval"></div><div class="cam-hint">Align your face with the oval</div></div>
+        <div class="btn-row"><button type="button" class="btn-next" onclick="snap()">📸 Take Selfie</button><button type="button" class="btn-back" onclick="skipFace()">Skip →</button></div>
+      </div>
+      <div id="selfieSection" style="display:none">
+        <img id="selfiePreview" src="" alt="">
+        <div class="otp-status otp-ok">✅ Selfie captured!</div>
+        <button type="button" class="btn-back" style="width:100%;margin-bottom:10px" onclick="retake()">🔄 Retake</button>
+      </div>
+
+      <div class="sec-title">✅ Agreements</div>
+      <div class="terms-row">
+        <input type="checkbox" id="termsCheck" required>
+        <label for="termsCheck">I have read and agree to the <a onclick="openModal()">Terms &amp; Conditions</a> and <a onclick="openModal()">Privacy Policy</a>.</label>
+      </div>
+      <div class="terms-row">
+        <input type="checkbox" id="privacyCheck" required>
+        <label for="privacyCheck">I consent to the collection of my personal data under the <strong>Data Privacy Act of 2012 (R.A. 10173)</strong>.</label>
+      </div>
+
+      <div class="btn-row">
+        <button type="button" class="btn-back" onclick="stopCam();go(4)">← Back</button>
+        <button type="button" class="btn-next" onclick="submitFinal()">✅ Create Account</button>
+      </div>
+    </div>
+
+  </form>
+  <div class="footer-link">Already have an account? <a th:href="@{/login}">Sign in</a></div>
 </div>
 
 <script>
-// ── ZIP + Barangay auto-fill ──────────────────────────────────
-const ZIP_CODES = {
-    'Alaminos':'4001','Bay':'4033','Biñan':'4024','Cabuyao':'4025',
-    'Calamba':'4027','Calauan':'4012','Cavinti':'4013','Famy':'4021',
-    'Kalayaan':'4015','Liliw':'4004','Los Baños':'4030','Luisiana':'4032',
-    'Lumban':'4014','Mabitac':'4020','Magdalena':'4007','Majayjay':'4005',
-    'Nagcarlan':'4002','Paete':'4016','Pagsanjan':'4008','Pakil':'4017',
-    'Pangil':'4018','Pila':'4010','Rizal':'4003','San Pablo':'4000',
-    'San Pedro':'4023','Santa Cruz':'4009','Santa Maria':'4022',
-    'Santo Tomas':'4234','Siniloan':'4019','Victoria':'4011'
-};
-
-const BARANGAYS = {
-    'Santa Cruz': [
-        'Bagong Anyo','Bubukal','Duhat','Gatid','Labuin','Palasan',
-        'Pagsawitan','Patimbao','Poblacion Uno','Poblacion Dos',
-        'Sto. Angel Norte','Sto. Angel Sur','Sto. Angel Central'
-    ],
-    'Biñan': [
-        'Biñan','Canlalay','Casile','De La Paz','Ganado','Langkiwa',
-        'Loma','Malaban','Malamig','Mampalasan','Platero','Poblacion',
-        'San Antonio','San Francisco','San Jose','San Vicente',
-        'Santo Domingo','Santo Tomas','Soro-soro','Timbao','Tubigan','Zapote'
-    ],
-    'Calamba': [
-        'Bagong Kalsada','Banadero','Banlic','Batino','Burol','Canlubang',
-        'Halang','Laguerta','Lawa','Lecheria','Lingga','Looc','Mabato',
-        'Makiling','Mapagong','Masili','Maunong','Mayapa','Milagrosa',
-        'Paciano Rizal','Palo-Alto','Pansol','Parian','Prinza','Punta',
-        'Puting Lupa','Real','Saimsim','Sampiruhan','San Cristobal',
-        'San Jose','San Juan','Sirang Lupa','Sucol','Turbina','Ulango','Uwisan'
-    ],
-    'San Pablo': [
-        'Atisan','Bagong Bayan','Concepcion','Del Remedio','Dolores',
-        'San Antonio 1','San Antonio 2','San Bartolome','San Buenaventura',
-        'San Francisco','San Gabriel','San Gregorio','San Ignacio',
-        'San Isidro','San Jose','San Juan','San Lucas 1','San Lucas 2',
-        'San Marcos','San Mateo','San Miguel','San Nicolas','San Pedro',
-        'San Rafael','San Roque','San Salvador','San Sebastian',
-        'Santa Catalina','Santa Cruz','Santa Filomena','Santa Maria',
-        'Santa Monica','Santa Veronica','Santiago 1','Santiago 2',
-        'Santisimo Rosario','Santo Angel','Santo Cristo','Santo Niño 1',
-        'Santo Niño 2','Soledad'
-    ]
-};
-
-function onCityChange(city) {
-    document.getElementById('zipField').value = ZIP_CODES[city] || '';
-    const sel = document.getElementById('barangaySelect');
-    sel.innerHTML = '<option value="" disabled selected>Select barangay</option>';
-    const brgys = BARANGAYS[city];
-    if (brgys && brgys.length > 0) {
-        brgys.sort().forEach(b => {
-            const opt = document.createElement('option');
-            opt.value = b; opt.textContent = b;
-            sel.appendChild(opt);
-        });
-        sel.disabled = false;
-        sel.name = 'barangay';
-        const fb = document.getElementById('barangayFallback');
-        if (fb) { fb.style.display = 'none'; fb.removeAttribute('name'); }
-    } else {
-        sel.disabled = true;
-        sel.removeAttribute('name');
-        let fb = document.getElementById('barangayFallback');
-        if (!fb) {
-            fb = document.createElement('input');
-            fb.type = 'text'; fb.id = 'barangayFallback';
-            fb.name = 'barangay'; fb.placeholder = 'Enter barangay name';
-            fb.required = true;
-            fb.style.cssText = 'width:100%;padding:11px 16px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;margin-top:6px;text-transform:capitalize;outline:none;box-sizing:border-box';
-            sel.parentNode.appendChild(fb);
-        } else { fb.style.display = 'block'; fb.name = 'barangay'; }
-    }
-}
-
-let currentStep = 1;
+// ── Progress navigation ───────────────────────────────────────
+let cur = 1;
 const TOTAL = 5;
 
-function goStep(n) {
-    document.getElementById('sp' + currentStep).classList.remove('active');
-    // Update progress
-    for (let i = 1; i <= TOTAL; i++) {
-        const ps = document.getElementById('ps' + i);
-        ps.classList.remove('active', 'done');
-        if (i < n) ps.classList.add('done');
-        if (i === n) ps.classList.add('active');
-        if (i < TOTAL) {
-            const pl = document.getElementById('pl' + i);
-            pl.classList.toggle('done', i < n);
-        }
-    }
-    currentStep = n;
-    document.getElementById('sp' + n).classList.add('active');
-    window.scrollTo({top: 0, behavior: 'smooth'});
+function go(n) {
+  document.getElementById('sp' + cur).classList.remove('active');
+  for (let i = 1; i <= TOTAL; i++) {
+    const ps = document.getElementById('ps' + i);
+    ps.classList.remove('active','done');
+    if (i < n) ps.classList.add('done');
+    if (i === n) ps.classList.add('active');
+    if (i < TOTAL) document.getElementById('pl' + i).classList.toggle('done', i < n);
+  }
+  cur = n;
+  document.getElementById('sp' + n).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
-function nextStep(from) {
-    // Validate current step fields
-    const panel = document.getElementById('sp' + from);
-    const inputs = panel.querySelectorAll('input[required], select[required]');
-    for (const inp of inputs) {
-        if (!inp.value.trim()) {
-            inp.focus();
-            inp.style.borderColor = '#e74c3c';
-            setTimeout(() => inp.style.borderColor = '', 2000);
-            showError('Please fill in all required fields.');
-            return;
-        }
+function next(from) {
+  const panel = document.getElementById('sp' + from);
+  for (const inp of panel.querySelectorAll('input[required],select[required]')) {
+    if (!inp.value.trim()) {
+      inp.focus(); inp.style.borderColor='#e74c3c';
+      setTimeout(()=>inp.style.borderColor='',2000);
+      showErr('Please fill in all required fields.'); return;
     }
-    // Age check on step 1
-    if (from === 1) {
-        const dob = document.getElementById('dob').value;
-        if (dob) {
-            const age = Math.floor((new Date() - new Date(dob)) / (365.25 * 24 * 3600 * 1000));
-            if (age < 18) { showError('You must be at least 18 years old to register.'); return; }
-        }
+  }
+  if (from === 1) {
+    const dob = document.getElementById('dob').value;
+    if (dob && Math.floor((new Date()-new Date(dob))/(365.25*24*3600*1000)) < 18) {
+      showErr('You must be at least 18 years old.'); return;
     }
-    // Mobile format check on step 3
-    if (from === 3) {
-        const mob = document.getElementById('mobile').value;
-        if (!/^09\d{9}$/.test(mob)) { showError('Mobile number must be in format 09XXXXXXXXX (11 digits).'); return; }
+  }
+  if (from === 3) {
+    if (document.getElementById('otpVerified').value !== 'true') {
+      showErr('Please verify your email with the OTP code first.'); return;
     }
-    clearError();
-    goStep(from + 1);
+    const mob = document.getElementById('mobile').value;
+    if (!/^09\d{9}$/.test(mob)) { showErr('Mobile must be 09XXXXXXXXX format.'); return; }
+  }
+  clearErr(); go(from + 1);
+  if (from + 1 === 5) startCam();
 }
 
-function submitForm() {
-    // Validate step 5
-    const voterId = document.getElementById('voterId').value.trim();
-    const pw      = document.getElementById('pwField').value;
-    const conf    = document.getElementById('confirmField').value;
-    const terms   = document.getElementById('termsCheck').checked;
-    const privacy = document.getElementById('privacyCheck').checked;
+function showErr(m) {
+  const el = document.getElementById('stepError');
+  el.textContent = '⚠ ' + m; el.style.display = 'block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function clearErr() { document.getElementById('stepError').style.display = 'none'; }
 
-    if (!voterId) { showError('Please enter a Voter ID.'); return; }
-    if (pw.length < 6) { showError('Password must be at least 6 characters.'); return; }
-    if (pw !== conf)   { showError('Passwords do not match.'); return; }
-    if (!terms || !privacy) { showError('You must agree to the Terms & Conditions and Privacy Policy.'); return; }
+// ── City / Barangay / ZIP ─────────────────────────────────────
+const ZIPS = {'Alaminos':'4001','Bay':'4033','Biñan':'4024','Cabuyao':'4025','Calamba':'4027','Calauan':'4012','Cavinti':'4013','Famy':'4021','Kalayaan':'4015','Liliw':'4004','Los Baños':'4030','Luisiana':'4032','Lumban':'4014','Mabitac':'4020','Magdalena':'4007','Majayjay':'4005','Nagcarlan':'4002','Paete':'4016','Pagsanjan':'4008','Pakil':'4017','Pangil':'4018','Pila':'4010','Rizal':'4003','San Pablo':'4000','San Pedro':'4023','Santa Cruz':'4009','Santa Maria':'4022','Santo Tomas':'4234','Siniloan':'4019','Victoria':'4011'};
+const BRGYS = {'Santa Cruz':['Bagong Anyo','Bubukal','Duhat','Gatid','Labuin','Palasan','Pagsawitan','Patimbao','Poblacion Uno','Poblacion Dos','Sto. Angel Norte','Sto. Angel Sur','Sto. Angel Central'],'Biñan':['Biñan','Canlalay','Casile','De La Paz','Ganado','Langkiwa','Loma','Malaban','Malamig','Mampalasan','Platero','Poblacion','San Antonio','San Francisco','San Jose','San Vicente','Santo Domingo','Santo Tomas','Soro-soro','Timbao','Tubigan','Zapote'],'Calamba':['Bagong Kalsada','Banadero','Banlic','Batino','Burol','Canlubang','Halang','Laguerta','Lawa','Lecheria','Lingga','Looc','Mabato','Makiling','Mapagong','Masili','Maunong','Mayapa','Milagrosa','Paciano Rizal','Palo-Alto','Pansol','Parian','Prinza','Punta','Puting Lupa','Real','Saimsim','Sampiruhan','San Cristobal','San Jose','San Juan','Sirang Lupa','Sucol','Turbina','Ulango','Uwisan'],'San Pablo':['Atisan','Bagong Bayan','Concepcion','Del Remedio','Dolores','San Antonio 1','San Antonio 2','San Bartolome','San Buenaventura','San Francisco','San Gabriel','San Gregorio','San Ignacio','San Isidro','San Jose','San Juan','San Lucas 1','San Lucas 2','San Marcos','San Mateo','San Miguel','San Nicolas','San Pedro','San Rafael','San Roque','San Salvador','San Sebastian','Santa Catalina','Santa Cruz','Santa Filomena','Santa Maria','Santa Monica','Santa Veronica','Santiago 1','Santiago 2','Santisimo Rosario','Santo Angel','Santo Cristo','Santo Niño 1','Santo Niño 2','Soledad']};
 
-    // Build full name
-    const fn = document.getElementById('firstName').value.trim();
-    const ln = document.getElementById('lastName').value.trim();
-    document.getElementById('fullNameHidden').value = fn + ' ' + ln;
-
-    clearError();
-    document.getElementById('regForm').submit();
+function onCity(city) {
+  document.getElementById('zipField').value = ZIPS[city] || '';
+  const sel = document.getElementById('brgySelect');
+  sel.innerHTML = '<option value="" disabled selected>Select barangay</option>';
+  const brgys = BRGYS[city];
+  if (brgys) {
+    brgys.sort().forEach(b => { const o=document.createElement('option'); o.value=b; o.textContent=b; sel.appendChild(o); });
+    sel.disabled = false; sel.name = 'barangay';
+  } else {
+    sel.disabled = true; sel.removeAttribute('name');
+    let fb = document.getElementById('brgyFb');
+    if (!fb) { fb=document.createElement('input'); fb.type='text'; fb.id='brgyFb'; fb.name='barangay'; fb.placeholder='Enter barangay name'; fb.required=true; fb.style.cssText='width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;margin-top:6px;outline:none;box-sizing:border-box'; sel.parentNode.appendChild(fb); }
+    else { fb.style.display='block'; fb.name='barangay'; }
+  }
 }
 
-function showError(msg) {
-    let el = document.getElementById('stepError');
-    if (!el) {
-        el = document.createElement('div');
-        el.id = 'stepError';
-        el.className = 'alert-error';
-        el.style.marginBottom = '16px';
-        document.querySelector('.card').insertBefore(el, document.getElementById('regForm'));
+// ── OTP ───────────────────────────────────────────────────────
+let otpTimer;
+function om(el, nid) {
+  el.value = el.value.replace(/[^0-9]/g,'');
+  if (el.value && nid) document.getElementById(nid).focus();
+  const v = ['o1','o2','o3','o4','o5','o6'].map(id=>document.getElementById(id).value);
+  if (v.every(x=>x)) verifyOtp();
+}
+function ob(e,el,pid) { if(e.key==='Backspace'&&!el.value&&pid) document.getElementById(pid).focus(); }
+
+function sendOtp() {
+  const email = document.getElementById('emailField').value.trim();
+  const mobile = document.getElementById('mobile').value.trim();
+  const fn = document.getElementById('fn').value.trim();
+  const ln = document.getElementById('ln').value.trim();
+  if (!email) { showErr('Please enter your email address.'); return; }
+  if (!/^09\d{9}$/.test(mobile)) { showErr('Mobile must be 09XXXXXXXXX format.'); return; }
+  const name = fn + ' ' + ln;
+  const voterId = document.getElementById('voterId') ? document.getElementById('voterId').value : 'temp';
+  document.getElementById('sendOtpBtn').textContent = '⏳ Sending...';
+  document.getElementById('sendOtpBtn').disabled = true;
+  fetch('/register/otp/send', {
+    method:'POST',
+    headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    body: 'voterId='+encodeURIComponent(voterId||'temp')+'&email='+encodeURIComponent(email)+'&name='+encodeURIComponent(name)
+  }).then(r=>r.json()).then(d=>{
+    document.getElementById('sendOtpBtn').textContent = '📧 Resend OTP';
+    document.getElementById('sendOtpBtn').disabled = false;
+    if (d.status === 'error') { showErr(d.message); return; }
+    document.getElementById('otpSection').style.display = 'block';
+    const msg = document.getElementById('otpMsg');
+    if (d.status === 'fallback') {
+      msg.innerHTML = '<div class="otp-status otp-err">⚠ Email failed. Your code: <strong style="font-size:20px;letter-spacing:6px">'+d.otp+'</strong></div>';
+    } else {
+      msg.innerHTML = '<div class="otp-status otp-info">📧 Code sent to '+email+'</div>';
     }
-    el.textContent = '⚠ ' + msg;
-    el.style.display = 'block';
-    window.scrollTo({top: 0, behavior: 'smooth'});
-}
-function clearError() {
-    const el = document.getElementById('stepError');
-    if (el) el.style.display = 'none';
+    startOtpTimer();
+    document.getElementById('o1').focus();
+  }).catch(()=>{ document.getElementById('sendOtpBtn').disabled=false; showErr('Failed to send OTP. Please try again.'); });
 }
 
-// Terms modal
+function startOtpTimer() {
+  clearInterval(otpTimer);
+  let s = 600;
+  otpTimer = setInterval(()=>{
+    s--;
+    const el = document.getElementById('otpTimer');
+    if (!el) { clearInterval(otpTimer); return; }
+    el.textContent = Math.floor(s/60).toString().padStart(2,'0')+':'+(s%60).toString().padStart(2,'0');
+    if (s<=0) { clearInterval(otpTimer); el.textContent='Expired'; }
+  },1000);
+}
+
+function verifyOtp() {
+  const otp = ['o1','o2','o3','o4','o5','o6'].map(id=>document.getElementById(id).value).join('');
+  if (otp.length < 6) return;
+  const email = document.getElementById('emailField').value.trim();
+  // Use email as voterId key for OTP lookup (temp key before final voterId is set)
+  const vid = document.getElementById('voterId') && document.getElementById('voterId').value ? document.getElementById('voterId').value : email;
+  document.getElementById('verifyOtpBtn').textContent = '⏳ Verifying...';
+  fetch('/register/otp/verify', {
+    method:'POST',
+    headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    body:'voterId='+encodeURIComponent(vid)+'&otp='+encodeURIComponent(otp)
+  }).then(r=>r.json()).then(d=>{
+    document.getElementById('verifyOtpBtn').textContent = '✓ Verify Code';
+    const msg = document.getElementById('otpMsg');
+    if (d.status === 'ok') {
+      msg.innerHTML = '<div class="otp-status otp-ok">✅ Email verified successfully!</div>';
+      document.getElementById('otpVerified').value = 'true';
+      document.getElementById('step3Next').disabled = false;
+      clearInterval(otpTimer);
+    } else {
+      msg.innerHTML = '<div class="otp-status otp-err">⚠ '+d.message+'</div>';
+    }
+  }).catch(()=>{ document.getElementById('verifyOtpBtn').textContent='✓ Verify Code'; });
+}
+
+// ── ID upload ─────────────────────────────────────────────────
+function selId(card, type) {
+  document.querySelectorAll('.id-card').forEach(c=>c.classList.remove('sel'));
+  card.classList.add('sel');
+}
+function prevId(input) {
+  if (!input.files[0]) return;
+  const r = new FileReader();
+  r.onload = e => { const img=document.getElementById('idPreview'); img.src=e.target.result; img.style.display='block'; document.getElementById('uploadArea').classList.add('has-file'); };
+  r.readAsDataURL(input.files[0]);
+}
+
+// ── Camera ────────────────────────────────────────────────────
+let stream = null;
+async function startCam() {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:640,height:480}});
+    document.getElementById('camFeed').srcObject = stream;
+  } catch(e) { console.log('Camera not available'); }
+}
+function stopCam() { if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;} }
+function snap() {
+  const v=document.getElementById('camFeed'), c=document.createElement('canvas');
+  c.width=v.videoWidth||640; c.height=v.videoHeight||480;
+  c.getContext('2d').drawImage(v,0,0);
+  const data=c.toDataURL('image/jpeg',.9);
+  document.getElementById('selfieData').value=data;
+  document.getElementById('selfiePreview').src=data;
+  document.getElementById('selfiePreview').style.display='block';
+  document.getElementById('camSection').style.display='none';
+  document.getElementById('selfieSection').style.display='block';
+  stopCam();
+}
+function retake() {
+  document.getElementById('selfiePreview').style.display='none';
+  document.getElementById('camSection').style.display='block';
+  document.getElementById('selfieSection').style.display='none';
+  document.getElementById('selfieData').value='';
+  startCam();
+}
+function skipFace() {
+  document.getElementById('selfieData').value='';
+  stopCam();
+}
+
+// ── Terms modal ───────────────────────────────────────────────
 function openModal() {
-    document.getElementById('agreeCheck').checked = false;
-    document.getElementById('agreeCheck').disabled = true;
-    document.getElementById('agreeBtn').classList.remove('enabled');
-    document.getElementById('scrollHint').style.display = 'block';
-    document.getElementById('modalBody').scrollTop = 0;
-    document.getElementById('termsModal').classList.add('active');
+  document.getElementById('agreeCheck').checked=false;
+  document.getElementById('agreeCheck').disabled=true;
+  document.getElementById('agreeBtn').classList.remove('enabled');
+  document.getElementById('scrollHint').style.display='block';
+  document.getElementById('modalBody').scrollTop=0;
+  document.getElementById('termsModal').classList.add('active');
 }
 function closeModal() { document.getElementById('termsModal').classList.remove('active'); }
-function checkScroll() {
-    const b = document.getElementById('modalBody');
-    if (b.scrollHeight - b.scrollTop <= b.clientHeight + 50) {
-        document.getElementById('agreeCheck').disabled = false;
-        document.getElementById('scrollHint').style.display = 'none';
-    }
+function chkScroll() {
+  const b=document.getElementById('modalBody');
+  if(b.scrollHeight-b.scrollTop<=b.clientHeight+50){document.getElementById('agreeCheck').disabled=false;document.getElementById('scrollHint').style.display='none';}
 }
-function toggleAgree() {
-    document.getElementById('agreeCheck').checked
-        ? document.getElementById('agreeBtn').classList.add('enabled')
-        : document.getElementById('agreeBtn').classList.remove('enabled');
+function toggleAgree() { document.getElementById('agreeCheck').checked?document.getElementById('agreeBtn').classList.add('enabled'):document.getElementById('agreeBtn').classList.remove('enabled'); }
+function acceptTerms() { document.getElementById('termsCheck').checked=true; closeModal(); }
+document.getElementById('termsModal').addEventListener('click',e=>{if(e.target===document.getElementById('termsModal'))closeModal();});
+
+// ── Final submit ──────────────────────────────────────────────
+function submitFinal() {
+  const vid = document.getElementById('voterId').value.trim();
+  const pw  = document.getElementById('pw').value;
+  const cpw = document.getElementById('cpw').value;
+  const terms   = document.getElementById('termsCheck').checked;
+  const privacy = document.getElementById('privacyCheck').checked;
+  if (!vid)          { showErr('Please enter a Voter ID.'); return; }
+  if (pw.length < 6) { showErr('Password must be at least 6 characters.'); return; }
+  if (pw !== cpw)    { showErr('Passwords do not match.'); return; }
+  if (!terms || !privacy) { showErr('You must agree to the Terms & Conditions and Privacy Policy.'); return; }
+  if (document.getElementById('otpVerified').value !== 'true') { showErr('Please verify your email first (Step 3).'); return; }
+  // Build full name
+  const fn = document.getElementById('fn').value.trim();
+  const ln = document.getElementById('ln').value.trim();
+  document.getElementById('fullName').value = fn + ' ' + ln;
+  clearErr();
+  stopCam();
+  document.getElementById('regForm').submit();
 }
-function acceptTerms() {
-    document.getElementById('termsCheck').checked = true;
-    closeModal();
-}
-document.getElementById('termsModal').addEventListener('click', e => {
-    if (e.target === document.getElementById('termsModal')) closeModal();
-});
 </script>
 </body>
 </html>
