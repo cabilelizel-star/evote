@@ -23,22 +23,17 @@ public class FaceVerificationService {
     private String apiSecret;
 
     private static final String COMPARE_URL = "https://api-us.faceplusplus.com/facepp/v3/compare";
-    private static final double CONFIDENCE_THRESHOLD = 75.0; // 75% match required
+    private static final double CONFIDENCE_THRESHOLD = 60.0; // lowered from 75% for better usability
 
-    /**
-     * Compare two images — returns confidence score (0-100).
-     * Throws exception if no face detected or API error.
-     */
     public FaceCompareResult compareFaces(byte[] idImageBytes, byte[] selfieBytes) throws Exception {
         if (apiKey == null || apiKey.isBlank()) {
-            // Demo mode — skip real verification if no API key configured
+            System.out.println("Face++ API key not set — running in demo mode (verification skipped)");
             return new FaceCompareResult(true, 99.0, "Demo mode — face verification skipped");
         }
 
         String boundary = "----FormBoundary" + System.currentTimeMillis();
         HttpClient client = HttpClient.newHttpClient();
 
-        // Build multipart body
         ByteArrayOutputStream body = new ByteArrayOutputStream();
         writeField(body, boundary, "api_key",    apiKey);
         writeField(body, boundary, "api_secret", apiSecret);
@@ -54,28 +49,30 @@ public class FaceVerificationService {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         String json = response.body();
-
         System.out.println("Face++ response: " + json);
 
-        // Parse confidence from JSON manually (no extra dependency needed)
         if (json.contains("\"confidence\"")) {
             double confidence = parseDouble(json, "confidence");
             boolean passed = confidence >= CONFIDENCE_THRESHOLD;
             String msg = passed
                 ? String.format("Face match confirmed (%.1f%% confidence)", confidence)
-                : String.format("Face does not match ID (%.1f%% confidence, minimum %.0f%% required)",
-                    confidence, CONFIDENCE_THRESHOLD);
+                : String.format("Face does not match ID (%.1f%% confidence). Please ensure good lighting and face the camera directly.", confidence);
             return new FaceCompareResult(passed, confidence, msg);
         }
 
         if (json.contains("FACE_NOT_FOUND")) {
-            throw new Exception("No face detected in one of the images. Please retake the photo.");
+            throw new Exception("No face detected. Please ensure your face is clearly visible and well-lit.");
         }
         if (json.contains("IMAGE_ERROR") || json.contains("INVALID_IMAGE")) {
-            throw new Exception("Invalid image. Please upload a clear photo.");
+            throw new Exception("Image quality too low. Please upload a clearer photo.");
+        }
+        if (json.contains("AUTHENTICATION_ERROR")) {
+            throw new Exception("Face verification service configuration error. Please contact admin.");
         }
 
-        throw new Exception("Face verification failed. Please try again.");
+        // Log the full response for debugging
+        System.err.println("Face++ unexpected response: " + json);
+        throw new Exception("Face verification failed. Please try again or contact support.");
     }
 
     // ── Multipart helpers ─────────────────────────────────────────────────────

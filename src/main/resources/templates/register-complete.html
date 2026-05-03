@@ -148,6 +148,10 @@
                 <button type="button" class="btn-next" id="submitBtn" onclick="submitForm()" disabled>
                     ✅ Complete Registration
                 </button>
+                <button type="button" class="btn-next" style="background:#94a3b8;flex:0.6;font-size:13px"
+                        onclick="skipAndSubmit()" title="Skip face verification and complete registration">
+                    Skip →
+                </button>
             </div>
         </div>
 
@@ -229,6 +233,11 @@ function retake() {
     startCam();
 }
 function submitForm() {
+    document.getElementById('completeForm').submit();
+}
+function skipAndSubmit() {
+    // Clear selfie and photo so face verification is skipped
+    document.getElementById('selfieData').value = '';
     document.getElementById('completeForm').submit();
 }
 </script>

@@ -224,7 +224,7 @@ public class AuthController {
         String idTypeS       = (String) session.getAttribute("reg_idType");
         String idNumberS     = (String) session.getAttribute("reg_idNumber");
 
-        // Face verification
+        // Face verification — optional if no photo provided
         if (idPhoto != null && !idPhoto.isEmpty() && selfieData != null && !selfieData.isBlank()) {
             try {
                 String base64      = selfieData.contains(",") ? selfieData.split(",")[1] : selfieData;
@@ -232,13 +232,19 @@ public class AuthController {
                 byte[] idBytes     = idPhoto.getBytes();
                 FaceVerificationService.FaceCompareResult result = faceService.compareFaces(idBytes, selfieBytes);
                 if (!result.passed) {
-                    model.addAttribute("error", "Face verification failed: " + result.message);
+                    model.addAttribute("error", "⚠ " + result.message +
+                        " You can retake your selfie or skip verification.");
                     return "register-complete";
                 }
+                System.out.println("Face verification passed: " + result.message);
             } catch (Exception e) {
-                model.addAttribute("error", "Face verification error: " + e.getMessage());
+                System.err.println("Face verification error: " + e.getMessage());
+                model.addAttribute("error", "⚠ Face verification error: " + e.getMessage() +
+                    " You may skip this step if the issue persists.");
                 return "register-complete";
             }
+        } else {
+            System.out.println("Face verification skipped — no photo provided");
         }
 
         // Use session name as full name fallback
