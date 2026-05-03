@@ -4,22 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>E-Vote — Error</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0faf4;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+        .card{background:#fff;border-radius:16px;padding:40px 48px;width:100%;max-width:440px;box-shadow:0 4px 24px rgba(26,107,60,.10);text-align:center}
+        .icon{font-size:48px;margin-bottom:16px}
+        h1{font-size:22px;font-weight:800;color:#1a1a1a;margin-bottom:8px}
+        .status{display:inline-block;background:#fff0f0;color:#c0392b;border:1px solid #f5c6c6;border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700;margin-bottom:12px}
+        .msg{font-size:13px;color:#666;margin-bottom:24px;line-height:1.6}
+        .btn{display:inline-block;padding:12px 28px;background:#2d9e5f;color:#fff;text-decoration:none;border-radius:50px;font-size:14px;font-weight:700}
+        .btn:hover{background:#1a6b3c}
+    </style>
 </head>
-<body class="auth-body">
-<div class="auth-card" style="text-align:center">
-    <div class="auth-avatar">&#9888;</div>
-    <div class="auth-title-row"><hr><span>Something went wrong</span><hr></div>
-
-    <p style="color:rgba(255,255,255,.8);margin-bottom:8px;font-size:14px">
-        Status: <span th:text="${status}"></span>
-    </p>
-    <p style="color:rgba(255,255,255,.6);margin-bottom:24px;font-size:13px"
-       th:text="${message}"></p>
-
-    <a th:href="@{/login}" class="btn-primary" style="display:inline-block;text-decoration:none">
-        &#8592; Back to Login
-    </a>
+<body>
+<div class="card">
+    <div class="icon">⚠️</div>
+    <h1>Something went wrong</h1>
+    <div class="status">Error <span th:text="${status}">500</span></div>
+    <p class="msg" th:text="${message}">An unexpected error occurred.</p>
+    <a th:href="@{/login}" class="btn">← Back to Login</a>
 </div>
 </body>
 </html>
