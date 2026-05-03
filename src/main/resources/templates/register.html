@@ -150,9 +150,9 @@ h1{font-size:26px;font-weight:900;color:#111;text-align:center;margin-bottom:4px
     <div class="step-panel active" id="sp1">
       <div class="sec-title">🪪 Personal Information</div>
       <div class="g3">
-        <div class="field"><label>First Name <span class="req">*</span></label><input type="text" name="firstName" id="fn" placeholder="Juan" required></div>
-        <div class="field"><label>Middle Name</label><input type="text" name="middleName" placeholder="Santos"></div>
-        <div class="field"><label>Last Name <span class="req">*</span></label><input type="text" name="lastName" id="ln" placeholder="dela Cruz" required></div>
+        <div class="field"><label>First Name <span class="req">*</span></label><input type="text" name="firstName" id="fn" placeholder="" required></div>
+        <div class="field"><label>Middle Name</label><input type="text" name="middleName" placeholder=""></div>
+        <div class="field"><label>Last Name <span class="req">*</span></label><input type="text" name="lastName" id="ln" placeholder="" required></div>
       </div>
       <div class="g2">
         <div class="field"><label>Date of Birth <span class="req">*</span></label><input type="date" name="dateOfBirth" id="dob" required><div class="hint">Must be 18+</div></div>
@@ -166,7 +166,7 @@ h1{font-size:26px;font-weight:900;color:#111;text-align:center;margin-bottom:4px
     <!-- ── STEP 2: Address ───────────────────────────────── -->
     <div class="step-panel" id="sp2">
       <div class="sec-title">📍 Address Information</div>
-      <div class="field"><label>House/Unit No. &amp; Street <span class="req">*</span></label><input type="text" name="street" placeholder="123 Rizal Street" required></div>
+      <div class="field"><label>House/Unit No. &amp; Street <span class="req">*</span></label><input type="text" name="street" placeholder="" required></div>
       <div class="g2">
         <div class="field"><label>Barangay <span class="req">*</span></label>
           <select name="barangay" id="brgySelect" required><option value="" disabled selected>Select city first</option></select>
@@ -223,10 +223,10 @@ h1{font-size:26px;font-weight:900;color:#111;text-align:center;margin-bottom:4px
     <div class="step-panel" id="sp4">
       <div class="sec-title">🗳 Voter Information</div>
       <div class="g2">
-        <div class="field"><label>Voter ID Number</label><input type="text" name="voterIdNumber" placeholder="e.g. 1234-5678-9012"><div class="hint">Existing registration number (if any)</div></div>
-        <div class="field"><label>Voting District / Precinct</label><input type="text" name="votingDistrict" placeholder="e.g. Precinct 001A"></div>
+        <div class="field"><label>Voter ID Number</label><input type="text" name="voterIdNumber" placeholder=""><div class="hint">Existing registration number (if any)</div></div>
+        <div class="field"><label>Voting District / Precinct</label><input type="text" name="votingDistrict" placeholder=""></div>
       </div>
-      <div class="field"><label>Affiliation</label><input type="text" name="affiliation" placeholder="e.g. School, Organization"></div>
+      <div class="field"><label>Affiliation</label><input type="text" name="affiliation" placeholder=""></div>
 
       <div class="sec-title">🆔 Valid ID</div>
       <div class="id-grid">
@@ -237,7 +237,7 @@ h1{font-size:26px;font-weight:900;color:#111;text-align:center;margin-bottom:4px
         <label class="id-card" onclick="selId(this,'SSS ID')"><input type="radio" name="idType" value="SSS ID"><div class="ico">��</div><div class="lbl">SSS ID</div></label>
         <label class="id-card" onclick="selId(this,'PhilHealth ID')"><input type="radio" name="idType" value="PhilHealth ID"><div class="ico">🏥</div><div class="lbl">PhilHealth ID</div></label>
       </div>
-      <div class="field"><label>ID Number</label><input type="text" name="idNumber" placeholder="Enter your ID number"></div>
+      <div class="field"><label>ID Number</label><input type="text" name="idNumber" placeholder=""></div>
       <div class="upload-area" id="uploadArea" onclick="document.getElementById('idPhoto').click()">
         <div style="font-size:28px;margin-bottom:6px">📤</div>
         <p style="font-size:13px;color:#666;font-weight:600">Click to upload ID photo</p>
@@ -252,10 +252,10 @@ h1{font-size:26px;font-weight:900;color:#111;text-align:center;margin-bottom:4px
     <!-- ── STEP 5: Account + Face + Terms ───────────────── -->
     <div class="step-panel" id="sp5">
       <div class="sec-title">🔐 Account Credentials</div>
-      <div class="field"><label>Username / Voter ID <span class="req">*</span></label><input type="text" name="voterId" id="voterId" placeholder="Choose a unique Voter ID (e.g. V001)" required><div class="hint">This will be your login username</div></div>
+      <div class="field"><label>Username / Voter ID <span class="req">*</span></label><input type="text" name="voterId" id="voterId" placeholder="" required><div class="hint">This will be your login username</div></div>
       <div class="g2">
-        <div class="field"><label>Password <span class="req">*</span></label><input type="password" name="password" id="pw" placeholder="Min. 6 characters" required></div>
-        <div class="field"><label>Confirm Password <span class="req">*</span></label><input type="password" name="confirm" id="cpw" placeholder="Re-enter password" required></div>
+        <div class="field"><label>Password <span class="req">*</span></label><input type="password" name="password" id="pw" placeholder="" required></div>
+        <div class="field"><label>Confirm Password <span class="req">*</span></label><input type="password" name="confirm" id="cpw" placeholder="" required></div>
       </div>
 
       <div class="sec-title">📸 Face Verification</div>
