@@ -1,338 +1,380 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>E-Vote — Admin Dashboard</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-    <style>
-        .live-dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:#2d9e5f; margin-right:6px; animation:pulse 1.5s infinite; }
-        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
-        .last-updated { font-size:11px; color:#aaa; margin-left:8px; }
-        .winner-badge { background:linear-gradient(135deg,#f59e0b,#d97706); color:#fff; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:700; margin-left:8px; }
-        .stat-trend { font-size:11px; color:#2d9e5f; margin-top:2px; }
-        .election-status-bar {
-            background: linear-gradient(135deg, #1a6b3c, #2d9e5f);
-            color: #fff; padding: 12px 24px; border-radius: 10px;
-            display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 24px; flex-wrap: wrap; gap: 12px;
-        }
-        .election-status-bar .status-text { font-size: 16px; font-weight: 700; }
-        .election-status-bar .status-sub  { font-size: 12px; opacity: .8; margin-top: 2px; }
-        .btn-open  { background:#fff; color:#1a6b3c; border:none; padding:10px 24px; border-radius:8px; font-weight:700; cursor:pointer; font-size:14px; }
-        .btn-close { background:rgba(255,255,255,0.2); color:#fff; border:2px solid rgba(255,255,255,0.5); padding:10px 24px; border-radius:8px; font-weight:700; cursor:pointer; font-size:14px; }
-        .btn-open:hover  { background:#f0faf4; }
-        .btn-close:hover { background:rgba(255,255,255,0.3); }
-        .btn-open:disabled, .btn-close:disabled { opacity:.4; cursor:not-allowed; }
-        .results-chart { margin-top:8px; }
-        .result-row { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
-        .result-name { width:160px; font-weight:700; font-size:14px; color:#1a1a1a; flex-shrink:0; }
-        .result-bar-wrap { flex:1; background:#e0f2e9; border-radius:99px; height:28px; overflow:hidden; position:relative; }
-        .result-bar { height:100%; background:linear-gradient(90deg,#2d9e5f,#1a6b3c); border-radius:99px; transition:width .6s ease; display:flex; align-items:center; padding-left:10px; }
-        .result-bar-text { color:#fff; font-size:12px; font-weight:700; white-space:nowrap; }
-        .result-votes { width:80px; text-align:right; font-size:13px; color:#555; flex-shrink:0; }
-        .search-box { padding:8px 12px; border:1.5px solid #c8e6d4; border-radius:8px; font-size:14px; outline:none; width:220px; }
-        .search-box:focus { border-color:#2d9e5f; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E-Vote - Admin Dashboard</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f0faf4;min-height:100vh;font-family:'Segoe UI',system-ui,sans-serif}
+.ad-nav{background:linear-gradient(135deg,#1a6b3c,#2d9e5f);color:#fff;padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 12px rgba(26,107,60,.3);position:sticky;top:0;z-index:100}
+.ad-nav .brand{font-size:18px;font-weight:800;display:flex;align-items:center;gap:8px}
+.ad-nav .nav-right{display:flex;align-items:center;gap:16px;font-size:13px}
+.ad-nav .nav-right a{color:rgba(255,255,255,.85);text-decoration:none;font-weight:600}
+.ad-nav .nav-right a:hover{color:#fff}
+.badge-open{background:#fff;color:#1a6b3c;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800}
+.badge-closed{background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.4);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800}
+.ad-layout{display:grid;grid-template-columns:240px 1fr;gap:0;min-height:calc(100vh - 60px)}
+.ad-sidebar{background:#fff;border-right:1px solid #e0f2e9;padding:0;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto;display:flex;flex-direction:column}
+.sidebar-head{padding:20px;border-bottom:1px solid #e0f2e9;text-align:center}
+.admin-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#1a6b3c,#2d9e5f);color:#fff;font-size:24px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+.admin-name{font-size:15px;font-weight:800;color:#111;margin-bottom:2px}
+.admin-role{font-size:11px;color:#888;background:#f0faf4;border:1px solid #a8dfc0;border-radius:20px;padding:2px 10px;display:inline-block;margin-top:4px}
+.ad-nav-links{padding:8px 0;flex:1}
+.ad-nav-links a{display:flex;align-items:center;gap:10px;padding:11px 20px;font-size:14px;font-weight:600;color:#555;text-decoration:none;transition:background .15s,color .15s;border-left:3px solid transparent;cursor:pointer}
+.ad-nav-links a:hover{background:#f0faf4;color:#1a6b3c}
+.ad-nav-links a.active{background:#f0faf4;color:#1a6b3c;border-left-color:#2d9e5f}
+.nav-icon{font-size:16px;width:20px;text-align:center}
+.sidebar-footer{padding:16px 20px;border-top:1px solid #e0f2e9}
+.ad-main{padding:24px 28px;overflow-y:auto;min-height:calc(100vh - 60px)}
+.section{display:none}
+.section.active{display:block}
+.sec-title{font-size:20px;font-weight:800;color:#1a1a1a;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.card{background:#fff;border-radius:12px;padding:22px;margin-bottom:18px;box-shadow:0 1px 8px rgba(0,0,0,.06)}
+.card-title{font-size:13px;font-weight:800;color:#1a6b3c;text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid #e0f2e9}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+.stat-card{background:#fff;border-radius:12px;padding:16px 18px;box-shadow:0 1px 8px rgba(0,0,0,.06);border-left:4px solid #2d9e5f}
+.stat-card.green{border-color:#22c55e}
+.stat-card.yellow{border-color:#f59e0b}
+.stat-label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+.stat-value{font-size:26px;font-weight:800;color:#1a1a1a;margin-top:4px}
+.stat-sub{font-size:11px;color:#2d9e5f;margin-top:2px}
+.election-bar{background:linear-gradient(135deg,#1a6b3c,#2d9e5f);color:#fff;padding:16px 20px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:12px}
+.election-bar .etitle{font-size:16px;font-weight:700}
+.election-bar .esub{font-size:12px;opacity:.8;margin-top:2px}
+.btn-open{background:#fff;color:#1a6b3c;border:none;padding:9px 20px;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px}
+.btn-close{background:rgba(255,255,255,.15);color:#fff;border:2px solid rgba(255,255,255,.5);padding:9px 20px;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px}
+.btn-open:hover{background:#f0faf4}
+.btn-close:hover{background:rgba(255,255,255,.25)}
+.btn-open:disabled,.btn-close:disabled{opacity:.4;cursor:not-allowed}
+.form-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.form-group{display:flex;flex-direction:column;gap:4px;flex:1;min-width:130px}
+.form-group label{font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.5px}
+.form-group input,.form-group select{padding:9px 12px;border:1.5px solid #e0f2e9;border-radius:8px;font-size:14px;color:#222;outline:none;transition:border .2s;background:#f8fffe;text-transform:capitalize}
+.form-group input[type=email],.form-group input[type=password]{text-transform:none}
+.form-group input:focus,.form-group select:focus{border-color:#2d9e5f;box-shadow:0 0 0 3px rgba(45,158,95,.1)}
+.btn{padding:9px 16px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .2s}
+.btn:hover{opacity:.85}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-blue{background:#2d9e5f;color:#fff}
+.btn-red{background:#ef4444;color:#fff}
+.btn-sm{padding:5px 10px;font-size:12px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#f0faf4;color:#1a6b3c;font-size:11px;text-transform:uppercase;letter-spacing:.5px;padding:10px 12px;text-align:left;border-bottom:2px solid #e0f2e9;font-weight:700}
+td{padding:11px 12px;border-bottom:1px solid #f0faf4;color:#333}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f8fffe}
+.pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.pill-green{background:#dcfce7;color:#16a34a}
+.pill-yellow{background:#fef9c3;color:#ca8a04}
+.search-box{padding:8px 12px;border:1.5px solid #e0f2e9;border-radius:8px;font-size:13px;outline:none;width:200px}
+.search-box:focus{border-color:#2d9e5f}
+.result-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.result-name{width:150px;font-weight:700;font-size:13px;color:#1a1a1a;flex-shrink:0}
+.result-bar-wrap{flex:1;background:#e0f2e9;border-radius:99px;height:26px;overflow:hidden}
+.result-bar{height:100%;background:linear-gradient(90deg,#2d9e5f,#1a6b3c);border-radius:99px;transition:width .6s;display:flex;align-items:center;padding-left:10px}
+.result-bar-text{color:#fff;font-size:11px;font-weight:700;white-space:nowrap}
+.result-votes{width:70px;text-align:right;font-size:12px;color:#555;flex-shrink:0}
+.live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#2d9e5f;margin-right:5px;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+.alert-error{background:#fff0f0;color:#c0392b;border:1px solid #f5c6c6;border-radius:8px;padding:12px 16px;font-size:13px;margin-bottom:16px}
+@media(max-width:768px){
+  .ad-layout{grid-template-columns:1fr}
+  .ad-sidebar{position:static;height:auto;border-right:none;border-bottom:1px solid #e0f2e9}
+  .stat-row{grid-template-columns:1fr}
+  .ad-main{padding:16px}
+  .form-row{flex-direction:column}
+}
+</style>
 </head>
-<body class="dash-body">
+<body>
 
-<!-- Navbar -->
-<nav class="navbar">
-    <div class="brand">🗳 E-Vote System</div>
-    <div class="nav-right">
-        <span style="font-size:13px">
-            <span class="live-dot"></span>Live
-            <span class="last-updated" id="lastUpdated">—</span>
-        </span>
-        <span th:text="${election.title}" style="font-weight:600"></span>
-        <span class="badge" id="navBadge"
-              th:classappend="${election.open} ? 'badge-open' : 'badge-closed'"
-              th:text="${election.open} ? 'OPEN' : 'CLOSED'"></span>
-        <a th:href="@{/logout}">Logout</a>
-    </div>
+<!-- NAVBAR -->
+<nav class="ad-nav">
+  <div class="brand">🛡 E-Vote Admin</div>
+  <div class="nav-right">
+    <span><span class="live-dot"></span>Live <span id="lastUpdated" style="font-size:11px;color:rgba(255,255,255,.6)">—</span></span>
+    <span th:text="${election.title}" style="font-weight:600"></span>
+    <span id="navBadge" class="badge" th:classappend="${election.open} ? 'badge-open' : 'badge-closed'"
+          th:text="${election.open} ? 'OPEN' : 'CLOSED'"></span>
+    <a th:href="@{/logout}">Logout</a>
+  </div>
 </nav>
 
-<div class="dash-container">
+<div class="ad-layout">
+<!-- SIDEBAR -->
+<aside class="ad-sidebar">
+  <div class="sidebar-head">
+    <div class="admin-avatar">A</div>
+    <div class="admin-name">Admin</div>
+    <div class="admin-role">🛡 Administrator</div>
+  </div>
+  <nav class="ad-nav-links">
+    <a class="active" onclick="showSec('overview',this)"><span class="nav-icon">📊</span> Overview</a>
+    <a onclick="showSec('candidates',this)"><span class="nav-icon">👤</span> Candidates</a>
+    <a onclick="showSec('voters',this)"><span class="nav-icon">🗳</span> Voters</a>
+    <a onclick="showSec('results',this)"><span class="nav-icon">📈</span> Live Results</a>
+    <a onclick="showSec('election',this)"><span class="nav-icon">⚙</span> Election Control</a>
+  </nav>
+  <div class="sidebar-footer">
+    <a th:href="@{/logout}" style="display:flex;align-items:center;gap:8px;color:#ef4444;text-decoration:none;font-size:14px;font-weight:700">
+      <span>🚪</span> Logout
+    </a>
+  </div>
+</aside>
 
-    <!-- DB Error Banner -->
-    <div th:if="${dbError}" class="alert alert-error" style="margin-bottom:20px">
-        ⚠ Database error: <span th:text="${dbError}"></span>
+<!-- MAIN -->
+<main class="ad-main">
+
+  <div th:if="${dbError}" class="alert-error">⚠ Database error: <span th:text="${dbError}"></span></div>
+
+  <!-- ── OVERVIEW ──────────────────────────────────────────── -->
+  <div id="sec-overview" class="section active">
+    <div class="sec-title">📊 Dashboard Overview</div>
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="stat-label">👥 Candidates</div>
+        <div class="stat-value" id="statCandidates" th:text="${#lists.size(candidates)}">0</div>
+        <div class="stat-sub">Registered</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-label">🗳 Voters</div>
+        <div class="stat-value" id="statVoters" th:text="${#lists.size(voters)}">0</div>
+        <div class="stat-sub" id="statVoterTrend">Registered</div>
+      </div>
+      <div class="stat-card yellow">
+        <div class="stat-label">✅ Votes Cast</div>
+        <div class="stat-value" id="statVotes" th:text="${totalVotes}">0</div>
+        <div class="stat-sub" id="statVotePct">Turnout</div>
+      </div>
     </div>
+    <div class="election-bar">
+      <div>
+        <div class="etitle" id="statusText"
+             th:text="${election.open} ? '🟢 Election OPEN — Voting is active' : '🔴 Election CLOSED — Voting inactive'"></div>
+        <div class="esub" th:text="${election.title}"></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <form method="post" th:action="@{/admin/election/open}" style="margin:0">
+          <button class="btn-open" th:disabled="${election.open}">▶ Open</button>
+        </form>
+        <form method="post" th:action="@{/admin/election/close}" style="margin:0">
+          <button class="btn-close" th:disabled="${!election.open}">■ Close</button>
+        </form>
+      </div>
+    </div>
+    <!-- Quick results preview -->
+    <div class="card">
+      <div class="card-title"><span class="live-dot"></span>Live Results Preview</div>
+      <div id="resultsChart">
+        <div th:if="${#lists.isEmpty(candidates)}" style="text-align:center;padding:20px;color:#aaa">No candidates yet.</div>
+        <div th:each="c : ${candidates}" class="result-row" th:id="'row-' + ${c.candidateId}">
+          <div class="result-name">
+            <div th:text="${c.name}"></div>
+            <div style="font-size:11px;color:#aaa" th:text="${c.party}"></div>
+          </div>
+          <div class="result-bar-wrap">
+            <div class="result-bar" th:id="'bar-' + ${c.candidateId}"
+                 th:style="'width:' + (${totalVotes > 0} ? ${c.voteCount * 100 / totalVotes} : 0) + '%'">
+              <span class="result-bar-text"
+                    th:text="${totalVotes > 0} ? ${#numbers.formatDecimal(c.voteCount * 100.0 / totalVotes, 1, 1)} + '%' : ''"></span>
+            </div>
+          </div>
+          <div class="result-votes" th:id="'votes-' + ${c.candidateId}" th:text="${c.voteCount} + ' votes'"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <!-- Election Control Bar -->
-    <div class="election-status-bar">
+  <!-- ── CANDIDATES ────────────────────────────────────────── -->
+  <div id="sec-candidates" class="section">
+    <div class="sec-title">👤 Candidate Management</div>
+    <div class="card">
+      <div class="card-title">➕ Add Candidate</div>
+      <form method="post" th:action="@{/admin/candidate/add}">
+        <div class="form-row">
+          <div class="form-group"><label>Candidate ID</label><input type="text" name="candidateId" placeholder="e.g. C001" required></div>
+          <div class="form-group"><label>Full Name</label><input type="text" name="name" placeholder="Full name" required></div>
+          <div class="form-group"><label>Party / Position</label><input type="text" name="party" placeholder="Party or position" required></div>
+          <button type="submit" class="btn btn-blue" style="align-self:flex-end">Add</button>
+        </div>
+      </form>
+    </div>
+    <div class="card">
+      <div class="card-title">📋 Candidate List</div>
+      <table>
+        <thead><tr><th>#</th><th>ID</th><th>Name</th><th>Party</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr th:if="${#lists.isEmpty(candidates)}"><td colspan="5" style="text-align:center;padding:20px;color:#aaa">No candidates yet.</td></tr>
+          <tr th:each="c,i : ${candidates}">
+            <td th:text="${i.count}" style="color:#aaa;font-size:12px"></td>
+            <td><span class="pill pill-green" th:text="${c.candidateId}"></span></td>
+            <td style="font-weight:700" th:text="${c.name}"></td>
+            <td th:text="${c.party}"></td>
+            <td>
+              <form method="post" th:action="@{/admin/candidate/remove}" style="display:inline">
+                <input type="hidden" name="candidateId" th:value="${c.candidateId}">
+                <button class="btn btn-red btn-sm" onclick="return confirm('Remove this candidate?')">Remove</button>
+              </form>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── VOTERS ────────────────────────────────────────────── -->
+  <div id="sec-voters" class="section">
+    <div class="sec-title">🗳 Voter Management</div>
+    <div class="card">
+      <div class="card-title">➕ Register Voter</div>
+      <form method="post" th:action="@{/admin/voter/add}">
+        <div class="form-row">
+          <div class="form-group"><label>Voter ID</label><input type="text" name="voterId" placeholder="e.g. V001" required></div>
+          <div class="form-group"><label>Full Name</label><input type="text" name="name" placeholder="Full name" required></div>
+          <div class="form-group"><label>Password</label><input type="password" name="password" placeholder="Password" required></div>
+          <button type="submit" class="btn btn-blue" style="align-self:flex-end">Register</button>
+        </div>
+      </form>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <div class="card-title" style="margin:0;border:none;padding:0">📋 Voter List</div>
+        <input class="search-box" type="text" placeholder="🔍 Search..." oninput="filterVoters(this.value)">
+      </div>
+      <div style="overflow-x:auto">
+        <table id="voterTable">
+          <thead><tr><th>#</th><th>Voter ID</th><th>Name</th><th>Email</th><th>Mobile</th><th>City</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr th:if="${#lists.isEmpty(voters)}"><td colspan="8" style="text-align:center;padding:20px;color:#aaa">No voters yet.</td></tr>
+            <tr th:each="v,i : ${voters}">
+              <td th:text="${i.count}" style="color:#aaa;font-size:12px"></td>
+              <td><span class="pill pill-green" th:text="${v.voterId}"></span></td>
+              <td style="font-weight:700" th:text="${v.name}"></td>
+              <td th:text="${v.email} ?: '—'" style="font-size:12px"></td>
+              <td th:text="${v.mobileNumber} ?: '—'" style="font-size:12px"></td>
+              <td th:text="${v.city} ?: '—'" style="font-size:12px"></td>
+              <td><span class="pill" th:classappend="${v.hasVoted} ? 'pill-green' : 'pill-yellow'" th:text="${v.hasVoted} ? '✔ Voted' : 'Pending'"></span></td>
+              <td>
+                <form method="post" th:action="@{/admin/voter/remove}" style="display:inline">
+                  <input type="hidden" name="voterId" th:value="${v.voterId}">
+                  <button class="btn btn-red btn-sm" onclick="return confirm('Remove this voter?')">Remove</button>
+                </form>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RESULTS ───────────────────────────────────────────── -->
+  <div id="sec-results" class="section">
+    <div class="sec-title">📈 Live Results <span class="live-dot" style="margin-left:4px"></span></div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
         <div>
-            <div class="status-text" id="statusText"
-                 th:text="${election.open} ? '🟢 Election is OPEN — Voting is active' : '🔴 Election is CLOSED — Voting is inactive'"></div>
-            <div class="status-sub">Manage the election status below</div>
+          <div style="font-size:13px;color:#555">Total votes: <strong id="totalVotesDisplay" th:text="${totalVotes}" style="color:#1a6b3c"></strong></div>
+          <div style="font-size:11px;color:#aaa;margin-top:2px">Auto-refreshes every 5 seconds</div>
         </div>
-        <div style="display:flex;gap:10px">
-            <form method="post" th:action="@{/admin/election/open}" style="margin:0">
-                <button class="btn-open" th:disabled="${election.open}">▶ Open Election</button>
-            </form>
-            <form method="post" th:action="@{/admin/election/close}" style="margin:0">
-                <button class="btn-close" th:disabled="${!election.open}">■ Close Election</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Live Stats -->
-    <div class="grid-3" style="margin-bottom:24px">
-        <div class="stat-box">
-            <div class="stat-label">👥 Total Candidates</div>
-            <div class="stat-value" id="statCandidates" th:text="${#lists.size(candidates)}"></div>
-            <div class="stat-trend">Registered in this election</div>
-        </div>
-        <div class="stat-box green">
-            <div class="stat-label">🗳 Registered Voters</div>
-            <div class="stat-value" id="statVoters" th:text="${#lists.size(voters)}"></div>
-            <div class="stat-trend" id="statVoterTrend">—</div>
-        </div>
-        <div class="stat-box yellow">
-            <div class="stat-label">✅ Votes Cast</div>
-            <div class="stat-value" id="statVotes" th:text="${totalVotes}"></div>
-            <div class="stat-trend" id="statVotePct">—</div>
-        </div>
-    </div>
-
-    <!-- Tabs -->
-    <div class="tabs">
-        <button class="tab-btn" th:classappend="${param.tab == null or param.tab[0] == 'candidates'} ? ' active' : ''"
-                onclick="showTab('candidates',this)">👤 Candidates</button>
-        <button class="tab-btn" th:classappend="${param.tab != null and param.tab[0] == 'voters'} ? ' active' : ''"
-                onclick="showTab('voters',this)">🗳 Voters</button>
-        <button class="tab-btn" th:classappend="${param.tab != null and param.tab[0] == 'results'} ? ' active' : ''"
-                onclick="showTab('results',this)">📊 Live Results</button>
-    </div>
-
-    <!-- ── Candidates Tab ─────────────────────────────────────────────────── -->
-    <div id="tab-candidates" class="tab-content"
-         th:classappend="${param.tab == null or param.tab[0] == 'candidates'} ? ' active' : ''">
-        <div class="card">
-            <div class="card-title">➕ Add Candidate</div>
-            <form method="post" th:action="@{/admin/candidate/add}">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Candidate ID</label>
-                        <input type="text" name="candidateId" placeholder="e.g. C001" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Full Name</label>
-                        <input type="text" name="name" placeholder="Full name" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Party / Position</label>
-                        <input type="text" name="party" placeholder="Party or position" required>
-                    </div>
-                    <button type="submit" class="btn btn-blue" style="align-self:flex-end;padding:10px 20px">Add</button>
-                </div>
-            </form>
-        </div>
-        <div class="card">
-            <div class="card-title">📋 Candidate List</div>
-            <table>
-                <thead><tr><th>#</th><th>ID</th><th>Name</th><th>Party</th><th>Action</th></tr></thead>
-                <tbody>
-                    <tr th:if="${#lists.isEmpty(candidates)}">
-                        <td colspan="5" style="text-align:center;padding:24px;color:#aaa">No candidates registered yet.</td>
-                    </tr>
-                    <tr th:each="c,i : ${candidates}">
-                        <td th:text="${i.count}" style="color:#aaa;font-size:12px"></td>
-                        <td><span class="pill pill-green" th:text="${c.candidateId}"></span></td>
-                        <td style="font-weight:700" th:text="${c.name}"></td>
-                        <td th:text="${c.party}"></td>
-                        <td>
-                            <form method="post" th:action="@{/admin/candidate/remove}" style="display:inline">
-                                <input type="hidden" name="candidateId" th:value="${c.candidateId}">
-                                <button class="btn btn-red btn-sm" onclick="return confirm('Remove this candidate?')">Remove</button>
-                            </form>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- ── Voters Tab ─────────────────────────────────────────────────────── -->
-    <div id="tab-voters" class="tab-content"
-         th:classappend="${param.tab != null and param.tab[0] == 'voters'} ? ' active' : ''">
-        <div class="card">
-            <div class="card-title">➕ Register Voter</div>
-            <form method="post" th:action="@{/admin/voter/add}">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Voter ID</label>
-                        <input type="text" name="voterId" placeholder="e.g. V001" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Full Name</label>
-                        <input type="text" name="name" placeholder="Full name" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Password</label>
-                        <input type="password" name="password" placeholder="Password" required>
-                    </div>
-                    <button type="submit" class="btn btn-blue" style="align-self:flex-end;padding:10px 20px">Register</button>
-                </div>
-            </form>
-        </div>
-        <div class="card">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-                <div class="card-title" style="margin:0;border:none;padding:0">📋 Voter List</div>
-                <input class="search-box" type="text" placeholder="🔍 Search voters..." oninput="filterVoters(this.value)">
+      </div>
+      <div id="resultsChartFull">
+        <div th:if="${#lists.isEmpty(candidates)}" style="text-align:center;padding:20px;color:#aaa">No candidates yet.</div>
+        <div th:each="c : ${candidates}" class="result-row" th:id="'rowf-' + ${c.candidateId}">
+          <div class="result-name">
+            <div th:text="${c.name}"></div>
+            <div style="font-size:11px;color:#aaa" th:text="${c.party}"></div>
+          </div>
+          <div class="result-bar-wrap">
+            <div class="result-bar" th:id="'barf-' + ${c.candidateId}"
+                 th:style="'width:' + (${totalVotes > 0} ? ${c.voteCount * 100 / totalVotes} : 0) + '%'">
+              <span class="result-bar-text"
+                    th:text="${totalVotes > 0} ? ${#numbers.formatDecimal(c.voteCount * 100.0 / totalVotes, 1, 1)} + '%' : ''"></span>
             </div>
-            <table id="voterTable">
-                <thead><tr><th>#</th><th>Voter ID</th><th>Name</th><th>Email</th><th>Mobile</th><th>Gender</th><th>City</th><th>Status</th><th>Action</th></tr></thead>
-                <tbody>
-                    <tr th:if="${#lists.isEmpty(voters)}">
-                        <td colspan="9" style="text-align:center;padding:24px;color:#aaa">No voters registered yet.</td>
-                    </tr>
-                    <tr th:each="v,i : ${voters}">
-                        <td th:text="${i.count}" style="color:#aaa;font-size:12px"></td>
-                        <td><span class="pill pill-green" th:text="${v.voterId}"></span></td>
-                        <td style="font-weight:700" th:text="${v.name}"></td>
-                        <td th:text="${v.email} ?: '—'" style="font-size:13px"></td>
-                        <td th:text="${v.mobileNumber} ?: '—'" style="font-size:13px"></td>
-                        <td th:text="${v.gender} ?: '—'" style="font-size:13px"></td>
-                        <td th:text="${v.city} ?: '—'" style="font-size:13px"></td>
-                        <td>
-                            <span class="pill" th:classappend="${v.hasVoted} ? 'pill-green' : 'pill-yellow'"
-                                  th:text="${v.hasVoted} ? '✔ Voted' : 'Pending'"></span>
-                        </td>
-                        <td>
-                            <form method="post" th:action="@{/admin/voter/remove}" style="display:inline">
-                                <input type="hidden" name="voterId" th:value="${v.voterId}">
-                                <button class="btn btn-red btn-sm" onclick="return confirm('Remove this voter?')">Remove</button>
-                            </form>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+          </div>
+          <div class="result-votes" th:id="'votesf-' + ${c.candidateId}" th:text="${c.voteCount} + ' votes'"></div>
         </div>
+      </div>
     </div>
+  </div>
 
-    <!-- ── Results Tab ────────────────────────────────────────────────────── -->
-    <div id="tab-results" class="tab-content"
-         th:classappend="${param.tab != null and param.tab[0] == 'results'} ? ' active' : ''">
-        <div class="card">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-                <div>
-                    <div class="card-title" style="margin:0;border:none;padding:0">
-                        🏆 Live Results
-                        <span class="live-dot" style="margin-left:8px"></span>
-                        <span style="font-size:12px;color:#aaa;font-weight:400">Auto-refreshes every 5s</span>
-                    </div>
-                    <div style="font-size:13px;color:#555;margin-top:4px">
-                        Total votes: <strong id="totalVotesDisplay" th:text="${totalVotes}" style="color:#1a6b3c"></strong>
-                    </div>
-                </div>
-                <div id="winnerBadge" style="display:none">
-                    <span class="winner-badge">🏆 Leading</span>
-                </div>
-            </div>
-            <div class="results-chart" id="resultsChart">
-                <div th:if="${#lists.isEmpty(candidates)}" style="text-align:center;padding:24px;color:#aaa">
-                    No candidates registered yet.
-                </div>
-                <div th:each="c : ${candidates}" class="result-row"
-                     th:id="'row-' + ${c.candidateId}">
-                    <div class="result-name">
-                        <div th:text="${c.name}"></div>
-                        <div style="font-size:11px;color:#aaa;font-weight:400" th:text="${c.party}"></div>
-                    </div>
-                    <div class="result-bar-wrap">
-                        <div class="result-bar"
-                             th:style="'width:' + (${totalVotes > 0} ? ${c.voteCount * 100 / totalVotes} : 0) + '%'"
-                             th:id="'bar-' + ${c.candidateId}">
-                            <span class="result-bar-text"
-                                  th:text="${totalVotes > 0} ? ${#numbers.formatDecimal(c.voteCount * 100.0 / totalVotes, 1, 1)} + '%' : ''"></span>
-                        </div>
-                    </div>
-                    <div class="result-votes" th:id="'votes-' + ${c.candidateId}"
-                         th:text="${c.voteCount} + ' votes'"></div>
-                </div>
-            </div>
-        </div>
+  <!-- ── ELECTION CONTROL ──────────────────────────────────── -->
+  <div id="sec-election" class="section">
+    <div class="sec-title">⚙ Election Control</div>
+    <div class="card">
+      <div class="card-title">Election Status</div>
+      <div style="font-size:16px;font-weight:700;margin-bottom:16px"
+           th:text="${election.open} ? '🟢 Currently OPEN — Voting is active' : '🔴 Currently CLOSED — Voting is inactive'"></div>
+      <div style="font-size:14px;color:#555;margin-bottom:20px" th:text="${election.title}"></div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <form method="post" th:action="@{/admin/election/open}">
+          <button class="btn btn-blue" th:disabled="${election.open}" style="padding:12px 28px;font-size:14px">▶ Open Election</button>
+        </form>
+        <form method="post" th:action="@{/admin/election/close}">
+          <button class="btn btn-red" th:disabled="${!election.open}" style="padding:12px 28px;font-size:14px">■ Close Election</button>
+        </form>
+      </div>
+      <p style="font-size:12px;color:#aaa;margin-top:16px">
+        Opening the election will send email notifications to all registered voters. Closing will also notify all voters.
+      </p>
     </div>
+  </div>
 
+</main>
 </div>
 
 <script>
-// ── Tab switching ─────────────────────────────────────────────
-function showTab(name, btn) {
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('tab-' + name).classList.add('active');
-    btn.classList.add('active');
+function showSec(name, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.ad-nav-links a').forEach(a => a.classList.remove('active'));
+  document.getElementById('sec-' + name).classList.add('active');
+  if (el) el.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
 }
-(function() {
-    const p = new URLSearchParams(window.location.search).get('tab');
-    if (p) {
-        const idx = p==='candidates'?0:p==='voters'?1:2;
-        const btn = document.querySelectorAll('.tab-btn')[idx];
-        if (btn) showTab(p, btn);
-    }
-})();
-
-// ── Voter search ──────────────────────────────────────────────
 function filterVoters(q) {
-    const rows = document.querySelectorAll('#voterTable tbody tr');
-    rows.forEach(r => {
-        r.style.display = r.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
-    });
+  document.querySelectorAll('#voterTable tbody tr').forEach(r => {
+    r.style.display = r.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
+  });
 }
-
-// ── Real-time refresh ─────────────────────────────────────────
 function refreshStats() {
-    fetch('/api/stats')
-        .then(r => r.json())
-        .then(data => {
-            if (data.error) return;
-
-            // Update stat boxes
-            document.getElementById('statVotes').textContent = data.totalVotes;
-            document.getElementById('statVoters').textContent = data.totalVoters;
-            document.getElementById('statCandidates').textContent = data.totalCandidates;
-
-            const pct = data.totalVoters > 0
-                ? ((data.totalVotes / data.totalVoters) * 100).toFixed(1) : 0;
-            document.getElementById('statVotePct').textContent = pct + '% turnout';
-            document.getElementById('statVoterTrend').textContent =
-                data.totalVotes + ' have voted';
-
-            // Update results chart
-            document.getElementById('totalVotesDisplay').textContent = data.totalVotes;
-            let maxVotes = 0;
-            data.candidates.forEach(c => { if (c.votes > maxVotes) maxVotes = c.votes; });
-
-            data.candidates.forEach(c => {
-                const bar   = document.getElementById('bar-' + c.id);
-                const votes = document.getElementById('votes-' + c.id);
-                if (bar) {
-                    bar.style.width = c.pct + '%';
-                    bar.querySelector('.result-bar-text').textContent =
-                        parseFloat(c.pct) > 5 ? c.pct + '%' : '';
-                }
-                if (votes) votes.textContent = c.votes + ' votes';
-            });
-
-            // Winner badge
-            if (data.totalVotes > 0 && data.candidates.length > 0) {
-                document.getElementById('winnerBadge').style.display = 'block';
-            }
-
-            // Last updated
-            const now = new Date();
-            document.getElementById('lastUpdated').textContent =
-                'Updated ' + now.toLocaleTimeString();
-        })
-        .catch(() => {});
+  fetch('/api/stats').then(r => r.json()).then(data => {
+    if (data.error) return;
+    document.getElementById('statVotes').textContent = data.totalVotes;
+    document.getElementById('statVoters').textContent = data.totalVoters;
+    document.getElementById('statCandidates').textContent = data.totalCandidates;
+    const pct = data.totalVoters > 0 ? ((data.totalVotes / data.totalVoters) * 100).toFixed(1) : 0;
+    document.getElementById('statVotePct').textContent = pct + '% turnout';
+    document.getElementById('statVoterTrend').textContent = data.totalVotes + ' voted';
+    document.getElementById('totalVotesDisplay').textContent = data.totalVotes;
+    const now = new Date();
+    document.getElementById('lastUpdated').textContent = now.toLocaleTimeString();
+    // Update both charts
+    data.candidates.forEach(c => {
+      ['bar-','barf-'].forEach(prefix => {
+        const bar = document.getElementById(prefix + c.id);
+        const votes = document.getElementById((prefix === 'bar-' ? 'votes-' : 'votesf-') + c.id);
+        if (bar) { bar.style.width = c.pct + '%'; const t = bar.querySelector('.result-bar-text'); if(t) t.textContent = parseFloat(c.pct) > 5 ? c.pct + '%' : ''; }
+        if (votes) votes.textContent = c.votes + ' votes';
+      });
+    });
+    const statusEl = document.getElementById('statusText');
+    const badge = document.getElementById('navBadge');
+    if (statusEl) statusEl.textContent = data.electionOpen ? '🟢 Election OPEN — Voting is active' : '🔴 Election CLOSED — Voting inactive';
+    if (badge) { badge.className = 'badge ' + (data.electionOpen ? 'badge-open' : 'badge-closed'); badge.textContent = data.electionOpen ? 'OPEN' : 'CLOSED'; }
+  }).catch(() => {});
 }
-
-// Refresh every 5 seconds
 setInterval(refreshStats, 5000);
 refreshStats();
+// Auto-navigate from URL param
+(function() {
+  const tab = new URLSearchParams(window.location.search).get('tab');
+  const map = {candidates:'candidates',voters:'voters',results:'results',election:'election'};
+  if (tab && map[tab]) {
+    const link = document.querySelector('.ad-nav-links a[onclick*="' + map[tab] + '"]');
+    showSec(map[tab], link);
+  }
+})();
 </script>
 </body>
 </html>
