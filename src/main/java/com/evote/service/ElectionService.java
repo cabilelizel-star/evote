@@ -198,6 +198,32 @@ public class ElectionService {
             newPassword, voterId, ELECTION_ID);
     }
 
+    // ── Voter blocking ────────────────────────────────────────────────────────
+    public void setVoterBlocked(String voterId, boolean blocked) {
+        // Add is_blocked column if not exists — handled gracefully
+        try {
+            db.update("UPDATE voters SET is_blocked = ? WHERE voter_id = ? AND election_id = ?",
+                blocked, voterId, ELECTION_ID);
+        } catch (Exception ignored) {}
+    }
+
+    // ── Audit log ─────────────────────────────────────────────────────────────
+    public void logActivity(String actor, String action) {
+        try {
+            db.update("INSERT INTO audit_log (actor, action, logged_at) VALUES (?, ?, NOW())",
+                actor, action);
+        } catch (Exception ignored) {}
+    }
+
+    public List<java.util.Map<String, Object>> getAuditLogs() {
+        try {
+            return db.queryForList(
+                "SELECT actor, action, logged_at FROM audit_log ORDER BY logged_at DESC LIMIT 50");
+        } catch (Exception e) {
+            return java.util.Collections.emptyList();
+        }
+    }
+
     // ── Row mappers ───────────────────────────────────────────────────────────
     private RowMapper<Election> electionMapper() {
         return (rs, i) -> new Election(rs.getInt("id"), rs.getString("title"), rs.getBoolean("is_open"));

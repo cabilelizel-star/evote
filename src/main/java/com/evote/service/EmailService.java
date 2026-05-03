@@ -109,7 +109,18 @@ public class EmailService {
         send(toEmail, subject, html);
     }
 
-    // ── HTTP send via Resend API ──────────────────────────────────────────────
+    // ── Announcement ─────────────────────────────────────────────────────────
+    public void sendAnnouncement(String toEmail, String voterName, String subject, String message) {
+        String html = buildEmail("Announcement",
+            "Hello, <strong>" + esc(voterName) + "</strong>!",
+            subject,
+            "<div style='background:#f0faf4;border-left:5px solid #2d9e5f;padding:16px 20px;" +
+            "border-radius:8px;margin:20px 0;font-size:14px;color:#333;line-height:1.7'>" +
+            esc(message).replace("\n", "<br>") + "</div>",
+            "This is an official announcement from the E-Vote System administrator.",
+            null, null);
+        send(toEmail, subject, html);
+    }
     private void send(String to, String subject, String html) {
         if (resendApiKey == null || resendApiKey.isBlank()) {
             System.err.println("❌ RESEND_API_KEY not set — email not sent to " + to);
