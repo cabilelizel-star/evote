@@ -7,12 +7,12 @@
     <style>
         *{box-sizing:border-box;margin:0;padding:0}
         body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0faf4;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-        .card{background:#fff;border-radius:16px;padding:40px 48px;width:100%;max-width:440px;box-shadow:0 4px 24px rgba(26,107,60,.10);text-align:center}
-        .icon{font-size:48px;margin-bottom:16px}
-        h1{font-size:22px;font-weight:800;color:#1a1a1a;margin-bottom:8px}
-        .status{display:inline-block;background:#fff0f0;color:#c0392b;border:1px solid #f5c6c6;border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700;margin-bottom:12px}
-        .msg{font-size:13px;color:#666;margin-bottom:24px;line-height:1.6}
-        .btn{display:inline-block;padding:12px 28px;background:#2d9e5f;color:#fff;text-decoration:none;border-radius:50px;font-size:14px;font-weight:700}
+        .card{background:#fff;border-radius:16px;padding:48px 40px;width:100%;max-width:420px;box-shadow:0 4px 24px rgba(0,0,0,.08);text-align:center}
+        .icon{font-size:52px;margin-bottom:20px}
+        h1{font-size:22px;font-weight:800;color:#1a1a1a;margin-bottom:10px}
+        .badge{display:inline-block;background:#fff0f0;color:#c0392b;border:1px solid #f5c6c6;border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700;margin-bottom:16px}
+        .msg{font-size:13px;color:#666;margin-bottom:28px;line-height:1.6}
+        .btn{display:inline-block;padding:13px 32px;background:#2d9e5f;color:#fff;text-decoration:none;border-radius:50px;font-size:14px;font-weight:700}
         .btn:hover{background:#1a6b3c}
     </style>
 </head>
@@ -20,8 +20,8 @@
 <div class="card">
     <div class="icon">⚠️</div>
     <h1>Something went wrong</h1>
-    <div class="status">Error <span th:text="${status}">500</span></div>
-    <p class="msg" th:text="${message}">An unexpected error occurred.</p>
+    <div class="badge">Error <span th:text="${status}">500</span></div>
+    <p class="msg" th:text="${message}">An unexpected error occurred. Please try again.</p>
     <a th:href="@{/login}" class="btn">← Back to Login</a>
 </div>
 </body>
