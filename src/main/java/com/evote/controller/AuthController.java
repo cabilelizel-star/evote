@@ -50,7 +50,7 @@ public class AuthController {
             model.addAttribute("error", "Please fill in all fields.");
             return "login";
         }
-        if ("admin".equals(username) && "admin123".equals(password)) {
+        if ("Admin".equals(username) && "Admin123".equals(password)) {
             session.setAttribute("userId",   "admin");
             session.setAttribute("userName", "Admin");
             session.setAttribute("role",     "admin");
