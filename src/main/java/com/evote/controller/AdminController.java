@@ -25,10 +25,11 @@ public class AdminController {
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model, HttpServletResponse response) {
         if (!"admin".equals(session.getAttribute("role"))) return "redirect:/login";
-        // Prevent browser back button from showing cached dashboard after logout
-        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        // Prevent browser AND proxy caching of dashboard
+        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate, max-age=0");
         response.setHeader("Pragma", "no-cache");
         response.setHeader("Expires", "0");
+        response.setHeader("Surrogate-Control", "no-store");
         try {
             java.util.List<com.evote.model.Candidate> all = svc.getCandidates();
             model.addAttribute("election",      svc.getElection());
