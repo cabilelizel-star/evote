@@ -953,20 +953,21 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<!-- ── Session Timeout Warning (Admin) ── -->
-<div id="sessionWarning" style="display:none;pointer-events:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center">
-  <div style="background:#fff;border-radius:16px;padding:36px 40px;max-width:400px;width:90%;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,0.5)">
-    <div style="font-size:48px;margin-bottom:12px">⏱</div>
-    <div style="font-size:20px;font-weight:800;color:#dc2626;margin-bottom:8px">Session Expiring Soon</div>
-    <div style="font-size:14px;color:#555;margin-bottom:20px;line-height:1.6">
-      Your session will expire in <strong id="countdownDisplay" style="color:#dc2626;font-size:18px">30</strong> seconds due to inactivity.<br>
-      Click <strong>Stay Logged In</strong> to continue.
+<!-- ── Session Timeout Toast (Admin) ── -->
+<div id="sessionWarning" style="display:none;position:fixed;bottom:24px;right:24px;z-index:9999;max-width:340px;width:90%;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,0.35);border:2px solid #ef4444;overflow:hidden">
+  <div style="background:#ef4444;padding:10px 16px;display:flex;align-items:center;gap:8px">
+    <span style="font-size:18px">⏱</span>
+    <span style="color:#fff;font-weight:800;font-size:14px">Session Expiring Soon</span>
+  </div>
+  <div style="padding:14px 16px">
+    <div style="font-size:13px;color:#555;margin-bottom:12px;line-height:1.5">
+      Logging out in <strong id="countdownDisplay" style="color:#dc2626;font-size:16px">30</strong>s due to inactivity.
     </div>
-    <div style="display:flex;gap:12px;justify-content:center">
-      <button onclick="resetSessionTimer()" style="padding:12px 24px;background:linear-gradient(135deg,#0066cc,#0044aa);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer">
+    <div style="display:flex;gap:8px">
+      <button onclick="resetSessionTimer()" style="flex:1;padding:9px;background:linear-gradient(135deg,#0066cc,#0044aa);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">
         ✅ Stay Logged In
       </button>
-      <a th:href="@{/logout}" style="padding:12px 24px;background:#f0f4ff;color:#0044aa;border:1.5px solid #c8d8f0;border-radius:8px;font-size:15px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center">
+      <a th:href="@{/logout}" style="flex:1;padding:9px;background:#fee2e2;color:#dc2626;border:none;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;text-align:center;display:flex;align-items:center;justify-content:center">
         🚪 Logout
       </a>
     </div>
@@ -979,24 +980,22 @@ var WARN_BEFORE    = 30 * 1000;
 var idleTimer      = null;
 var countdownTimer = null;
 var countdown      = 30;
+var warningVisible = false;
 
 function resetSessionTimer() {
-  var w = document.getElementById('sessionWarning');
-  w.style.display = 'none';
-  w.style.pointerEvents = 'none';
+  warningVisible = false;
+  document.getElementById('sessionWarning').style.display = 'none';
   clearInterval(countdownTimer);
   countdown = 30;
   clearTimeout(idleTimer);
   idleTimer = setTimeout(showWarning, IDLE_TIMEOUT - WARN_BEFORE);
-  fetch('/admin/dashboard', { method: 'HEAD' }).catch(function(){});
 }
 
 function showWarning() {
+  warningVisible = true;
   countdown = 30;
   document.getElementById('countdownDisplay').textContent = countdown;
-  var w = document.getElementById('sessionWarning');
-  w.style.display = 'flex';
-  w.style.pointerEvents = 'all';
+  document.getElementById('sessionWarning').style.display = 'block';
   countdownTimer = setInterval(function() {
     countdown--;
     var el = document.getElementById('countdownDisplay');
@@ -1010,10 +1009,7 @@ function showWarning() {
 
 ['mousemove','keydown','click','scroll','touchstart'].forEach(function(evt) {
   document.addEventListener(evt, function() {
-    var w = document.getElementById('sessionWarning');
-    if (w && w.style.pointerEvents === 'none') {
-      resetSessionTimer();
-    }
+    if (!warningVisible) resetSessionTimer();
   }, { passive: true });
 });
 
