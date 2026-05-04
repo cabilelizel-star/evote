@@ -143,7 +143,6 @@ tr:hover td{background:#f8faff}
     <a onclick="showSec('results',this)"><span class="nav-icon">📈</span> Live Results</a>
     <a onclick="showSec('election',this)"><span class="nav-icon">⚙</span> Election Control</a>
     <a onclick="showSec('announcements',this)"><span class="nav-icon">🔔</span> Announcements</a>
-    <a onclick="showSec('audit',this)"><span class="nav-icon">📝</span> Audit Logs</a>
     <a onclick="showSec('profile',this)"><span class="nav-icon">👤</span> Admin Profile</a>
   </nav>
   <div class="sidebar-footer">
@@ -226,6 +225,27 @@ tr:hover td{background:#f8faff}
           <div class="result-votes" th:id="'votes-' + ${c.candidateId}" th:text="${c.voteCount} + ' votes'"></div>
         </div>
       </div>
+    </div>
+
+    <!-- Audit Logs (moved from sidebar) -->
+    <div class="card">
+      <div class="card-title">📝 Recent Activity Log</div>
+      <p style="font-size:12px;color:#aaa;margin-bottom:14px">
+        🔒 Vote secrecy is maintained — logs show that a voter voted, but never who they voted for.
+      </p>
+      <table>
+        <thead><tr><th>Time</th><th>Actor</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr th:if="${#lists.isEmpty(auditLogs)}">
+            <td colspan="3" style="text-align:center;padding:20px;color:#aaa">No activity logged yet.</td>
+          </tr>
+          <tr th:each="log : ${auditLogs}">
+            <td style="font-size:12px;color:#888;white-space:nowrap" th:text="${log.logged_at}"></td>
+            <td><span class="pill pill-green" th:text="${log.actor}"></span></td>
+            <td th:text="${log.action}"></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
@@ -454,29 +474,6 @@ tr:hover td{background:#f8faff}
     </div>
   </div>
 
-  <!-- ── 7. AUDIT LOGS ─────────────────────────────────────── -->
-  <div id="sec-audit" class="section">
-    <div class="sec-title">📝 Audit Logs</div>
-    <div class="card">
-      <div class="card-title">🔍 Activity Log</div>
-      <p style="font-size:12px;color:#aaa;margin-bottom:14px">
-        🔒 Vote secrecy is maintained — logs show that a voter voted, but never who they voted for.
-      </p>
-      <table>
-        <thead><tr><th>Time</th><th>Actor</th><th>Action</th></tr></thead>
-        <tbody>
-          <tr th:if="${#lists.isEmpty(auditLogs)}">
-            <td colspan="3" style="text-align:center;padding:20px;color:#aaa">No activity logged yet.</td>
-          </tr>
-          <tr th:each="log : ${auditLogs}">
-            <td style="font-size:12px;color:#888;white-space:nowrap" th:text="${log.logged_at}"></td>
-            <td><span class="pill pill-green" th:text="${log.actor}"></span></td>
-            <td th:text="${log.action}"></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
 
   <!-- ── 8. ADMIN PROFILE ──────────────────────────────────── -->
   <div id="sec-profile" class="section">
@@ -679,7 +676,7 @@ setInterval(refreshStats, 5000);
 refreshStats();
 (function() {
   const tab = new URLSearchParams(window.location.search).get('tab');
-  const map = {candidates:'candidates',voters:'voters',results:'results',election:'election',announcements:'announcements',audit:'audit',profile:'profile'};
+  const map = {candidates:'candidates',voters:'voters',results:'results',election:'election',announcements:'announcements',profile:'profile'};
   if (tab && map[tab]) {
     const link = document.querySelector('.ad-nav-links a[onclick*="' + map[tab] + '"]');
     showSec(map[tab], link);
