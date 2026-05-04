@@ -224,7 +224,7 @@ public class AdminController {
             .filter(v -> v.getEmail() != null && !v.getEmail().isBlank())
             .forEach(v -> {
                 try { emailService.sendElectionOpenedEmail(v.getEmail(), v.getName(), title); }
-                catch (Exception ignored) {}
+                catch (Exception e) { System.err.println("Email failed for " + v.getEmail() + ": " + e.getMessage()); }
             })
         ).start();
         return "redirect:/admin/dashboard";
@@ -246,7 +246,7 @@ public class AdminController {
             .filter(v -> v.getEmail() != null && !v.getEmail().isBlank())
             .forEach(v -> {
                 try { emailService.sendElectionClosedEmail(v.getEmail(), v.getName(), title); }
-                catch (Exception ignored) {}
+                catch (Exception e) { System.err.println("Email failed for " + v.getEmail() + ": " + e.getMessage()); }
             })
         ).start();
         return "redirect:/admin/dashboard";

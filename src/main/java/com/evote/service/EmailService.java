@@ -146,11 +146,10 @@ public class EmailService {
     }
     private void send(String to, String subject, String html) {
         if (resendApiKey == null || resendApiKey.isBlank()) {
-            System.err.println("❌ RESEND_API_KEY not set — email not sent to " + to);
-            throw new RuntimeException("Email service not configured. Set RESEND_API_KEY in Railway Variables.");
+            System.err.println("⚠️ RESEND_API_KEY not set — email skipped for: " + to);
+            return; // Don't throw — just skip silently
         }
 
-        // Build JSON payload
         String json = "{"
             + "\"from\":\"" + esc(fromEmail) + "\","
             + "\"to\":[\"" + esc(to) + "\"],"
@@ -173,13 +172,9 @@ public class EmailService {
                 System.out.println("✅ Email sent to: " + to + " (status " + status + ")");
             } else {
                 System.err.println("❌ Resend API error " + status + ": " + response.body());
-                throw new RuntimeException("Email API returned status " + status + ": " + response.body());
             }
-        } catch (RuntimeException e) {
-            throw e;
         } catch (Exception e) {
-            System.err.println("❌ Email send failed: " + e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            System.err.println("❌ Email send failed for " + to + ": " + e.getMessage());
         }
     }
 
