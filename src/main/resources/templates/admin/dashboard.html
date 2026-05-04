@@ -33,17 +33,17 @@ body{
 .ad-nav-links a.active{background:rgba(0,100,200,.2);color:#fff;border-left-color:#0066cc}
 .nav-icon{font-size:16px;width:20px;text-align:center}
 .sidebar-footer{padding:16px 20px;border-top:1px solid rgba(0,150,255,0.15)}
-.ad-main{padding:24px 28px;overflow-y:auto;min-height:calc(100vh - 60px)}
+.ad-main{padding:16px 20px;overflow-y:auto;min-height:calc(100vh - 60px)}
 .section{display:none}.section.active{display:block}
-.sec-title{font-size:20px;font-weight:800;color:#fff;margin-bottom:20px;display:flex;align-items:center;gap:10px}
-.card{background:rgba(255,255,255,0.97);border-radius:12px;padding:22px;margin-bottom:18px;box-shadow:0 4px 20px rgba(0,0,0,.3),0 0 0 1px rgba(0,150,255,.1)}
-.card-title{font-size:13px;font-weight:800;color:#0044aa;text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid #e0eeff}
-.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
-.stat-card{background:rgba(255,255,255,0.97);border-radius:12px;padding:16px 18px;box-shadow:0 4px 20px rgba(0,0,0,.3);border-left:4px solid #0066cc}
+.sec-title{font-size:18px;font-weight:800;color:#fff;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.card{background:rgba(255,255,255,0.97);border-radius:12px;padding:16px 18px;margin-bottom:12px;box-shadow:0 4px 20px rgba(0,0,0,.3),0 0 0 1px rgba(0,150,255,.1)}
+.card-title{font-size:12px;font-weight:800;color:#0044aa;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid #e0eeff}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.stat-card{background:rgba(255,255,255,0.97);border-radius:12px;padding:14px 16px;box-shadow:0 4px 20px rgba(0,0,0,.3);border-left:4px solid #0066cc}
 .stat-card.green{border-color:#22c55e}.stat-card.yellow{border-color:#f59e0b}.stat-card.red{border-color:#ef4444}
 .stat-label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px;font-weight:700}
-.stat-value{font-size:26px;font-weight:800;color:#1a1a1a;margin-top:4px}
-.stat-sub{font-size:11px;color:#0066cc;margin-top:2px}
+.stat-value{font-size:32px;font-weight:900;color:#1a1a1a;margin-top:2px;line-height:1}
+.stat-sub{font-size:12px;color:#0066cc;margin-top:3px;font-weight:600}
 .election-bar{background:linear-gradient(135deg,#0044aa,#0066cc);color:#fff;padding:16px 20px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:12px;box-shadow:0 4px 16px rgba(0,100,200,.3)}
 .btn-open{background:#fff;color:#0044aa;border:none;padding:9px 20px;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px}
 .btn-close{background:rgba(255,255,255,.15);color:#fff;border:2px solid rgba(255,255,255,.5);padding:9px 20px;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px}
@@ -197,8 +197,10 @@ tr:hover td{background:#f8faff}
     <!-- Turnout progress -->
     <div class="card">
       <div class="card-title"><span class="live-dot"></span>Voter Turnout</div>
-      <div style="font-size:28px;font-weight:900;color:#1a6b3c" id="turnoutPct" th:text="${turnoutPct} + '%'">0%</div>
-      <div style="font-size:13px;color:#888;margin-bottom:8px">of registered voters have voted</div>
+      <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px">
+        <div style="font-size:36px;font-weight:900;color:#1a6b3c" id="turnoutPct" th:text="${turnoutPct} + '%'">0%</div>
+        <div style="font-size:13px;color:#888">of registered voters have voted</div>
+      </div>
       <div class="progress-bar-wrap">
         <div class="progress-bar-fill" id="turnoutBar" th:style="'width:' + ${turnoutPct} + '%'"></div>
       </div>
