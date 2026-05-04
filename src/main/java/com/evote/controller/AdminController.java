@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 @RequestMapping("/admin")
@@ -158,6 +159,31 @@ public class AdminController {
         svc.removeCandidate(candidateId);
         svc.logActivity("Admin", "Removed candidate: " + candidateId);
         return "redirect:/admin/dashboard?tab=candidates";
+    }
+
+    // ── Candidate photo ───────────────────────────────────────────────────────
+    @PostMapping("/candidate/photo")
+    public String uploadCandidatePhoto(@RequestParam String candidateId,
+                                        @RequestParam MultipartFile photo,
+                                        HttpSession session) {
+        if (!"admin".equals(session.getAttribute("role"))) return "redirect:/login";
+        try {
+            if (!photo.isEmpty()) {
+                svc.saveCandidatePhoto(candidateId, photo.getBytes());
+                svc.logActivity("Admin", "Uploaded photo for candidate: " + candidateId);
+            }
+        } catch (Exception e) {
+            System.err.println("Candidate photo upload failed: " + e.getMessage());
+        }
+        return "redirect:/admin/dashboard?tab=candidates";
+    }
+
+    @GetMapping("/candidate/photo/{candidateId}")
+    @ResponseBody
+    public ResponseEntity<byte[]> serveCandidatePhoto(@PathVariable String candidateId) {
+        byte[] img = svc.getCandidatePhoto(candidateId);
+        if (img == null || img.length == 0) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(img);
     }
 
     // ── Voter actions ─────────────────────────────────────────────────────────

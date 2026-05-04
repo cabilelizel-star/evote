@@ -6,6 +6,7 @@ public class Candidate {
     private String party;
     private int    voteCount;
     private String electionType; // e.g. "Local Government Election", "Student Council Election"
+    private byte[] photo;
 
     public Candidate() {}
     public Candidate(String candidateId, String name, String party, int voteCount) {
@@ -26,6 +27,19 @@ public class Candidate {
     public void setParty(String v)        { this.party        = v; }
     public void setVoteCount(int v)       { this.voteCount    = v; }
     public void setElectionType(String v) { this.electionType = v; }
+    public byte[] getPhoto() { return photo; }
+    public void setPhoto(byte[] v) { this.photo = v; }
+    public boolean hasPhoto() { return photo != null && photo.length > 0; }
+
+    private byte[] photo;
+    public byte[] getPhoto() { return photo; }
+    public void setPhoto(byte[] v) { this.photo = v; }
+    public boolean hasPhoto() { return photo != null && photo.length > 0; }
+
+    private byte[] photo;
+    public byte[] getPhoto() { return photo; }
+    public void   setPhoto(byte[] v) { this.photo = v; }
+    public boolean hasPhoto() { return photo != null && photo.length > 0; }
 
     /** Returns a short badge label for the election type */
     public String getTypeIcon() {

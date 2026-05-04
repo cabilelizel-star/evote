@@ -302,7 +302,7 @@ tr:hover td{background:#f8faff}
                        class="cand-card"
                        th:attr="data-id=${c.candidateId},data-group='governor'"
                        onclick="selectCand(this)">
-                    <div class="cand-avatar" th:text="${c.name != null} ? ${c.name.substring(0,1).toUpperCase()} : '?'">C</div>
+                    <img th:if="${c.hasPhoto()}" th:src="@{/admin/candidate/photo/{id}(id=${c.candidateId})}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;margin:0 auto 8px;display:block;border:2px solid #c8d8f0" alt="Photo"><div class="cand-avatar" th:if="${!c.hasPhoto()}" th:text="${c.name != null} ? ${c.name.substring(0,1).toUpperCase()} : '?'">C</div>
                     <div class="cand-name" th:text="${c.name}">Candidate</div>
                     <div class="cand-party" th:text="${c.party.contains('Incumbent') ? 'Incumbent' : 'Challenger'}">Party</div>
                   </div>
@@ -321,7 +321,7 @@ tr:hover td{background:#f8faff}
                        class="cand-card"
                        th:attr="data-id=${c.candidateId},data-group='vicegov'"
                        onclick="selectCand(this)">
-                    <div class="cand-avatar" th:text="${c.name != null} ? ${c.name.substring(0,1).toUpperCase()} : '?'">C</div>
+                    <img th:if="${c.hasPhoto()}" th:src="@{/admin/candidate/photo/{id}(id=${c.candidateId})}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;margin:0 auto 8px;display:block;border:2px solid #c8d8f0" alt="Photo"><div class="cand-avatar" th:if="${!c.hasPhoto()}" th:text="${c.name != null} ? ${c.name.substring(0,1).toUpperCase()} : '?'">C</div>
                     <div class="cand-name" th:text="${c.name}">Candidate</div>
                     <div class="cand-party" th:text="${c.party.contains('Incumbent') ? 'Incumbent' : 'Challenger'}">Party</div>
                   </div>
@@ -340,7 +340,7 @@ tr:hover td{background:#f8faff}
                        class="cand-card"
                        th:attr="data-id=${c.candidateId},data-group='mayor'"
                        onclick="selectCand(this)">
-                    <div class="cand-avatar" th:text="${c.name != null} ? ${c.name.substring(0,1).toUpperCase()} : '?'">C</div>
+                    <img th:if="${c.hasPhoto()}" th:src="@{/admin/candidate/photo/{id}(id=${c.candidateId})}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;margin:0 auto 8px;display:block;border:2px solid #c8d8f0" alt="Photo"><div class="cand-avatar" th:if="${!c.hasPhoto()}" th:text="${c.name != null} ? ${c.name.substring(0,1).toUpperCase()} : '?'">C</div>
                     <div class="cand-name" th:text="${c.name}">Candidate</div>
                     <div class="cand-party" th:text="${c.party.contains('Incumbent') ? 'Incumbent' : 'Challenger'}">Party</div>
                   </div>
@@ -359,7 +359,7 @@ tr:hover td{background:#f8faff}
                        class="cand-card"
                        th:attr="data-id=${c.candidateId},data-group='vicemayor'"
                        onclick="selectCand(this)">
-                    <div class="cand-avatar" th:text="${c.name != null} ? ${c.name.substring(0,1).toUpperCase()} : '?'">C</div>
+                    <img th:if="${c.hasPhoto()}" th:src="@{/admin/candidate/photo/{id}(id=${c.candidateId})}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;margin:0 auto 8px;display:block;border:2px solid #c8d8f0" alt="Photo"><div class="cand-avatar" th:if="${!c.hasPhoto()}" th:text="${c.name != null} ? ${c.name.substring(0,1).toUpperCase()} : '?'">C</div>
                     <div class="cand-name" th:text="${c.name}">Candidate</div>
                     <div class="cand-party" th:text="${c.party.contains('Incumbent') ? 'Incumbent' : 'Challenger'}">Party</div>
                   </div>
@@ -378,7 +378,7 @@ tr:hover td{background:#f8faff}
                        class="cand-card"
                        th:attr="data-id=${c.candidateId},data-group='rep'"
                        onclick="selectCand(this)">
-                    <div class="cand-avatar" th:text="${c.name != null} ? ${c.name.substring(0,1).toUpperCase()} : '?'">C</div>
+                    <img th:if="${c.hasPhoto()}" th:src="@{/admin/candidate/photo/{id}(id=${c.candidateId})}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;margin:0 auto 8px;display:block;border:2px solid #c8d8f0" alt="Photo"><div class="cand-avatar" th:if="${!c.hasPhoto()}" th:text="${c.name != null} ? ${c.name.substring(0,1).toUpperCase()} : '?'">C</div>
                     <div class="cand-name" th:text="${c.name}">Candidate</div>
                     <div class="cand-party" style="font-size:11px" th:text="${c.party}">Party</div>
                   </div>

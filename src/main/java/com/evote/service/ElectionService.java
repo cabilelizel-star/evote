@@ -56,6 +56,8 @@ public class ElectionService {
         try { db.execute("ALTER TABLE elections ADD COLUMN election_type VARCHAR(100)"); } catch (Exception ignored) {}
         try { db.execute("ALTER TABLE elections ADD COLUMN organization VARCHAR(255)"); }  catch (Exception ignored) {}
         try { db.execute("ALTER TABLE candidates ADD COLUMN election_type VARCHAR(100)"); } catch (Exception ignored) {}
+        try { db.execute("ALTER TABLE candidates ADD COLUMN photo MEDIUMBLOB"); }          catch (Exception ignored) {}
+        try { db.execute("ALTER TABLE candidates ADD COLUMN photo MEDIUMBLOB"); } catch (Exception ignored) {}
     }
 
     // â”€â”€ Election â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -84,7 +86,7 @@ public class ElectionService {
     // â”€â”€ Candidates â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     public List<Candidate> getCandidates() {
         return db.query(
-            "SELECT candidate_id, name, party, vote_count, election_type FROM candidates " +
+            "SELECT candidate_id, name, party, vote_count, election_type, photo FROM candidates " +
             "WHERE election_id = ? ORDER BY election_type, party, name",
             candidateMapper(), ELECTION_ID);
     }
@@ -101,6 +103,34 @@ public class ElectionService {
 
     public void removeCandidate(String id) {
         db.update("DELETE FROM candidates WHERE candidate_id = ? AND election_id = ?", id, ELECTION_ID);
+    }
+
+    public void saveCandidatePhoto(String candidateId, byte[] photo) {
+        db.update("UPDATE candidates SET photo = ? WHERE candidate_id = ? AND election_id = ?",
+            photo, candidateId, ELECTION_ID);
+    }
+
+    public byte[] getCandidatePhoto(String candidateId) {
+        try {
+            List<byte[]> rows = db.query(
+                "SELECT photo FROM candidates WHERE candidate_id = ? AND election_id = ?",
+                (rs, i) -> rs.getBytes("photo"), candidateId, ELECTION_ID);
+            return rows.isEmpty() ? null : rows.get(0);
+        } catch (Exception e) { return null; }
+    }
+
+    public void saveCandidatePhoto(String candidateId, byte[] photo) {
+        db.update("UPDATE candidates SET photo = ? WHERE candidate_id = ? AND election_id = ?",
+            photo, candidateId, ELECTION_ID);
+    }
+
+    public byte[] getCandidatePhoto(String candidateId) {
+        try {
+            List<byte[]> rows = db.query(
+                "SELECT photo FROM candidates WHERE candidate_id = ? AND election_id = ?",
+                (rs, i) -> rs.getBytes("photo"), candidateId, ELECTION_ID);
+            return rows.isEmpty() ? null : rows.get(0);
+        } catch (Exception e) { return null; }
     }
 
     // â”€â”€ Voters â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -440,6 +470,7 @@ public class ElectionService {
                 rs.getString("candidate_id"), rs.getString("name"),
                 rs.getString("party"), rs.getInt("vote_count"));
             try { c.setElectionType(rs.getString("election_type")); } catch (Exception ignored) {}
+            try { c.setPhoto(rs.getBytes("photo")); } catch (Exception ignored) {}
             return c;
         };
     }
