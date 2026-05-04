@@ -9,8 +9,46 @@
 <body class="auth-body">
 <div class="auth-card">
 
-    <!-- Avatar -->
-    <div class="auth-avatar">&#128100;</div>
+    <!-- Logo -->
+    <div style="text-align:center;margin-bottom:20px">
+      <svg width="220" height="80" viewBox="0 0 220 80" xmlns="http://www.w3.org/2000/svg">
+        <!-- Shield shape -->
+        <defs>
+          <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#1a4fa0;stop-opacity:1"/>
+            <stop offset="100%" style="stop-color:#0d2d6b;stop-opacity:1"/>
+          </linearGradient>
+          <linearGradient id="checkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#00e676;stop-opacity:1"/>
+            <stop offset="100%" style="stop-color:#00b248;stop-opacity:1"/>
+          </linearGradient>
+        </defs>
+        <!-- Shield body -->
+        <path d="M18 8 L42 8 L42 38 Q42 52 30 58 Q18 52 18 38 Z" fill="url(#shieldGrad)" stroke="#2d6be4" stroke-width="1.5"/>
+        <!-- Inner shield highlight -->
+        <path d="M22 12 L38 12 L38 36 Q38 47 30 52 Q22 47 22 36 Z" fill="none" stroke="rgba(100,180,255,0.4)" stroke-width="1"/>
+        <!-- Checkmark -->
+        <polyline points="22,33 27,39 38,25" fill="none" stroke="url(#checkGrad)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Padlock top -->
+        <path d="M24 14 Q24 8 30 8 Q36 8 36 14" fill="none" stroke="#4a90d9" stroke-width="2" stroke-linecap="round"/>
+        <!-- Circuit dots -->
+        <circle cx="18" cy="42" r="1.5" fill="#00e5ff" opacity="0.7"/>
+        <circle cx="42" cy="42" r="1.5" fill="#00e5ff" opacity="0.7"/>
+        <circle cx="30" cy="62" r="1.5" fill="#00e5ff" opacity="0.7"/>
+        <line x1="18" y1="42" x2="12" y2="48" stroke="#00e5ff" stroke-width="0.8" opacity="0.5"/>
+        <line x1="42" y1="42" x2="48" y2="48" stroke="#00e5ff" stroke-width="0.8" opacity="0.5"/>
+        <!-- eVOTE text -->
+        <text x="58" y="38" font-family="'Segoe UI',Arial,sans-serif" font-size="28" font-weight="900" fill="#1a3a7a" letter-spacing="1">e</text>
+        <text x="74" y="38" font-family="'Segoe UI',Arial,sans-serif" font-size="28" font-weight="900" fill="#1a4fa0" letter-spacing="1">V</text>
+        <!-- O with circuit dot -->
+        <text x="92" y="38" font-family="'Segoe UI',Arial,sans-serif" font-size="28" font-weight="900" fill="#1a4fa0" letter-spacing="1">O</text>
+        <circle cx="106" cy="26" r="3" fill="#4a90d9"/>
+        <circle cx="106" cy="26" r="1.5" fill="#fff"/>
+        <text x="114" y="38" font-family="'Segoe UI',Arial,sans-serif" font-size="28" font-weight="900" fill="#1a4fa0" letter-spacing="1">TE</text>
+        <!-- SECURED BALLOT -->
+        <text x="58" y="54" font-family="'Segoe UI',Arial,sans-serif" font-size="10" font-weight="700" fill="#5a7a9a" letter-spacing="3">SECURED BALLOT</text>
+      </svg>
+    </div>
 
     <!-- Title with divider lines -->
     <div class="auth-title-row">

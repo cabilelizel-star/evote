@@ -22,12 +22,17 @@ public class ElectionService {
     // â”€â”€ Election â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     public Election getElection() {
         return db.queryForObject(
-            "SELECT id, title, is_open FROM elections WHERE id = ?",
+            "SELECT id, title, is_open, start_time, end_time FROM elections WHERE id = ?",
             electionMapper(), ELECTION_ID);
     }
 
     public void setElectionOpen(boolean open) {
         db.update("UPDATE elections SET is_open = ? WHERE id = ?", open, ELECTION_ID);
+    }
+
+    public void updateElectionSettings(String title, String startTime, String endTime) {
+        db.update("UPDATE elections SET title = ?, start_time = ?, end_time = ? WHERE id = ?",
+            title, startTime, endTime, ELECTION_ID);
     }
 
     // â”€â”€ Candidates â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -403,5 +408,6 @@ public class ElectionService {
         };
     }
 }
+
 
 
