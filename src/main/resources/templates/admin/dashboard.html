@@ -326,10 +326,11 @@ tr:hover td{background:#f8faff}
           <tr th:each="c,i : ${candidates}">
             <td>
               <div style="width:46px;height:46px;border-radius:50%;overflow:hidden;background:#e8f0fe;display:flex;align-items:center;justify-content:center;border:2px solid #c8d8f0;flex-shrink:0">
-                <img th:if="${c.hasPhoto()}"
-                     th:src="@{/admin/candidate/photo/{id}(id=${c.candidateId})}"
-                     style="width:46px;height:46px;object-fit:cover" alt="Photo">
-                <span th:if="${!c.hasPhoto()}" style="font-size:20px">👤</span>
+                <img th:src="@{/admin/candidate/photo/{id}(id=${c.candidateId})}"
+                     style="width:46px;height:46px;object-fit:cover"
+                     alt="Photo"
+                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                <span style="font-size:20px;display:none">👤</span>
               </div>
             </td>
             <td th:text="${i.count}" style="color:#aaa;font-size:13px"></td>
