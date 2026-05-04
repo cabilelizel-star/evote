@@ -391,7 +391,7 @@ tr:hover td{background:#f8faff}
               <button type="button" id="castVoteBtn" class="btn-vote" disabled="disabled" onclick="confirmVote()">
                 &#x1F5F3; Cast My Vote
               </button>
-              <div style="font-size:12px;color:#aaa;margin-top:8px">Select a candidate above to enable voting</div>
+              <div id="voteHint" style="font-size:13px;margin-top:10px;min-height:20px">&#x26A0; Please select one candidate per position to vote.</div>
             </div>
           </form>
         </div>
@@ -589,54 +589,64 @@ function showSection(name, el) {
 function selectCand(el) {
   var group = el.getAttribute('data-group');
   var id    = el.getAttribute('data-id');
-
-  // Deselect all cards in the same group
-  var groupCards = document.querySelectorAll('.cand-card[data-group="' + group + '"]');
-  for (var i = 0; i < groupCards.length; i++) {
-    groupCards[i].classList.remove('selected');
-  }
-  // Select clicked card
+  document.querySelectorAll('.cand-card[data-group="' + group + '"]')
+    .forEach(function(c) { c.classList.remove('selected'); });
   el.classList.add('selected');
-
-  // Update or add hidden input for this group
   var existing = document.getElementById('sel-' + group);
-  if (existing) {
-    existing.value = id;
-  } else {
+  if (existing) { existing.value = id; }
+  else {
     var input = document.createElement('input');
-    input.type  = 'hidden';
-    input.name  = 'candidateIds';
-    input.id    = 'sel-' + group;
-    input.value = id;
+    input.type = 'hidden'; input.name = 'candidateIds';
+    input.id = 'sel-' + group; input.value = id;
     document.getElementById('voteForm').appendChild(input);
   }
+  checkAllSelected();
+}
 
-  // Enable Cast My Vote button if at least one group has a selection
-  var anySelected = document.querySelectorAll('.cand-card.selected').length > 0;
+function checkAllSelected() {
+  var allGroups = [];
+  document.querySelectorAll('.candidate-grid[data-group]').forEach(function(g) {
+    var grp = g.getAttribute('data-group');
+    if (allGroups.indexOf(grp) === -1) allGroups.push(grp);
+  });
+  var remaining = allGroups.filter(function(grp) {
+    return !document.querySelector('.cand-card.selected[data-group="' + grp + '"]');
+  });
+  var allFilled = remaining.length === 0;
   var btn = document.getElementById('castVoteBtn');
-  if (btn) { btn.disabled = !anySelected; }
+  var hint = document.getElementById('voteHint');
+  if (btn) btn.disabled = !allFilled;
+  if (hint) {
+    var groupNames = {governor:'Governor',vicegov:'Vice Governor',mayor:'Mayor',vicemayor:'Vice Mayor',rep:'Representative'};
+    if (allFilled) {
+      hint.innerHTML = '<span style="color:#16a34a;font-weight:700">&#x2705; All positions selected. You may now cast your vote.</span>';
+    } else {
+      var names = remaining.map(function(g){ return groupNames[g]||g; }).join(', ');
+      hint.innerHTML = '<span style="color:#dc2626;font-weight:700">&#x26A0; Still need to select: <strong>' + names + '</strong></span>';
+    }
+  }
 }
 
 // ── Confirm and submit vote ─────────────────────────────────
 function confirmVote() {
-  var selected = document.querySelectorAll('.cand-card.selected');
-  if (selected.length === 0) {
-    alert('Please select at least one candidate.');
+  // Validate ALL groups are selected
+  var allGroups = [];
+  document.querySelectorAll('.candidate-grid[data-group]').forEach(function(g) {
+    var grp = g.getAttribute('data-group');
+    if (allGroups.indexOf(grp) === -1) allGroups.push(grp);
+  });
+  var groupNames = {governor:'Governor',vicegov:'Vice Governor',mayor:'Mayor',vicemayor:'Vice Mayor',rep:'Representative'};
+  var missing = allGroups.filter(function(grp) {
+    return !document.querySelector('.cand-card.selected[data-group="' + grp + '"]');
+  });
+  if (missing.length > 0) {
+    var names = missing.map(function(g){ return groupNames[g]||g; }).join(', ');
+    alert('? You must select a candidate for ALL positions before voting.\n\nMissing: ' + names);
     return;
   }
-
-  var summary = 'You are about to vote for:\n\n';
-  for (var i = 0; i < selected.length; i++) {
-    var name  = selected[i].querySelector('.cand-name').textContent;
-    var party = selected[i].querySelector('.cand-party').textContent;
-    summary += '• ' + name + ' (' + party + ')\n';
-  }
-  summary += '\nThis action cannot be undone. Confirm your vote?';
-
-  var ok = confirm(summary);
-  if (ok) {
-    document.getElementById('voteForm').submit();
-  }
+  if (!confirm('Are you sure you want to submit your vote?\n\nThis action is FINAL and cannot be changed.')) return;
+  document.getElementById('voteForm').submit();
+}
 }
 
 // ── Notification bell toggle ────────────────────────────────
