@@ -86,9 +86,21 @@ public class ElectionService {
     // â”€â”€ Candidates â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     public List<Candidate> getCandidates() {
         return db.query(
-            "SELECT candidate_id, name, party, vote_count, election_type, photo FROM candidates " +
-            "WHERE election_id = ? ORDER BY election_type, party, name",
-            candidateMapper(), ELECTION_ID);
+            "SELECT candidate_id, name, party, vote_count, election_type, " +
+            "(photo IS NOT NULL AND LENGTH(photo) > 0) AS has_photo " +
+            "FROM candidates WHERE election_id = ? ORDER BY election_type, party, name",
+            (rs, i) -> {
+                Candidate c = new Candidate(
+                    rs.getString("candidate_id"), rs.getString("name"),
+                    rs.getString("party"), rs.getInt("vote_count"));
+                try { c.setElectionType(rs.getString("election_type")); } catch (Exception ignored) {}
+                // Set a 1-byte marker so hasPhoto() returns true without loading the full blob
+                try {
+                    boolean hp = rs.getBoolean("has_photo");
+                    if (hp) c.setPhoto(new byte[]{1});
+                } catch (Exception ignored) {}
+                return c;
+            }, ELECTION_ID);
     }
 
     public void addCandidate(String id, String name, String party, String electionType) {
