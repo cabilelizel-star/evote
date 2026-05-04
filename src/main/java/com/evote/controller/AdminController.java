@@ -188,6 +188,22 @@ public class AdminController {
         return "redirect:/admin/dashboard?tab=voters";
     }
 
+    // ── Election settings ─────────────────────────────────────────────────────
+    @PostMapping("/election/update")
+    public String updateElection(@RequestParam String title,
+                                 @RequestParam(required = false) String startTime,
+                                 @RequestParam(required = false) String endTime,
+                                 HttpSession session) {
+        if (!"admin".equals(session.getAttribute("role"))) return "redirect:/login";
+        svc.updateElectionSettings(
+            title != null && !title.isBlank() ? title.trim() : "General Election 2025",
+            startTime,
+            endTime
+        );
+        svc.logActivity("Admin", "Updated election settings: " + title);
+        return "redirect:/admin/dashboard?tab=election&success=settingssaved";
+    }
+
     // ── Election control ──────────────────────────────────────────────────────
     @PostMapping("/election/open")
     public String openElection(HttpSession session) {

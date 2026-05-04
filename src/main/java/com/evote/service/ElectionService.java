@@ -373,7 +373,12 @@ public class ElectionService {
 
     // â”€â”€ Row mappers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private RowMapper<Election> electionMapper() {
-        return (rs, i) -> new Election(rs.getInt("id"), rs.getString("title"), rs.getBoolean("is_open"));
+        return (rs, i) -> {
+            Election e = new Election(rs.getInt("id"), rs.getString("title"), rs.getBoolean("is_open"));
+            try { e.setStartTime(rs.getString("start_time")); } catch (Exception ignored) {}
+            try { e.setEndTime(rs.getString("end_time")); }   catch (Exception ignored) {}
+            return e;
+        };
     }
 
     private RowMapper<Candidate> candidateMapper() {

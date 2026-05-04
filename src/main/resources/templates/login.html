@@ -3,94 +3,336 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>E-Vote System — Sign In | eVOTE Secured Ballot</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <title>eVOTE Secured Ballot — Sign In</title>
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{
+            font-family:'Segoe UI',Arial,sans-serif;
+            min-height:100vh;
+            display:flex;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(0,180,255,0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(0,100,255,0.12) 0%, transparent 50%),
+                linear-gradient(135deg, #020b18 0%, #041428 40%, #061e3a 70%, #030f22 100%);
+        }
+
+        /* ── Left panel — logo ── */
+        .left-panel{
+            flex:1;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            justify-content:center;
+            padding:48px 40px;
+            position:relative;
+        }
+        .left-panel::after{
+            content:'';
+            position:absolute;
+            right:0;top:10%;bottom:10%;
+            width:1px;
+            background:linear-gradient(to bottom,transparent,rgba(0,150,255,0.3),transparent);
+        }
+
+        /* SVG logo container */
+        .logo-wrap{
+            width:100%;
+            max-width:420px;
+            text-align:center;
+        }
+        .logo-tagline{
+            margin-top:24px;
+            color:rgba(255,255,255,0.7);
+            font-size:14px;
+            line-height:1.7;
+            text-align:center;
+        }
+        .logo-tagline strong{
+            color:#60b4ff;
+            display:block;
+            font-size:16px;
+            margin-bottom:6px;
+        }
+        .feature-list{
+            list-style:none;
+            margin-top:20px;
+            text-align:left;
+            display:inline-block;
+        }
+        .feature-list li{
+            color:rgba(255,255,255,0.65);
+            font-size:13px;
+            padding:5px 0;
+            display:flex;
+            align-items:center;
+            gap:8px;
+        }
+        .feature-list li::before{
+            content:'✓';
+            color:#00e676;
+            font-weight:800;
+            font-size:14px;
+        }
+
+        /* ── Right panel — form ── */
+        .right-panel{
+            flex:0 0 420px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:40px 32px;
+        }
+        .login-card{
+            background:rgba(255,255,255,0.97);
+            border-radius:20px;
+            padding:40px 36px;
+            width:100%;
+            box-shadow:
+                0 0 0 1px rgba(0,150,255,0.2),
+                0 24px 64px rgba(0,0,0,0.55),
+                0 0 80px rgba(0,100,255,0.12);
+        }
+        .card-title{
+            text-align:center;
+            font-size:1.4rem;
+            font-weight:800;
+            color:#0044aa;
+            margin-bottom:6px;
+        }
+        .card-sub{
+            text-align:center;
+            font-size:.85rem;
+            color:#6b7a99;
+            margin-bottom:24px;
+        }
+        .input-group{
+            display:flex;
+            align-items:center;
+            background:#f8faff;
+            border:1.5px solid #c8d8f0;
+            border-radius:10px;
+            margin-bottom:14px;
+            transition:border-color .2s,box-shadow .2s;
+        }
+        .input-group:focus-within{
+            border-color:#0066cc;
+            box-shadow:0 0 0 3px rgba(0,100,200,.12);
+        }
+        .input-group .icon{
+            padding:0 14px;
+            font-size:16px;
+            color:#0066cc;
+            line-height:50px;
+        }
+        .input-group input{
+            flex:1;border:none;outline:none;
+            font-size:15px;padding:13px 12px 13px 0;
+            color:#1a1a1a;background:transparent;
+        }
+        .input-group input::placeholder{color:#aaa}
+        .options-row{
+            display:flex;justify-content:space-between;
+            align-items:center;margin-bottom:20px;
+            font-size:13px;color:#555;
+        }
+        .options-row label{display:flex;align-items:center;gap:6px;cursor:pointer}
+        .options-row a{color:#0066cc;font-weight:600;text-decoration:none}
+        .options-row a:hover{text-decoration:underline}
+        .btn-login{
+            width:100%;padding:14px;
+            background:linear-gradient(135deg,#0066cc,#0044aa);
+            border:none;border-radius:10px;
+            color:#fff;font-size:16px;font-weight:700;
+            cursor:pointer;
+            box-shadow:0 4px 16px rgba(0,100,200,.4);
+            transition:all .2s;
+            margin-bottom:16px;
+        }
+        .btn-login:hover{
+            background:linear-gradient(135deg,#0055bb,#003399);
+            transform:translateY(-1px);
+            box-shadow:0 6px 20px rgba(0,100,200,.5);
+        }
+        .card-footer{text-align:center;font-size:13px;color:#666}
+        .card-footer a{color:#0066cc;font-weight:700;text-decoration:none}
+        .card-footer a:hover{text-decoration:underline}
+        .alert{padding:11px 14px;border-radius:8px;margin-bottom:14px;font-size:13px}
+        .alert-error{background:#fff0f0;color:#c0392b;border:1px solid #f5c6c6}
+        .alert-success{background:#f0f8ff;color:#0044aa;border:1px solid #c8d8f0}
+
+        /* Responsive */
+        @media(max-width:768px){
+            body{flex-direction:column}
+            .left-panel{padding:32px 24px;flex:none}
+            .left-panel::after{display:none}
+            .right-panel{flex:none;width:100%;padding:24px 16px}
+            .logo-wrap svg{width:280px;height:auto}
+        }
+    </style>
 </head>
-<body class="auth-body">
-<div class="auth-card">
+<body>
 
-    <!-- Logo -->
-    <div style="text-align:center;margin-bottom:20px">
-      <svg width="220" height="80" viewBox="0 0 220 80" xmlns="http://www.w3.org/2000/svg">
-        <!-- Shield shape -->
-        <defs>
-          <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style="stop-color:#1a4fa0;stop-opacity:1"/>
-            <stop offset="100%" style="stop-color:#0d2d6b;stop-opacity:1"/>
-          </linearGradient>
-          <linearGradient id="checkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style="stop-color:#00e676;stop-opacity:1"/>
-            <stop offset="100%" style="stop-color:#00b248;stop-opacity:1"/>
-          </linearGradient>
-        </defs>
-        <!-- Shield body -->
-        <path d="M18 8 L42 8 L42 38 Q42 52 30 58 Q18 52 18 38 Z" fill="url(#shieldGrad)" stroke="#2d6be4" stroke-width="1.5"/>
-        <!-- Inner shield highlight -->
-        <path d="M22 12 L38 12 L38 36 Q38 47 30 52 Q22 47 22 36 Z" fill="none" stroke="rgba(100,180,255,0.4)" stroke-width="1"/>
-        <!-- Checkmark -->
-        <polyline points="22,33 27,39 38,25" fill="none" stroke="url(#checkGrad)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <!-- Padlock top -->
-        <path d="M24 14 Q24 8 30 8 Q36 8 36 14" fill="none" stroke="#4a90d9" stroke-width="2" stroke-linecap="round"/>
-        <!-- Circuit dots -->
-        <circle cx="18" cy="42" r="1.5" fill="#00e5ff" opacity="0.7"/>
-        <circle cx="42" cy="42" r="1.5" fill="#00e5ff" opacity="0.7"/>
-        <circle cx="30" cy="62" r="1.5" fill="#00e5ff" opacity="0.7"/>
-        <line x1="18" y1="42" x2="12" y2="48" stroke="#00e5ff" stroke-width="0.8" opacity="0.5"/>
-        <line x1="42" y1="42" x2="48" y2="48" stroke="#00e5ff" stroke-width="0.8" opacity="0.5"/>
-        <!-- eVOTE text -->
-        <text x="58" y="38" font-family="'Segoe UI',Arial,sans-serif" font-size="28" font-weight="900" fill="#1a3a7a" letter-spacing="1">e</text>
-        <text x="74" y="38" font-family="'Segoe UI',Arial,sans-serif" font-size="28" font-weight="900" fill="#1a4fa0" letter-spacing="1">V</text>
-        <!-- O with circuit dot -->
-        <text x="92" y="38" font-family="'Segoe UI',Arial,sans-serif" font-size="28" font-weight="900" fill="#1a4fa0" letter-spacing="1">O</text>
-        <circle cx="106" cy="26" r="3" fill="#4a90d9"/>
-        <circle cx="106" cy="26" r="1.5" fill="#fff"/>
-        <text x="114" y="38" font-family="'Segoe UI',Arial,sans-serif" font-size="28" font-weight="900" fill="#1a4fa0" letter-spacing="1">TE</text>
-        <!-- SECURED BALLOT -->
-        <text x="58" y="54" font-family="'Segoe UI',Arial,sans-serif" font-size="10" font-weight="700" fill="#5a7a9a" letter-spacing="3">SECURED BALLOT</text>
-      </svg>
+    <!-- ═══ LEFT PANEL — Logo ═══ -->
+    <div class="left-panel">
+        <div class="logo-wrap">
+            <!-- eVOTE Secured Ballot SVG Logo -->
+            <svg viewBox="0 0 480 200" xmlns="http://www.w3.org/2000/svg" width="420" height="175">
+                <defs>
+                    <linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#1a5fc8"/>
+                        <stop offset="100%" style="stop-color:#0a2d7a"/>
+                    </linearGradient>
+                    <linearGradient id="sg2" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#2a7ae8"/>
+                        <stop offset="100%" style="stop-color:#1a4fa0"/>
+                    </linearGradient>
+                    <linearGradient id="cg" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#00e676"/>
+                        <stop offset="100%" style="stop-color:#00b248"/>
+                    </linearGradient>
+                    <linearGradient id="tg" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#1a3a7a"/>
+                        <stop offset="100%" style="stop-color:#2a5ab8"/>
+                    </linearGradient>
+                    <filter id="glow">
+                        <feGaussianBlur stdDeviation="3" result="blur"/>
+                        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                    </filter>
+                </defs>
+
+                <!-- ── Shield outer ── -->
+                <path d="M30 20 L110 20 L110 100 Q110 145 70 165 Q30 145 30 100 Z"
+                      fill="url(#sg)" stroke="#3a7ae8" stroke-width="2"/>
+                <!-- Shield inner layer -->
+                <path d="M38 28 L102 28 L102 98 Q102 136 70 153 Q38 136 38 98 Z"
+                      fill="url(#sg2)" stroke="rgba(100,180,255,0.3)" stroke-width="1"/>
+                <!-- Shield innermost -->
+                <path d="M46 36 L94 36 L94 96 Q94 127 70 141 Q46 127 46 96 Z"
+                      fill="rgba(10,40,120,0.6)" stroke="rgba(100,180,255,0.2)" stroke-width="1"/>
+
+                <!-- Padlock top -->
+                <path d="M52 36 Q52 16 70 16 Q88 16 88 36"
+                      fill="none" stroke="#4a90d9" stroke-width="5" stroke-linecap="round"/>
+                <rect x="56" y="32" width="28" height="8" rx="3" fill="#3a7ae8"/>
+
+                <!-- Ballot box inside shield -->
+                <rect x="52" y="60" width="36" height="28" rx="3"
+                      fill="rgba(30,80,180,0.5)" stroke="rgba(100,180,255,0.6)" stroke-width="1.5"/>
+                <line x1="60" y1="60" x2="60" y2="54" stroke="rgba(150,200,255,0.7)" stroke-width="1.5"/>
+                <line x1="80" y1="60" x2="80" y2="54" stroke="rgba(150,200,255,0.7)" stroke-width="1.5"/>
+                <line x1="52" y1="72" x2="88" y2="72" stroke="rgba(100,180,255,0.4)" stroke-width="1"/>
+
+                <!-- Green checkmark -->
+                <polyline points="48,95 60,110 92,72"
+                          fill="none" stroke="url(#cg)" stroke-width="7"
+                          stroke-linecap="round" stroke-linejoin="round"
+                          filter="url(#glow)"/>
+
+                <!-- Circuit dots around shield -->
+                <circle cx="30" cy="100" r="3" fill="#00e5ff" opacity="0.8"/>
+                <circle cx="110" cy="100" r="3" fill="#00e5ff" opacity="0.8"/>
+                <circle cx="70" cy="165" r="3" fill="#00e5ff" opacity="0.8"/>
+                <circle cx="20" cy="60" r="2" fill="#00e5ff" opacity="0.5"/>
+                <circle cx="120" cy="60" r="2" fill="#00e5ff" opacity="0.5"/>
+                <line x1="30" y1="100" x2="16" y2="115" stroke="#00e5ff" stroke-width="1" opacity="0.4"/>
+                <line x1="110" y1="100" x2="124" y2="115" stroke="#00e5ff" stroke-width="1" opacity="0.4"/>
+                <line x1="70" y1="165" x2="70" y2="178" stroke="#00e5ff" stroke-width="1" opacity="0.4"/>
+                <circle cx="16" cy="115" r="2" fill="#00e5ff" opacity="0.4"/>
+                <circle cx="124" cy="115" r="2" fill="#00e5ff" opacity="0.4"/>
+                <circle cx="70" cy="178" r="2" fill="#00e5ff" opacity="0.4"/>
+
+                <!-- Network lines (background) -->
+                <line x1="200" y1="30" x2="280" y2="60" stroke="rgba(100,180,255,0.15)" stroke-width="1"/>
+                <line x1="280" y1="60" x2="350" y2="20" stroke="rgba(100,180,255,0.15)" stroke-width="1"/>
+                <line x1="350" y1="20" x2="440" y2="50" stroke="rgba(100,180,255,0.15)" stroke-width="1"/>
+                <line x1="280" y1="60" x2="320" y2="120" stroke="rgba(100,180,255,0.15)" stroke-width="1"/>
+                <line x1="320" y1="120" x2="420" y2="100" stroke="rgba(100,180,255,0.15)" stroke-width="1"/>
+                <circle cx="280" cy="60" r="3" fill="rgba(100,180,255,0.3)"/>
+                <circle cx="350" cy="20" r="3" fill="rgba(100,180,255,0.3)"/>
+                <circle cx="320" cy="120" r="3" fill="rgba(100,180,255,0.3)"/>
+                <circle cx="420" cy="100" r="2" fill="rgba(100,180,255,0.2)"/>
+
+                <!-- ── eVOTE text ── -->
+                <text x="148" y="105" font-family="'Segoe UI',Arial,sans-serif"
+                      font-size="72" font-weight="900" fill="url(#tg)" letter-spacing="-2">
+                    eV
+                </text>
+                <!-- O with circuit -->
+                <text x="270" y="105" font-family="'Segoe UI',Arial,sans-serif"
+                      font-size="72" font-weight="900" fill="url(#tg)" letter-spacing="-2">
+                    O
+                </text>
+                <circle cx="306" cy="62" r="7" fill="#2a6ae8"/>
+                <circle cx="306" cy="62" r="3.5" fill="#fff"/>
+                <line x1="306" y1="55" x2="306" y2="48" stroke="#2a6ae8" stroke-width="2"/>
+                <text x="322" y="105" font-family="'Segoe UI',Arial,sans-serif"
+                      font-size="72" font-weight="900" fill="url(#tg)" letter-spacing="-2">
+                    TE
+                </text>
+
+                <!-- SECURED BALLOT -->
+                <text x="148" y="135" font-family="'Segoe UI',Arial,sans-serif"
+                      font-size="18" font-weight="700" fill="#5a7ab8" letter-spacing="6">
+                    SECURED BALLOT
+                </text>
+            </svg>
+
+            <div class="logo-tagline">
+                <strong>Secure. Transparent. Trusted.</strong>
+                Your vote matters — cast it with confidence
+            </div>
+            <ul class="feature-list">
+                <li>BCrypt encrypted passwords</li>
+                <li>OTP email verification</li>
+                <li>Face &amp; ID verification</li>
+                <li>Tamper-proof audit logs</li>
+                <li>Session timeout protection</li>
+            </ul>
+        </div>
     </div>
 
-    <!-- Title with divider lines -->
-    <div class="auth-title-row">
-        <hr><span>Sign in</span><hr>
+    <!-- ═══ RIGHT PANEL — Login Form ═══ -->
+    <div class="right-panel">
+        <div class="login-card">
+            <div class="card-title">Welcome Back</div>
+            <div class="card-sub">Sign in to your eVOTE account</div>
+
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+            <div th:if="${error}"   class="alert alert-error"   th:text="${error}"></div>
+
+            <form method="post" th:action="@{/login}">
+                <div class="input-group">
+                    <span class="icon">&#128100;</span>
+                    <input type="text" name="username" placeholder="Username / Voter ID" required autofocus>
+                </div>
+                <div class="input-group">
+                    <span class="icon">&#128274;</span>
+                    <input type="password" id="loginPassword" name="password" placeholder="Password" required>
+                    <button type="button" onclick="togglePw()" id="eyeBtn"
+                        style="background:none;border:none;cursor:pointer;padding:0 12px;color:#6b7a99;display:flex;align-items:center">
+                        <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                        </svg>
+                        <svg id="eyeClosed" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="options-row">
+                    <label><input type="checkbox" name="remember" style="accent-color:#0066cc"> Remember me</label>
+                    <a th:href="@{/forgot-password}">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn-login">Login</button>
+            </form>
+
+            <div class="card-footer">
+                Not registered? <a th:href="@{/register}">Create an account!</a>
+            </div>
+        </div>
     </div>
 
-    <!-- Alerts -->
-    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
-    <div th:if="${error}"   class="alert alert-error"   th:text="${error}"></div>
-
-    <!-- Form -->
-    <form method="post" th:action="@{/login}">
-        <div class="input-group">
-            <span class="icon">&#128100;</span>
-            <input type="text" name="username" placeholder="Username" required autofocus>
-        </div>
-        <div class="input-group">
-            <span class="icon">&#128274;</span>
-            <input type="password" id="loginPassword" name="password" placeholder="Password" required>
-            <button type="button" onclick="togglePw()" id="eyeBtn"
-                style="background:none;border:none;cursor:pointer;padding:0 12px;color:#6b7a99;display:flex;align-items:center;line-height:1">
-                <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                </svg>
-                <svg id="eyeClosed" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
-                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>
-                </svg>
-            </button>
-        </div>
-
-        <div class="options-row">
-            <label><input type="checkbox" name="remember"> Remember me</label>
-            <a th:href="@{/forgot-password}">Forgot password?</a>
-        </div>
-
-        <button type="submit" class="btn-primary">Login</button>
-    </form>
-
-    <div class="auth-footer">
-        Not registered? <a th:href="@{/register}">Create an account!</a>
-    </div>
-</div>
 <script>
 function togglePw() {
     var f = document.getElementById('loginPassword');

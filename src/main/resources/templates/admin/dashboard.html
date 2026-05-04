@@ -158,6 +158,7 @@ tr:hover td{background:#f8faff}
   <div th:if="${param.success != null}" class="alert-success">
     <span th:if="${param.success[0] == 'sent'}">✅ Announcement sent to all voters.</span>
     <span th:if="${param.success[0] == 'passwordchanged'}">✅ Password changed successfully.</span>
+    <span th:if="${param.success[0] == 'settingssaved'}">✅ Election settings saved successfully.</span>
   </div>
   <div th:if="${param.error != null}" class="alert-error">
     <span th:if="${param.error[0] == 'wrongpassword'}">⚠ Current password is incorrect.</span>
@@ -447,8 +448,35 @@ tr:hover td{background:#f8faff}
   <!-- ── 5. ELECTION CONTROL ───────────────────────────────── -->
   <div id="sec-election" class="section">
     <div class="sec-title">⚙ Election Control</div>
+
+    <!-- Settings saved alert -->
+    <div th:if="${param.success != null and param.success[0] == 'settingssaved'}" class="alert-success">✅ Election settings saved successfully.</div>
+
+    <!-- Election Settings Card -->
     <div class="card">
-      <div class="card-title">Election Status</div>
+      <div class="card-title">📝 Election Settings</div>
+      <form method="post" th:action="@{/admin/election/update}">
+        <div class="form-field">
+          <label>Election Title</label>
+          <input type="text" name="title" th:value="${election.title}" placeholder="e.g. Laguna General Election 2025" required>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="form-field">
+            <label>Start Date &amp; Time</label>
+            <input type="datetime-local" name="startTime" th:value="${election.startTime}">
+          </div>
+          <div class="form-field">
+            <label>End Date &amp; Time</label>
+            <input type="datetime-local" name="endTime" th:value="${election.endTime}">
+          </div>
+        </div>
+        <button type="submit" class="btn-save" style="margin-top:4px">💾 Save Settings</button>
+      </form>
+    </div>
+
+    <!-- Open / Close Card -->
+    <div class="card">
+      <div class="card-title">🔘 Election Status</div>
       <div style="font-size:16px;font-weight:700;margin-bottom:16px"
            th:text="${election.open} ? '🟢 Currently OPEN — Voting is active' : '🔴 Currently CLOSED — Voting is inactive'"></div>
       <div style="font-size:14px;color:#555;margin-bottom:20px" th:text="${election.title}"></div>
@@ -461,8 +489,23 @@ tr:hover td{background:#f8faff}
         </form>
       </div>
       <p style="font-size:12px;color:#aaa;margin-top:16px">
-        Opening the election will send email notifications to all registered voters. Closing will also notify all voters.
+        Opening the election will send email &amp; in-app notifications to all registered voters. Closing will also notify all voters.
       </p>
+    </div>
+
+    <!-- Schedule Info Card -->
+    <div class="card" th:if="${election.startTime != null or election.endTime != null}">
+      <div class="card-title">🗓 Scheduled Times</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div class="info-item">
+          <div class="info-label">📅 Start Time</div>
+          <div class="info-value" th:text="${election.startTime != null ? election.startTime : '—'}"></div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">🏁 End Time</div>
+          <div class="info-value" th:text="${election.endTime != null ? election.endTime : '—'}"></div>
+        </div>
+      </div>
     </div>
   </div>
 
