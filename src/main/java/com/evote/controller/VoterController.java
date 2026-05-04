@@ -25,6 +25,12 @@ public class VoterController {
         this.emailService = emailService;
     }
 
+    /** Same shared login as /login (avoids 404 if someone opens /voter/login) */
+    @GetMapping("/login")
+    public String voterLoginAlias() {
+        return "redirect:/login";
+    }
+
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model, HttpServletResponse response) {
         if (!"voter".equals(session.getAttribute("role"))) return "redirect:/login";

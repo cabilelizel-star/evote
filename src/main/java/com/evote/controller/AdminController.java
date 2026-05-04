@@ -23,6 +23,12 @@ public class AdminController {
         this.emailService = emailService;
     }
 
+    /** Bookmarks / links often use /admin/login — the real sign-in is the shared page at /login */
+    @GetMapping("/login")
+    public String adminLoginAlias() {
+        return "redirect:/login";
+    }
+
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model, HttpServletResponse response) {
         if (!"admin".equals(session.getAttribute("role"))) return "redirect:/login";

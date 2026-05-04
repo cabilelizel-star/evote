@@ -43,14 +43,14 @@ public class Election {
     /** Returns the icon emoji for the current election type */
     public String getTypeIcon() {
         if (electionType == null) return "🗳";
-        return switch (electionType) {
-            case TYPE_NATIONAL     -> "🇵🇭";
-            case TYPE_LOCAL        -> "🏛";
-            case TYPE_BARANGAY     -> "🏘";
-            case TYPE_SCHOOL       -> "🏫";
-            case TYPE_STUDENT      -> "🎓";
-            case TYPE_ORGANIZATION -> "🏢";
-            default                -> "🗳";
-        };
+        switch (electionType) {
+            case "National Election":         return "🇵🇭";
+            case "Local Government Election": return "🏛";
+            case "Barangay-Level Voting":     return "🏘";
+            case "School Election":           return "🏫";
+            case "Student Council Election":  return "🎓";
+            case "Organization Voting":       return "🏢";
+            default:                          return "🗳";
+        }
     }
 }

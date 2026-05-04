@@ -1,8 +1,9 @@
-﻿package com.evote.service;
+package com.evote.service;
 
 import com.evote.model.Candidate;
 import com.evote.model.Election;
 import com.evote.model.Voter;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
@@ -57,14 +58,27 @@ public class ElectionService {
         try { db.execute("ALTER TABLE elections ADD COLUMN organization VARCHAR(255)"); }  catch (Exception ignored) {}
         try { db.execute("ALTER TABLE candidates ADD COLUMN election_type VARCHAR(100)"); } catch (Exception ignored) {}
         try { db.execute("ALTER TABLE candidates ADD COLUMN photo MEDIUMBLOB"); }          catch (Exception ignored) {}
-        try { db.execute("ALTER TABLE candidates ADD COLUMN photo MEDIUMBLOB"); } catch (Exception ignored) {}
     }
 
     // â”€â”€ Election â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     public Election getElection() {
-        return db.queryForObject(
-            "SELECT id, title, is_open, start_time, end_time, election_type, organization FROM elections WHERE id = ?",
-            electionMapper(), ELECTION_ID);
+        try {
+            return db.queryForObject(
+                "SELECT id, title, is_open, start_time, end_time, election_type, organization FROM elections WHERE id = ?",
+                electionMapper(), ELECTION_ID);
+        } catch (EmptyResultDataAccessException e) {
+            try {
+                db.update("INSERT INTO elections (id, title, is_open) VALUES (?, ?, false)",
+                    ELECTION_ID, "General Election");
+            } catch (Exception ignored) { /* row may exist or schema differs */ }
+            try {
+                return db.queryForObject(
+                    "SELECT id, title, is_open, start_time, end_time, election_type, organization FROM elections WHERE id = ?",
+                    electionMapper(), ELECTION_ID);
+            } catch (Exception e2) {
+                return new Election(ELECTION_ID, "General Election", false);
+            }
+        }
     }
 
     public void setElectionOpen(boolean open) {
@@ -115,20 +129,6 @@ public class ElectionService {
 
     public void removeCandidate(String id) {
         db.update("DELETE FROM candidates WHERE candidate_id = ? AND election_id = ?", id, ELECTION_ID);
-    }
-
-    public void saveCandidatePhoto(String candidateId, byte[] photo) {
-        db.update("UPDATE candidates SET photo = ? WHERE candidate_id = ? AND election_id = ?",
-            photo, candidateId, ELECTION_ID);
-    }
-
-    public byte[] getCandidatePhoto(String candidateId) {
-        try {
-            List<byte[]> rows = db.query(
-                "SELECT photo FROM candidates WHERE candidate_id = ? AND election_id = ?",
-                (rs, i) -> rs.getBytes("photo"), candidateId, ELECTION_ID);
-            return rows.isEmpty() ? null : rows.get(0);
-        } catch (Exception e) { return null; }
     }
 
     public void saveCandidatePhoto(String candidateId, byte[] photo) {
@@ -404,11 +404,15 @@ public class ElectionService {
     }
 
     public List<Voter> getPendingVoters() {
-        return db.query(
-            "SELECT voter_id, name, has_voted, first_name, last_name, email, mobile_number, " +
-            "id_type, id_number, status, rejection_reason FROM voters " +
-            "WHERE election_id=? AND (status='pending' OR status IS NULL) ORDER BY created_at DESC",
-            voterMapper(), ELECTION_ID);
+        try {
+            return db.query(
+                "SELECT voter_id, name, has_voted, first_name, last_name, email, mobile_number, " +
+                "id_type, id_number, status, rejection_reason FROM voters " +
+                "WHERE election_id=? AND (status='pending' OR status IS NULL) ORDER BY name",
+                voterMapper(), ELECTION_ID);
+        } catch (Exception e) {
+            return java.util.Collections.emptyList();
+        }
     }
 
     // â”€â”€ Notifications â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -457,8 +461,18 @@ public class ElectionService {
 
     public List<java.util.Map<String, Object>> getAuditLogs() {
         try {
-            return db.queryForList(
+            List<java.util.Map<String, Object>> rows = db.queryForList(
                 "SELECT actor, action, logged_at FROM audit_log ORDER BY logged_at DESC LIMIT 50");
+            List<java.util.Map<String, Object>> out = new java.util.ArrayList<>();
+            for (java.util.Map<String, Object> row : rows) {
+                java.util.Map<String, Object> lc = new java.util.LinkedHashMap<>();
+                for (java.util.Map.Entry<String, Object> e : row.entrySet()) {
+                    String k = e.getKey();
+                    lc.put(k != null ? k.toLowerCase() : "", e.getValue());
+                }
+                out.add(lc);
+            }
+            return out;
         } catch (Exception e) {
             return java.util.Collections.emptyList();
         }

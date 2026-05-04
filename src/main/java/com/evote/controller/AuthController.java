@@ -60,7 +60,13 @@ public class AuthController {
             session.setAttribute("role",     "admin");
             return "redirect:/admin/dashboard";
         }
-        Optional<Voter> voter = svc.authenticateVoter(username, password, passwordEncoder);
+        Optional<Voter> voter;
+        try {
+            voter = svc.authenticateVoter(username, password, passwordEncoder);
+        } catch (Exception ex) {
+            model.addAttribute("error", "Cannot reach database or server error. Check connection and try again.");
+            return "login";
+        }
         if (voter.isPresent()) {
             Voter v = voter.get();
             // Only block rejected voters

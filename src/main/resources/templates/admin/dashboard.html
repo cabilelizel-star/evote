@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
@@ -112,8 +112,8 @@ tr:hover td{background:#f8faff}
   <div class="nav-right">
     <span><span class="live-dot"></span>Live <span id="lastUpdated" style="font-size:11px;color:rgba(255,255,255,.6)">—</span></span>
     <span th:text="${election.title}" style="font-weight:600"></span>
-    <span id="navBadge" class="badge" th:classappend="${election.open} ? 'badge-open' : 'badge-closed'"
-          th:text="${election.open} ? 'OPEN' : 'CLOSED'"></span>
+    <span id="navBadge" class="badge" th:classappend="${election.open ? 'badge-open' : 'badge-closed'}"
+          th:text="${election.open ? 'OPEN' : 'CLOSED'}"></span>
 
     <!-- Notification Bell -->
     <div style="position:relative" id="notifWrap">
@@ -164,12 +164,12 @@ tr:hover td{background:#f8faff}
   <div th:if="${dbError}" class="alert-error">⚠ Database error: <span th:text="${dbError}"></span></div>
 
   <!-- Alerts from redirects -->
-  <div th:if="${param.success != null}" class="alert-success">
+  <div th:if="${param.success != null and not #lists.isEmpty(param.success)}" class="alert-success">
     <span th:if="${param.success[0] == 'sent'}">✅ Announcement sent to all voters.</span>
     <span th:if="${param.success[0] == 'passwordchanged'}">✅ Password changed successfully.</span>
     <span th:if="${param.success[0] == 'settingssaved'}">✅ Election settings saved successfully.</span>
   </div>
-  <div th:if="${param.error != null}" class="alert-error">
+  <div th:if="${param.error != null and not #lists.isEmpty(param.error)}" class="alert-error">
     <span th:if="${param.error[0] == 'wrongpassword'}">⚠ Current password is incorrect.</span>
     <span th:if="${param.error[0] == 'passwordmismatch'}">⚠ Passwords do not match or are too short.</span>
   </div>
@@ -198,11 +198,11 @@ tr:hover td{background:#f8faff}
     <div class="card">
       <div class="card-title"><span class="live-dot"></span>Voter Turnout</div>
       <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px">
-        <div style="font-size:36px;font-weight:900;color:#1a6b3c" id="turnoutPct" th:text="${turnoutPct} + '%'">0%</div>
+        <div style="font-size:36px;font-weight:900;color:#1a6b3c" id="turnoutPct" th:text="|${turnoutPct}%|">0%</div>
         <div style="font-size:13px;color:#888">of registered voters have voted</div>
       </div>
       <div class="progress-bar-wrap">
-        <div class="progress-bar-fill" id="turnoutBar" th:style="'width:' + ${turnoutPct} + '%'"></div>
+        <div class="progress-bar-fill" id="turnoutBar" th:style="${'width:' + turnoutPct + '%'}"></div>
       </div>
     </div>
 
@@ -219,9 +219,9 @@ tr:hover td{background:#f8faff}
             <td colspan="3" style="text-align:center;padding:20px;color:#aaa">No activity logged yet.</td>
           </tr>
           <tr th:each="log : ${auditLogs}">
-            <td style="font-size:12px;color:#888;white-space:nowrap" th:text="${log.logged_at}"></td>
-            <td><span class="pill pill-green" th:text="${log.actor}"></span></td>
-            <td th:text="${log.action}"></td>
+            <td style="font-size:12px;color:#888;white-space:nowrap" th:text="${log['logged_at']}"></td>
+            <td><span class="pill pill-green" th:text="${log['actor']}"></span></td>
+            <td th:text="${log['action']}"></td>
           </tr>
         </tbody>
       </table>
@@ -274,8 +274,8 @@ tr:hover td{background:#f8faff}
                   <button class="btn btn-blue btn-sm" onclick="return confirm('Approve this voter?')">✅ Approve</button>
                 </form>
                 &nbsp;
-                <button class="btn btn-red btn-sm" th:onclick="'showReject(\''+${v.voterId}+'\')'">❌ Reject</button>
-                <div th:id="'rej-'+${v.voterId}" style="display:none;margin-top:8px">
+                <button type="button" class="btn btn-red btn-sm" th:attr="data-vid=${v.voterId}" onclick="showReject(this.getAttribute('data-vid'))">❌ Reject</button>
+                <div th:id="|rej-${v.voterId}|" style="display:none;margin-top:8px">
                   <form method="post" th:action="@{/admin/voter/reject}" style="display:flex;gap:6px;align-items:center">
                     <input type="hidden" name="voterId" th:value="${v.voterId}">
                     <input type="text" name="reason" placeholder="Reason for rejection" required
@@ -323,7 +323,7 @@ tr:hover td{background:#f8faff}
         <thead><tr><th>Photo</th><th>#</th><th>ID</th><th>Name</th><th>Party / Position</th><th>Election Type</th><th>Action</th></tr></thead>
         <tbody>
           <tr th:if="${#lists.isEmpty(candidates)}"><td colspan="7" style="text-align:center;padding:20px;color:#aaa">No candidates yet.</td></tr>
-          <tr th:each="c,i : ${candidates}">
+          <tr th:each="c, rowStat : ${candidates}">
             <td>
               <div style="width:46px;height:46px;border-radius:50%;overflow:hidden;background:#e8f0fe;display:flex;align-items:center;justify-content:center;border:2px solid #c8d8f0;flex-shrink:0">
                 <img th:src="@{/admin/candidate/photo/{id}(id=${c.candidateId})}"
@@ -333,7 +333,7 @@ tr:hover td{background:#f8faff}
                 <span style="font-size:20px;display:none">👤</span>
               </div>
             </td>
-            <td th:text="${i.count}" style="color:#aaa;font-size:13px"></td>
+            <td th:text="${rowStat.count}" style="color:#aaa;font-size:13px"></td>
             <td><span class="pill pill-green" th:text="${c.candidateId}"></span></td>
             <td style="font-weight:700;font-size:15px" th:text="${c.name}"></td>
             <td th:text="${c.party}" style="font-size:14px"></td>
@@ -390,14 +390,14 @@ tr:hover td{background:#f8faff}
           <thead><tr><th>#</th><th>Voter ID</th><th>Name</th><th>Email</th><th>Mobile</th><th>City</th><th>Status</th><th>Action</th></tr></thead>
           <tbody>
             <tr th:if="${#lists.isEmpty(voters)}"><td colspan="8" style="text-align:center;padding:20px;color:#aaa">No voters yet.</td></tr>
-            <tr th:each="v,i : ${voters}">
-              <td th:text="${i.count}" style="color:#aaa;font-size:12px"></td>
+            <tr th:each="v, rowStat : ${voters}">
+              <td th:text="${rowStat.count}" style="color:#aaa;font-size:12px"></td>
               <td><span class="pill pill-green" th:text="${v.voterId}"></span></td>
               <td style="font-weight:700" th:text="${v.name}"></td>
               <td th:text="${v.email} ?: '—'" style="font-size:12px"></td>
               <td th:text="${v.mobileNumber} ?: '—'" style="font-size:12px"></td>
               <td th:text="${v.city} ?: '—'" style="font-size:12px"></td>
-              <td><span class="pill" th:classappend="${v.hasVoted} ? 'pill-green' : 'pill-yellow'" th:text="${v.hasVoted} ? '✔ Voted' : 'Pending'"></span></td>
+              <td><span class="pill" th:classappend="${v.hasVoted ? 'pill-green' : 'pill-yellow'}" th:text="${v.hasVoted ? '✔ Voted' : 'Pending'}"></span></td>
               <td style="white-space:nowrap">
                 <form method="post" th:action="@{/admin/voter/remove}" style="display:inline">
                   <input type="hidden" name="voterId" th:value="${v.voterId}">
@@ -427,7 +427,7 @@ tr:hover td{background:#f8faff}
           <span th:text="${election.typeIcon}">🗳</span>
           <span th:text="${election.electionType != null ? election.electionType : 'General Election'}">General Election</span>
           <span style="opacity:.7;font-size:12px;margin-left:4px" th:if="${election.organization != null and !#strings.isEmpty(election.organization)}"
-                th:text="'— ' + ${election.organization}"></span>
+                th:text="${'— ' + election.organization}"></span>
         </div>
       </div>
 
@@ -441,10 +441,10 @@ tr:hover td{background:#f8faff}
             &#x1F451; Governor
             <span style="margin-left:auto;font-size:11px;background:#0066cc;color:#fff;padding:2px 8px;border-radius:20px;font-weight:700">🏛 Local Government</span>
           </div>
-          <div th:each="c : ${govCandidates}" class="result-row" th:id="'rowf-' + ${c.candidateId}">
+          <div th:each="c : ${govCandidates}" class="result-row" th:id="|rowf-${c.candidateId}|">
             <div class="result-name"><div style="font-size:15px;font-weight:700" th:text="${c.name}"></div><div style="font-size:12px;color:#888" th:text="${c.party}"></div></div>
-            <div class="result-bar-wrap"><div class="result-bar" th:id="'barf-' + ${c.candidateId}" th:style="'width:' + (${totalVotes > 0} ? ${c.voteCount * 100 / totalVotes} : 0) + '%'"><span class="result-bar-text" th:text="${totalVotes > 0} ? ${#numbers.formatDecimal(c.voteCount * 100.0 / totalVotes, 1, 1)} + '%' : ''"></span></div></div>
-            <div class="result-votes" th:id="'votesf-' + ${c.candidateId}" th:text="${c.voteCount} + ' votes'"></div>
+            <div class="result-bar-wrap"><div class="result-bar" th:id="|barf-${c.candidateId}|" th:style="${'width:' + (totalVotes > 0 ? (c.voteCount * 100.0 / totalVotes) : 0) + '%'}"><span class="result-bar-text" th:text="${totalVotes > 0 ? (#numbers.formatDecimal(c.voteCount * 100.0 / totalVotes, 1, 1) + '%') : ''}"></span></div></div>
+            <div class="result-votes" th:id="|votesf-${c.candidateId}|" th:text="|${c.voteCount} votes|"></div>
           </div>
         </div>
 
@@ -454,10 +454,10 @@ tr:hover td{background:#f8faff}
             &#x1F947; Vice Governor
             <span style="margin-left:auto;font-size:11px;background:#0066cc;color:#fff;padding:2px 8px;border-radius:20px;font-weight:700">🏛 Local Government</span>
           </div>
-          <div th:each="c : ${viceGovCandidates}" class="result-row" th:id="'rowf-' + ${c.candidateId}">
+          <div th:each="c : ${viceGovCandidates}" class="result-row" th:id="|rowf-${c.candidateId}|">
             <div class="result-name"><div style="font-size:15px;font-weight:700" th:text="${c.name}"></div><div style="font-size:12px;color:#888" th:text="${c.party}"></div></div>
-            <div class="result-bar-wrap"><div class="result-bar" th:id="'barf-' + ${c.candidateId}" th:style="'width:' + (${totalVotes > 0} ? ${c.voteCount * 100 / totalVotes} : 0) + '%'"><span class="result-bar-text" th:text="${totalVotes > 0} ? ${#numbers.formatDecimal(c.voteCount * 100.0 / totalVotes, 1, 1)} + '%' : ''"></span></div></div>
-            <div class="result-votes" th:id="'votesf-' + ${c.candidateId}" th:text="${c.voteCount} + ' votes'"></div>
+            <div class="result-bar-wrap"><div class="result-bar" th:id="|barf-${c.candidateId}|" th:style="${'width:' + (totalVotes > 0 ? (c.voteCount * 100.0 / totalVotes) : 0) + '%'}"><span class="result-bar-text" th:text="${totalVotes > 0 ? (#numbers.formatDecimal(c.voteCount * 100.0 / totalVotes, 1, 1) + '%') : ''}"></span></div></div>
+            <div class="result-votes" th:id="|votesf-${c.candidateId}|" th:text="|${c.voteCount} votes|"></div>
           </div>
         </div>
 
@@ -467,10 +467,10 @@ tr:hover td{background:#f8faff}
             &#x1F3DB; Mayor — Santa Cruz
             <span style="margin-left:auto;font-size:11px;background:#0066cc;color:#fff;padding:2px 8px;border-radius:20px;font-weight:700">🏛 Local Government</span>
           </div>
-          <div th:each="c : ${mayorCandidates}" class="result-row" th:id="'rowf-' + ${c.candidateId}">
+          <div th:each="c : ${mayorCandidates}" class="result-row" th:id="|rowf-${c.candidateId}|">
             <div class="result-name"><div style="font-size:15px;font-weight:700" th:text="${c.name}"></div><div style="font-size:12px;color:#888" th:text="${c.party}"></div></div>
-            <div class="result-bar-wrap"><div class="result-bar" th:id="'barf-' + ${c.candidateId}" th:style="'width:' + (${totalVotes > 0} ? ${c.voteCount * 100 / totalVotes} : 0) + '%'"><span class="result-bar-text" th:text="${totalVotes > 0} ? ${#numbers.formatDecimal(c.voteCount * 100.0 / totalVotes, 1, 1)} + '%' : ''"></span></div></div>
-            <div class="result-votes" th:id="'votesf-' + ${c.candidateId}" th:text="${c.voteCount} + ' votes'"></div>
+            <div class="result-bar-wrap"><div class="result-bar" th:id="|barf-${c.candidateId}|" th:style="${'width:' + (totalVotes > 0 ? (c.voteCount * 100.0 / totalVotes) : 0) + '%'}"><span class="result-bar-text" th:text="${totalVotes > 0 ? (#numbers.formatDecimal(c.voteCount * 100.0 / totalVotes, 1, 1) + '%') : ''}"></span></div></div>
+            <div class="result-votes" th:id="|votesf-${c.candidateId}|" th:text="|${c.voteCount} votes|"></div>
           </div>
         </div>
 
@@ -480,10 +480,10 @@ tr:hover td{background:#f8faff}
             &#x1F948; Vice Mayor — Santa Cruz
             <span style="margin-left:auto;font-size:11px;background:#0066cc;color:#fff;padding:2px 8px;border-radius:20px;font-weight:700">🏛 Local Government</span>
           </div>
-          <div th:each="c : ${viceMayorCandidates}" class="result-row" th:id="'rowf-' + ${c.candidateId}">
+          <div th:each="c : ${viceMayorCandidates}" class="result-row" th:id="|rowf-${c.candidateId}|">
             <div class="result-name"><div style="font-size:15px;font-weight:700" th:text="${c.name}"></div><div style="font-size:12px;color:#888" th:text="${c.party}"></div></div>
-            <div class="result-bar-wrap"><div class="result-bar" th:id="'barf-' + ${c.candidateId}" th:style="'width:' + (${totalVotes > 0} ? ${c.voteCount * 100 / totalVotes} : 0) + '%'"><span class="result-bar-text" th:text="${totalVotes > 0} ? ${#numbers.formatDecimal(c.voteCount * 100.0 / totalVotes, 1, 1)} + '%' : ''"></span></div></div>
-            <div class="result-votes" th:id="'votesf-' + ${c.candidateId}" th:text="${c.voteCount} + ' votes'"></div>
+            <div class="result-bar-wrap"><div class="result-bar" th:id="|barf-${c.candidateId}|" th:style="${'width:' + (totalVotes > 0 ? (c.voteCount * 100.0 / totalVotes) : 0) + '%'}"><span class="result-bar-text" th:text="${totalVotes > 0 ? (#numbers.formatDecimal(c.voteCount * 100.0 / totalVotes, 1, 1) + '%') : ''}"></span></div></div>
+            <div class="result-votes" th:id="|votesf-${c.candidateId}|" th:text="|${c.voteCount} votes|"></div>
           </div>
         </div>
 
@@ -493,10 +493,10 @@ tr:hover td{background:#f8faff}
             &#x1F3DB; House of Representatives
             <span style="margin-left:auto;font-size:11px;background:#0066cc;color:#fff;padding:2px 8px;border-radius:20px;font-weight:700">🏛 Local Government</span>
           </div>
-          <div th:each="c : ${repCandidates}" class="result-row" th:id="'rowf-' + ${c.candidateId}">
+          <div th:each="c : ${repCandidates}" class="result-row" th:id="|rowf-${c.candidateId}|">
             <div class="result-name"><div style="font-size:15px;font-weight:700" th:text="${c.name}"></div><div style="font-size:12px;color:#888" th:text="${c.party}"></div></div>
-            <div class="result-bar-wrap"><div class="result-bar" th:id="'barf-' + ${c.candidateId}" th:style="'width:' + (${totalVotes > 0} ? ${c.voteCount * 100 / totalVotes} : 0) + '%'"><span class="result-bar-text" th:text="${totalVotes > 0} ? ${#numbers.formatDecimal(c.voteCount * 100.0 / totalVotes, 1, 1)} + '%' : ''"></span></div></div>
-            <div class="result-votes" th:id="'votesf-' + ${c.candidateId}" th:text="${c.voteCount} + ' votes'"></div>
+            <div class="result-bar-wrap"><div class="result-bar" th:id="|barf-${c.candidateId}|" th:style="${'width:' + (totalVotes > 0 ? (c.voteCount * 100.0 / totalVotes) : 0) + '%'}"><span class="result-bar-text" th:text="${totalVotes > 0 ? (#numbers.formatDecimal(c.voteCount * 100.0 / totalVotes, 1, 1) + '%') : ''}"></span></div></div>
+            <div class="result-votes" th:id="|votesf-${c.candidateId}|" th:text="|${c.voteCount} votes|"></div>
           </div>
         </div>
 
@@ -509,7 +509,7 @@ tr:hover td{background:#f8faff}
     <div class="sec-title">⚙ Election Control</div>
 
     <!-- Settings saved alert -->
-    <div th:if="${param.success != null and param.success[0] == 'settingssaved'}" class="alert-success">✅ Election settings saved successfully.</div>
+    <div th:if="${param.success != null and not #lists.isEmpty(param.success) and param.success[0] == 'settingssaved'}" class="alert-success">✅ Election settings saved successfully.</div>
 
     <!-- Election Settings Card -->
     <div class="card">
@@ -521,7 +521,7 @@ tr:hover td{background:#f8faff}
           <label style="font-size:13px;font-weight:800;color:#0044aa;margin-bottom:10px;display:block">🗂 Election Type</label>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px" id="typeGrid">
 
-            <label class="type-card" th:classappend="${election.electionType == 'National Election'} ? ' selected' : ''">
+            <label class="type-card" th:classappend="${election.electionType == 'National Election' ? ' selected' : ''}">
               <input type="radio" name="electionType" value="National Election"
                      th:checked="${election.electionType == 'National Election'}" onchange="pickType(this)">
               <div class="type-icon">🇵🇭</div>
@@ -529,7 +529,7 @@ tr:hover td{background:#f8faff}
               <div class="type-desc">Presidential, Senatorial</div>
             </label>
 
-            <label class="type-card" th:classappend="${election.electionType == 'Local Government Election'} ? ' selected' : ''">
+            <label class="type-card" th:classappend="${election.electionType == 'Local Government Election' ? ' selected' : ''}">
               <input type="radio" name="electionType" value="Local Government Election"
                      th:checked="${election.electionType == 'Local Government Election'}" onchange="pickType(this)">
               <div class="type-icon">🏛</div>
@@ -537,7 +537,7 @@ tr:hover td{background:#f8faff}
               <div class="type-desc">Governor, Mayor, etc.</div>
             </label>
 
-            <label class="type-card" th:classappend="${election.electionType == 'Barangay-Level Voting'} ? ' selected' : ''">
+            <label class="type-card" th:classappend="${election.electionType == 'Barangay-Level Voting' ? ' selected' : ''}">
               <input type="radio" name="electionType" value="Barangay-Level Voting"
                      th:checked="${election.electionType == 'Barangay-Level Voting'}" onchange="pickType(this)">
               <div class="type-icon">🏘</div>
@@ -545,7 +545,7 @@ tr:hover td{background:#f8faff}
               <div class="type-desc">Barangay-level simulation</div>
             </label>
 
-            <label class="type-card" th:classappend="${election.electionType == 'School Election'} ? ' selected' : ''">
+            <label class="type-card" th:classappend="${election.electionType == 'School Election' ? ' selected' : ''}">
               <input type="radio" name="electionType" value="School Election"
                      th:checked="${election.electionType == 'School Election'}" onchange="pickType(this)">
               <div class="type-icon">🏫</div>
@@ -553,7 +553,7 @@ tr:hover td{background:#f8faff}
               <div class="type-desc">School-wide voting</div>
             </label>
 
-            <label class="type-card" th:classappend="${election.electionType == 'Student Council Election'} ? ' selected' : ''">
+            <label class="type-card" th:classappend="${election.electionType == 'Student Council Election' ? ' selected' : ''}">
               <input type="radio" name="electionType" value="Student Council Election"
                      th:checked="${election.electionType == 'Student Council Election'}" onchange="pickType(this)">
               <div class="type-icon">🎓</div>
@@ -561,7 +561,7 @@ tr:hover td{background:#f8faff}
               <div class="type-desc">SSG / Student gov't</div>
             </label>
 
-            <label class="type-card" th:classappend="${election.electionType == 'Organization Voting'} ? ' selected' : ''">
+            <label class="type-card" th:classappend="${election.electionType == 'Organization Voting' ? ' selected' : ''}">
               <input type="radio" name="electionType" value="Organization Voting"
                      th:checked="${election.electionType == 'Organization Voting'}" onchange="pickType(this)">
               <div class="type-icon">🏢</div>
@@ -642,7 +642,7 @@ tr:hover td{background:#f8faff}
       </div>
 
       <div style="font-size:16px;font-weight:700;margin-bottom:8px"
-           th:text="${election.open} ? '🟢 Currently OPEN — Voting is active' : '🔴 Currently CLOSED — Voting is inactive'"></div>
+           th:text="${election.open ? '🟢 Currently OPEN — Voting is active' : '🔴 Currently CLOSED — Voting is inactive'}"></div>
 
       <!-- Show type badge if set -->
       <div th:if="${election.electionType != null and !#strings.isEmpty(election.electionType)}"

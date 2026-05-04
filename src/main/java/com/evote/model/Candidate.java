@@ -31,27 +31,17 @@ public class Candidate {
     public void setPhoto(byte[] v) { this.photo = v; }
     public boolean hasPhoto() { return photo != null && photo.length > 0; }
 
-    private byte[] photo;
-    public byte[] getPhoto() { return photo; }
-    public void setPhoto(byte[] v) { this.photo = v; }
-    public boolean hasPhoto() { return photo != null && photo.length > 0; }
-
-    private byte[] photo;
-    public byte[] getPhoto() { return photo; }
-    public void   setPhoto(byte[] v) { this.photo = v; }
-    public boolean hasPhoto() { return photo != null && photo.length > 0; }
-
     /** Returns a short badge label for the election type */
     public String getTypeIcon() {
         if (electionType == null) return "🗳";
-        return switch (electionType) {
-            case "National Election"          -> "🇵🇭";
-            case "Local Government Election"  -> "🏛";
-            case "Barangay-Level Voting"      -> "🏘";
-            case "School Election"            -> "🏫";
-            case "Student Council Election"   -> "🎓";
-            case "Organization Voting"        -> "🏢";
-            default -> "🗳";
-        };
+        switch (electionType) {
+            case "National Election":         return "🇵🇭";
+            case "Local Government Election": return "🏛";
+            case "Barangay-Level Voting":     return "🏘";
+            case "School Election":           return "🏫";
+            case "Student Council Election":  return "🎓";
+            case "Organization Voting":       return "🏢";
+            default:                          return "🗳";
+        }
     }
 }
