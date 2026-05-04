@@ -694,7 +694,7 @@ function sendOtp() {
         msgEl.textContent = "Failed to send OTP.";
       } else if (data.status === "fallback") {
         msgEl.textContent = "Email unavailable. Use this code: " + data.otp;
-        showAlert("id="step4Alert", "info");
+        showAlert("step4Alert", data.otp, "info");
       } else {
         msgEl.textContent = "OTP sent to " + email + ". Check your inbox.";
       }
@@ -755,7 +755,7 @@ function verifyOtp() {
         showAlert("step4Alert", "&#10003; Email verified! Proceeding...", "success");
         setTimeout(function() { goToStep(5); }, 800);
       } else {
-        showAlert("id="step4Alert". Please try again.");
+        showAlert("step4Alert", data.message || "Invalid OTP. Please try again.");
       }
     })
     .catch(function() {
@@ -768,7 +768,7 @@ function checkStep5() {
   var idType   = document.getElementById("idType").value;
   var idNumber = document.getElementById("idNumber").value.trim();
   var idPhoto  = document.getElementById("idPhoto").files.length > 0;
-  document.getElementById("step3NextBtn").disabled = !(idType && idNumber && idPhoto);
+  document.getElementById("step5NextBtn").disabled = !(idType && idNumber && idPhoto);
 }
 
 function previewIdPhoto() {
@@ -811,7 +811,7 @@ function startCamera() {
       if (hint)    hint.style.display    = "block";
     })
     .catch(function() {
-      showAlert("step4Alert", "Camera access denied. You can skip face verification.", "info");
+      showAlert("step6Alert", "Camera access denied. You can skip face verification.", "info");
     });
 }
 
@@ -870,7 +870,7 @@ function skipSelfie() {
 
 function prepareSubmit() {
   if (document.getElementById("otpVerified").value !== "true") {
-    showAlert("id="step4Alert" verification is required before submitting.");
+    showAlert("step6Alert", "Email OTP verification is required before submitting.");
     return false;
   }
   if (cameraStream) {
@@ -917,6 +917,7 @@ function showAlert(containerId, message, type) {
 </script>
 </body>
 </html>
+
 
 
 
