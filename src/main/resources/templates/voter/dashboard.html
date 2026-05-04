@@ -786,7 +786,7 @@ document.addEventListener('click', function(e) {
 </script>
 
 <!-- ── Session Timeout Warning ── -->
-<div id="sessionWarning" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center">
+<div id="sessionWarning" style="display:none;pointer-events:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center">
   <div style="background:#fff;border-radius:16px;padding:36px 40px;max-width:400px;width:90%;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,0.5)">
     <div style="font-size:48px;margin-bottom:12px">⏱</div>
     <div style="font-size:20px;font-weight:800;color:#dc2626;margin-bottom:8px">Session Expiring Soon</div>
@@ -815,7 +815,9 @@ var countdown      = 30;
 
 function resetSessionTimer() {
   // Hide warning
-  document.getElementById('sessionWarning').style.display = 'none';
+  var w = document.getElementById('sessionWarning');
+  w.style.display = 'none';
+  w.style.pointerEvents = 'none';
   clearInterval(countdownTimer);
   countdown = 30;
   // Reset idle timer
