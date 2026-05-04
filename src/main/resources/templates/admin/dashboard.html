@@ -391,71 +391,51 @@ tr:hover td{background:#f8faff}
       <div th:if="${!#lists.isEmpty(candidates)}">
 
         <!-- Governor -->
-        <div th:if="${#lists.size(candidates.?[party.contains('Governor') and !party.contains('Vice')]) > 0}" style="margin-bottom:24px">
-          <div style="font-size:11px;font-weight:800;color:#0044aa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding:6px 12px;background:#e8f0fe;border-radius:6px;border-left:4px solid #0066cc">👑 Governor</div>
-          <div th:each="c : ${candidates.?[party.contains('Governor') and !party.contains('Vice')]}" class="result-row" th:id="'rowf-' + ${c.candidateId}">
-            <div class="result-name"><div th:text="${c.name}"></div><div style="font-size:11px;color:#aaa" th:text="${c.party.contains('Incumbent') ? 'Incumbent' : 'Challenger'}"></div></div>
-            <div class="result-bar-wrap">
-              <div class="result-bar" th:id="'barf-' + ${c.candidateId}" th:style="'width:' + (${totalVotes > 0} ? ${c.voteCount * 100 / totalVotes} : 0) + '%'">
-                <span class="result-bar-text" th:text="${totalVotes > 0} ? ${#numbers.formatDecimal(c.voteCount * 100.0 / totalVotes, 1, 1)} + '%' : ''"></span>
-              </div>
-            </div>
+        <div th:if="${!#lists.isEmpty(govCandidates)}" style="margin-bottom:24px">
+          <div style="font-size:11px;font-weight:800;color:#0044aa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding:6px 12px;background:#e8f0fe;border-radius:6px;border-left:4px solid #0066cc">&#x1F451; Governor</div>
+          <div th:each="c : ${govCandidates}" class="result-row" th:id="'rowf-' + ${c.candidateId}">
+            <div class="result-name"><div th:text="${c.name}"></div><div style="font-size:11px;color:#aaa" th:text="${c.party}"></div></div>
+            <div class="result-bar-wrap"><div class="result-bar" th:id="'barf-' + ${c.candidateId}" th:style="'width:' + (${totalVotes > 0} ? ${c.voteCount * 100 / totalVotes} : 0) + '%'"><span class="result-bar-text" th:text="${totalVotes > 0} ? ${#numbers.formatDecimal(c.voteCount * 100.0 / totalVotes, 1, 1)} + '%' : ''"></span></div></div>
             <div class="result-votes" th:id="'votesf-' + ${c.candidateId}" th:text="${c.voteCount} + ' votes'"></div>
           </div>
         </div>
 
         <!-- Vice Governor -->
-        <div th:if="${#lists.size(candidates.?[party.contains('Vice Governor')]) > 0}" style="margin-bottom:24px">
-          <div style="font-size:11px;font-weight:800;color:#0044aa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding:6px 12px;background:#e8f0fe;border-radius:6px;border-left:4px solid #0066cc">🥈 Vice Governor</div>
-          <div th:each="c : ${candidates.?[party.contains('Vice Governor')]}" class="result-row" th:id="'rowf-' + ${c.candidateId}">
-            <div class="result-name"><div th:text="${c.name}"></div><div style="font-size:11px;color:#aaa" th:text="${c.party.contains('Incumbent') ? 'Incumbent' : 'Challenger'}"></div></div>
-            <div class="result-bar-wrap">
-              <div class="result-bar" th:id="'barf-' + ${c.candidateId}" th:style="'width:' + (${totalVotes > 0} ? ${c.voteCount * 100 / totalVotes} : 0) + '%'">
-                <span class="result-bar-text" th:text="${totalVotes > 0} ? ${#numbers.formatDecimal(c.voteCount * 100.0 / totalVotes, 1, 1)} + '%' : ''"></span>
-              </div>
-            </div>
+        <div th:if="${!#lists.isEmpty(viceGovCandidates)}" style="margin-bottom:24px">
+          <div style="font-size:11px;font-weight:800;color:#0044aa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding:6px 12px;background:#e8f0fe;border-radius:6px;border-left:4px solid #0066cc">&#x1F947; Vice Governor</div>
+          <div th:each="c : ${viceGovCandidates}" class="result-row" th:id="'rowf-' + ${c.candidateId}">
+            <div class="result-name"><div th:text="${c.name}"></div><div style="font-size:11px;color:#aaa" th:text="${c.party}"></div></div>
+            <div class="result-bar-wrap"><div class="result-bar" th:id="'barf-' + ${c.candidateId}" th:style="'width:' + (${totalVotes > 0} ? ${c.voteCount * 100 / totalVotes} : 0) + '%'"><span class="result-bar-text" th:text="${totalVotes > 0} ? ${#numbers.formatDecimal(c.voteCount * 100.0 / totalVotes, 1, 1)} + '%' : ''"></span></div></div>
             <div class="result-votes" th:id="'votesf-' + ${c.candidateId}" th:text="${c.voteCount} + ' votes'"></div>
           </div>
         </div>
 
         <!-- Mayor -->
-        <div th:if="${#lists.size(candidates.?[party.contains('Mayor') and !party.contains('Vice')]) > 0}" style="margin-bottom:24px">
-          <div style="font-size:11px;font-weight:800;color:#0044aa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding:6px 12px;background:#e8f0fe;border-radius:6px;border-left:4px solid #0066cc">🏛 Mayor — Santa Cruz</div>
-          <div th:each="c : ${candidates.?[party.contains('Mayor') and !party.contains('Vice')]}" class="result-row" th:id="'rowf-' + ${c.candidateId}">
-            <div class="result-name"><div th:text="${c.name}"></div><div style="font-size:11px;color:#aaa" th:text="${c.party.contains('Incumbent') ? 'Incumbent' : 'Challenger'}"></div></div>
-            <div class="result-bar-wrap">
-              <div class="result-bar" th:id="'barf-' + ${c.candidateId}" th:style="'width:' + (${totalVotes > 0} ? ${c.voteCount * 100 / totalVotes} : 0) + '%'">
-                <span class="result-bar-text" th:text="${totalVotes > 0} ? ${#numbers.formatDecimal(c.voteCount * 100.0 / totalVotes, 1, 1)} + '%' : ''"></span>
-              </div>
-            </div>
+        <div th:if="${!#lists.isEmpty(mayorCandidates)}" style="margin-bottom:24px">
+          <div style="font-size:11px;font-weight:800;color:#0044aa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding:6px 12px;background:#e8f0fe;border-radius:6px;border-left:4px solid #0066cc">&#x1F3DB; Mayor — Santa Cruz</div>
+          <div th:each="c : ${mayorCandidates}" class="result-row" th:id="'rowf-' + ${c.candidateId}">
+            <div class="result-name"><div th:text="${c.name}"></div><div style="font-size:11px;color:#aaa" th:text="${c.party}"></div></div>
+            <div class="result-bar-wrap"><div class="result-bar" th:id="'barf-' + ${c.candidateId}" th:style="'width:' + (${totalVotes > 0} ? ${c.voteCount * 100 / totalVotes} : 0) + '%'"><span class="result-bar-text" th:text="${totalVotes > 0} ? ${#numbers.formatDecimal(c.voteCount * 100.0 / totalVotes, 1, 1)} + '%' : ''"></span></div></div>
             <div class="result-votes" th:id="'votesf-' + ${c.candidateId}" th:text="${c.voteCount} + ' votes'"></div>
           </div>
         </div>
 
         <!-- Vice Mayor -->
-        <div th:if="${#lists.size(candidates.?[party.contains('Vice Mayor')]) > 0}" style="margin-bottom:24px">
-          <div style="font-size:11px;font-weight:800;color:#0044aa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding:6px 12px;background:#e8f0fe;border-radius:6px;border-left:4px solid #0066cc">🥉 Vice Mayor — Santa Cruz</div>
-          <div th:each="c : ${candidates.?[party.contains('Vice Mayor')]}" class="result-row" th:id="'rowf-' + ${c.candidateId}">
-            <div class="result-name"><div th:text="${c.name}"></div><div style="font-size:11px;color:#aaa" th:text="${c.party.contains('Incumbent') ? 'Incumbent' : 'Challenger'}"></div></div>
-            <div class="result-bar-wrap">
-              <div class="result-bar" th:id="'barf-' + ${c.candidateId}" th:style="'width:' + (${totalVotes > 0} ? ${c.voteCount * 100 / totalVotes} : 0) + '%'">
-                <span class="result-bar-text" th:text="${totalVotes > 0} ? ${#numbers.formatDecimal(c.voteCount * 100.0 / totalVotes, 1, 1)} + '%' : ''"></span>
-              </div>
-            </div>
+        <div th:if="${!#lists.isEmpty(viceMayorCandidates)}" style="margin-bottom:24px">
+          <div style="font-size:11px;font-weight:800;color:#0044aa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding:6px 12px;background:#e8f0fe;border-radius:6px;border-left:4px solid #0066cc">&#x1F948; Vice Mayor — Santa Cruz</div>
+          <div th:each="c : ${viceMayorCandidates}" class="result-row" th:id="'rowf-' + ${c.candidateId}">
+            <div class="result-name"><div th:text="${c.name}"></div><div style="font-size:11px;color:#aaa" th:text="${c.party}"></div></div>
+            <div class="result-bar-wrap"><div class="result-bar" th:id="'barf-' + ${c.candidateId}" th:style="'width:' + (${totalVotes > 0} ? ${c.voteCount * 100 / totalVotes} : 0) + '%'"><span class="result-bar-text" th:text="${totalVotes > 0} ? ${#numbers.formatDecimal(c.voteCount * 100.0 / totalVotes, 1, 1)} + '%' : ''"></span></div></div>
             <div class="result-votes" th:id="'votesf-' + ${c.candidateId}" th:text="${c.voteCount} + ' votes'"></div>
           </div>
         </div>
 
         <!-- Representatives -->
-        <div th:if="${#lists.size(candidates.?[party.contains('District Representative')]) > 0}" style="margin-bottom:24px">
-          <div style="font-size:11px;font-weight:800;color:#0044aa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding:6px 12px;background:#e8f0fe;border-radius:6px;border-left:4px solid #0066cc">🏛 House of Representatives</div>
-          <div th:each="c : ${candidates.?[party.contains('District Representative')]}" class="result-row" th:id="'rowf-' + ${c.candidateId}">
+        <div th:if="${!#lists.isEmpty(repCandidates)}" style="margin-bottom:24px">
+          <div style="font-size:11px;font-weight:800;color:#0044aa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding:6px 12px;background:#e8f0fe;border-radius:6px;border-left:4px solid #0066cc">&#x1F3DB; House of Representatives</div>
+          <div th:each="c : ${repCandidates}" class="result-row" th:id="'rowf-' + ${c.candidateId}">
             <div class="result-name"><div th:text="${c.name}"></div><div style="font-size:11px;color:#aaa" th:text="${c.party}"></div></div>
-            <div class="result-bar-wrap">
-              <div class="result-bar" th:id="'barf-' + ${c.candidateId}" th:style="'width:' + (${totalVotes > 0} ? ${c.voteCount * 100 / totalVotes} : 0) + '%'">
-                <span class="result-bar-text" th:text="${totalVotes > 0} ? ${#numbers.formatDecimal(c.voteCount * 100.0 / totalVotes, 1, 1)} + '%' : ''"></span>
-              </div>
-            </div>
+            <div class="result-bar-wrap"><div class="result-bar" th:id="'barf-' + ${c.candidateId}" th:style="'width:' + (${totalVotes > 0} ? ${c.voteCount * 100 / totalVotes} : 0) + '%'"><span class="result-bar-text" th:text="${totalVotes > 0} ? ${#numbers.formatDecimal(c.voteCount * 100.0 / totalVotes, 1, 1)} + '%' : ''"></span></div></div>
             <div class="result-votes" th:id="'votesf-' + ${c.candidateId}" th:text="${c.voteCount} + ' votes'"></div>
           </div>
         </div>

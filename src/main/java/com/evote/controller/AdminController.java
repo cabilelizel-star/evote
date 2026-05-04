@@ -25,13 +25,20 @@ public class AdminController {
     public String dashboard(HttpSession session, Model model) {
         if (!"admin".equals(session.getAttribute("role"))) return "redirect:/login";
         try {
+            java.util.List<com.evote.model.Candidate> all = svc.getCandidates();
             model.addAttribute("election",      svc.getElection());
-            model.addAttribute("candidates",    svc.getCandidates());
+            model.addAttribute("candidates",    all);
             model.addAttribute("voters",        svc.getVoters());
             model.addAttribute("pendingVoters", svc.getPendingVoters());
             model.addAttribute("totalVotes",    svc.getTotalVotes());
             model.addAttribute("turnoutPct",    svc.getTurnoutPercent());
             model.addAttribute("auditLogs",     svc.getAuditLogs());
+            // Grouped by position for Live Results
+            model.addAttribute("govCandidates",     filter(all, "Governor", false));
+            model.addAttribute("viceGovCandidates", filter(all, "Vice Governor", false));
+            model.addAttribute("mayorCandidates",   filter(all, "Mayor", false));
+            model.addAttribute("viceMayorCandidates", filter(all, "Vice Mayor", false));
+            model.addAttribute("repCandidates",     filter(all, "District Representative", false));
         } catch (Exception e) {
             model.addAttribute("election",      new com.evote.model.Election(1, "General Election 2025", false));
             model.addAttribute("candidates",    java.util.Collections.emptyList());
@@ -40,9 +47,24 @@ public class AdminController {
             model.addAttribute("totalVotes",    0);
             model.addAttribute("turnoutPct",    0);
             model.addAttribute("auditLogs",     java.util.Collections.emptyList());
+            model.addAttribute("govCandidates",     java.util.Collections.emptyList());
+            model.addAttribute("viceGovCandidates", java.util.Collections.emptyList());
+            model.addAttribute("mayorCandidates",   java.util.Collections.emptyList());
+            model.addAttribute("viceMayorCandidates", java.util.Collections.emptyList());
+            model.addAttribute("repCandidates",     java.util.Collections.emptyList());
             model.addAttribute("dbError",       e.getMessage());
         }
         return "admin/dashboard";
+    }
+
+    private java.util.List<com.evote.model.Candidate> filter(
+            java.util.List<com.evote.model.Candidate> list, String keyword, boolean exact) {
+        java.util.List<com.evote.model.Candidate> result = new java.util.ArrayList<>();
+        for (com.evote.model.Candidate c : list) {
+            String p = c.getParty() != null ? c.getParty() : "";
+            if (p.contains(keyword)) result.add(c);
+        }
+        return result;
     }
 
     // ── Image serving ─────────────────────────────────────────────────────────
