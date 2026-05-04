@@ -213,14 +213,11 @@
             <input type="text" id="lastName" name="lastName" placeholder="Dela Cruz" required>
           </div>
         </div>
-        <div class="form-group">
-          <label>Middle Name</label>
-          <input type="text" id="middleName" name="middleName" placeholder="Santos (optional)" autocomplete="new-password">
-        </div>
         <div class="form-row">
           <div class="form-group">
-            <label>Date of Birth *</label>
-            <input type="date" id="dateOfBirth" name="dateOfBirth" required onchange="calcAge()">
+            <label>Middle Name</label>
+            <input type="text" id="middleName" name="middleName" placeholder="Santos (optional)"
+                   autocomplete="new-password" onfocus="this.removeAttribute('readonly')" readonly>
           </div>
           <div class="form-group">
             <label>Gender</label>
@@ -231,6 +228,10 @@
               <option value="Other">Other</option>
             </select>
           </div>
+        </div>
+        <div class="form-group">
+          <label>Date of Birth *</label>
+          <input type="date" id="dateOfBirth" name="dateOfBirth" required onchange="calcAge()">
         </div>
         <!-- Age display — shown after birthdate is entered -->
         <div id="ageDisplay" style="display:none;padding:8px 14px;border-radius:8px;font-size:.88rem;font-weight:700;margin-bottom:4px;text-align:center"></div>
