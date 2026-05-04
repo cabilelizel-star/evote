@@ -4,6 +4,7 @@ import com.evote.model.Candidate;
 import com.evote.model.Voter;
 import com.evote.service.ElectionService;
 import com.evote.service.EmailService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,8 +26,12 @@ public class VoterController {
     }
 
     @GetMapping("/dashboard")
-    public String dashboard(HttpSession session, Model model) {
+    public String dashboard(HttpSession session, Model model, HttpServletResponse response) {
         if (!"voter".equals(session.getAttribute("role"))) return "redirect:/login";
+        // Prevent browser back button from showing cached dashboard after logout
+        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        response.setHeader("Pragma", "no-cache");
+        response.setHeader("Expires", "0");
         String voterId = (String) session.getAttribute("userId");
         try {
             com.evote.model.Election election = svc.getElection();

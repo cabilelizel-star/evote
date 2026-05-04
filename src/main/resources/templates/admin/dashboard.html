@@ -551,6 +551,12 @@ tr:hover td{background:#f8faff}
 </div>
 
 <script>
+// Prevent browser back button from showing dashboard after logout
+history.pushState(null, null, location.href);
+window.addEventListener('popstate', function() {
+  history.pushState(null, null, location.href);
+});
+
 function showReject(id) {
   const el = document.getElementById('rej-' + id);
   if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
