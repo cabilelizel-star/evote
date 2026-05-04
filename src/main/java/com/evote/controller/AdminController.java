@@ -166,11 +166,20 @@ public class AdminController {
     public String openElection(HttpSession session) {
         if (!"admin".equals(session.getAttribute("role"))) return "redirect:/login";
         svc.setElectionOpen(true);
-        svc.logActivity("Admin", "Opened election: " + svc.getElection().getTitle());
         String title = svc.getElection().getTitle();
+        svc.logActivity("Admin", "Opened election: " + title);
+        // Send in-app notification to all voters
+        svc.sendNotificationToAll(
+            "🗳 Election is Now OPEN!",
+            title + " is now open. Log in and cast your vote now!"
+        );
+        // Send email to all voters
         new Thread(() -> svc.getVoters().stream()
             .filter(v -> v.getEmail() != null && !v.getEmail().isBlank())
-            .forEach(v -> emailService.sendElectionOpenedEmail(v.getEmail(), v.getName(), title))
+            .forEach(v -> {
+                try { emailService.sendElectionOpenedEmail(v.getEmail(), v.getName(), title); }
+                catch (Exception ignored) {}
+            })
         ).start();
         return "redirect:/admin/dashboard";
     }
@@ -179,11 +188,20 @@ public class AdminController {
     public String closeElection(HttpSession session) {
         if (!"admin".equals(session.getAttribute("role"))) return "redirect:/login";
         svc.setElectionOpen(false);
-        svc.logActivity("Admin", "Closed election: " + svc.getElection().getTitle());
         String title = svc.getElection().getTitle();
+        svc.logActivity("Admin", "Closed election: " + title);
+        // Send in-app notification to all voters
+        svc.sendNotificationToAll(
+            "🔒 Election is Now CLOSED",
+            title + " has ended. Thank you for participating!"
+        );
+        // Send email to all voters
         new Thread(() -> svc.getVoters().stream()
             .filter(v -> v.getEmail() != null && !v.getEmail().isBlank())
-            .forEach(v -> emailService.sendElectionClosedEmail(v.getEmail(), v.getName(), title))
+            .forEach(v -> {
+                try { emailService.sendElectionClosedEmail(v.getEmail(), v.getName(), title); }
+                catch (Exception ignored) {}
+            })
         ).start();
         return "redirect:/admin/dashboard";
     }

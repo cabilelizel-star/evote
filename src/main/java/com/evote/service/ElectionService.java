@@ -253,6 +253,42 @@ public class ElectionService {
             voterMapper(), ELECTION_ID);
     }
 
+    // ── Notifications ─────────────────────────────────────────────────────────
+    public void sendNotificationToAll(String title, String message) {
+        try {
+            List<Voter> voters = getVoters();
+            for (Voter v : voters) {
+                db.update("INSERT INTO notifications (voter_id, title, message) VALUES (?,?,?)",
+                    v.getVoterId(), title, message);
+            }
+        } catch (Exception e) {
+            System.err.println("sendNotificationToAll failed: " + e.getMessage());
+        }
+    }
+
+    public List<java.util.Map<String, Object>> getNotifications(String voterId) {
+        try {
+            return db.queryForList(
+                "SELECT id, title, message, is_read, created_at FROM notifications " +
+                "WHERE voter_id = ? ORDER BY created_at DESC LIMIT 20", voterId);
+        } catch (Exception e) { return java.util.Collections.emptyList(); }
+    }
+
+    public int getUnreadCount(String voterId) {
+        try {
+            Integer n = db.queryForObject(
+                "SELECT COUNT(*) FROM notifications WHERE voter_id = ? AND is_read = 0",
+                Integer.class, voterId);
+            return n == null ? 0 : n;
+        } catch (Exception e) { return 0; }
+    }
+
+    public void markAllRead(String voterId) {
+        try {
+            db.update("UPDATE notifications SET is_read = 1 WHERE voter_id = ?", voterId);
+        } catch (Exception e) { System.err.println("markAllRead failed: " + e.getMessage()); }
+    }
+
     // ── Audit log ─────────────────────────────────────────────────────────────
     public void logActivity(String actor, String action) {
         try {

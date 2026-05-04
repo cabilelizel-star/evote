@@ -72,6 +72,27 @@ public class VoterController {
         return "redirect:/voter/dashboard?error=" + result;
     }
 
+    @GetMapping("/notifications")
+    @ResponseBody
+    public java.util.Map<String, Object> getNotifications(HttpSession session) {
+        if (!"voter".equals(session.getAttribute("role")))
+            return java.util.Map.of("error", "unauthorized");
+        String voterId = (String) session.getAttribute("userId");
+        return java.util.Map.of(
+            "notifications", svc.getNotifications(voterId),
+            "unread", svc.getUnreadCount(voterId)
+        );
+    }
+
+    @PostMapping("/notifications/read")
+    @ResponseBody
+    public java.util.Map<String, String> markRead(HttpSession session) {
+        if (!"voter".equals(session.getAttribute("role")))
+            return java.util.Map.of("error", "unauthorized");
+        svc.markAllRead((String) session.getAttribute("userId"));
+        return java.util.Map.of("status", "ok");
+    }
+
     @PostMapping("/profile/update")
     public String updateProfile(@RequestParam(required=false) String contactNumber,
                                 @RequestParam(required=false) String email,
