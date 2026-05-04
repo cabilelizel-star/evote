@@ -17,12 +17,21 @@ public class ElectionService {
     private final JdbcTemplate db;
     private static final int ELECTION_ID = 1;
 
-    public ElectionService(JdbcTemplate db) { this.db = db; }
+    public ElectionService(JdbcTemplate db) {
+        this.db = db;
+        ensureColumns();
+    }
+
+    /** Safely add new columns if they don't exist yet (idempotent) */
+    private void ensureColumns() {
+        try { db.execute("ALTER TABLE elections ADD COLUMN election_type VARCHAR(100)"); } catch (Exception ignored) {}
+        try { db.execute("ALTER TABLE elections ADD COLUMN organization VARCHAR(255)"); }  catch (Exception ignored) {}
+    }
 
     // â”€â”€ Election â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     public Election getElection() {
         return db.queryForObject(
-            "SELECT id, title, is_open, start_time, end_time FROM elections WHERE id = ?",
+            "SELECT id, title, is_open, start_time, end_time, election_type, organization FROM elections WHERE id = ?",
             electionMapper(), ELECTION_ID);
     }
 
@@ -30,9 +39,16 @@ public class ElectionService {
         db.update("UPDATE elections SET is_open = ? WHERE id = ?", open, ELECTION_ID);
     }
 
+    public void updateElectionSettings(String title, String startTime, String endTime,
+                                        String electionType, String organization) {
+        db.update("UPDATE elections SET title=?, start_time=?, end_time=?, " +
+                  "election_type=?, organization=? WHERE id=?",
+            title, startTime, endTime, electionType, organization, ELECTION_ID);
+    }
+
+    // Keep old overload for backward compat
     public void updateElectionSettings(String title, String startTime, String endTime) {
-        db.update("UPDATE elections SET title = ?, start_time = ?, end_time = ? WHERE id = ?",
-            title, startTime, endTime, ELECTION_ID);
+        updateElectionSettings(title, startTime, endTime, null, null);
     }
 
     // â”€â”€ Candidates â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -375,8 +391,10 @@ public class ElectionService {
     private RowMapper<Election> electionMapper() {
         return (rs, i) -> {
             Election e = new Election(rs.getInt("id"), rs.getString("title"), rs.getBoolean("is_open"));
-            try { e.setStartTime(rs.getString("start_time")); } catch (Exception ignored) {}
-            try { e.setEndTime(rs.getString("end_time")); }   catch (Exception ignored) {}
+            try { e.setStartTime(rs.getString("start_time")); }    catch (Exception ignored) {}
+            try { e.setEndTime(rs.getString("end_time")); }        catch (Exception ignored) {}
+            try { e.setElectionType(rs.getString("election_type")); } catch (Exception ignored) {}
+            try { e.setOrganization(rs.getString("organization")); }  catch (Exception ignored) {}
             return e;
         };
     }

@@ -193,14 +193,15 @@ public class AdminController {
     public String updateElection(@RequestParam String title,
                                  @RequestParam(required = false) String startTime,
                                  @RequestParam(required = false) String endTime,
+                                 @RequestParam(required = false) String electionType,
+                                 @RequestParam(required = false) String organization,
                                  HttpSession session) {
         if (!"admin".equals(session.getAttribute("role"))) return "redirect:/login";
         svc.updateElectionSettings(
             title != null && !title.isBlank() ? title.trim() : "General Election 2025",
-            startTime,
-            endTime
+            startTime, endTime, electionType, organization
         );
-        svc.logActivity("Admin", "Updated election settings: " + title);
+        svc.logActivity("Admin", "Updated election settings: " + title + " [" + electionType + "]");
         return "redirect:/admin/dashboard?tab=election&success=settingssaved";
     }
 
