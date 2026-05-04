@@ -6,6 +6,7 @@ import com.evote.service.EmailService;
 import com.evote.service.FaceVerificationService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,7 +31,12 @@ public class AuthController {
     // ── Login ─────────────────────────────────────────────────────────────────
     @GetMapping({"/", "/login"})
     public String loginPage(HttpSession session, Model model,
-                            @RequestParam(required = false) String success) {
+                            @RequestParam(required = false) String success,
+                            HttpServletResponse response) {
+        // Never cache the login page
+        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        response.setHeader("Pragma", "no-cache");
+        response.setHeader("Expires", "0");
         Object userId = session.getAttribute("userId");
         if (userId != null) {
             String role = (String) session.getAttribute("role");
