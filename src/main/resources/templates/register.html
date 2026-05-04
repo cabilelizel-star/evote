@@ -105,7 +105,7 @@ input[readonly],select[disabled]{background:#eef2f8;color:#667}
     <div class="prog-circle" id="pc6">6</div>
   </div>
 
-  <form id="regForm" th:action="@{/register/submit}" method="post" enctype="multipart/form-data">
+  <form id="regForm" th:action="@{/register/submit}" method="post" enctype="multipart/form-data" autocomplete="off">
     <!-- Hidden fields -->
     <input type="hidden" name="selfieData" id="selfieData" value=""/>
     <input type="hidden" name="otpVerified" id="otpVerified" value="false"/>
@@ -318,6 +318,9 @@ input[readonly],select[disabled]{background:#eef2f8;color:#667}
     </div>
 
   </form>
+  <div style="text-align:center;margin-top:16px;padding-bottom:8px;font-size:14px;color:#555">
+    Already have an account? <a th:href="@{/login}" style="color:#0066cc;font-weight:700;text-decoration:none">Sign in here</a>
+  </div>
 </div>
 
 <!-- Terms Modal -->
@@ -371,15 +374,38 @@ input[readonly],select[disabled]{background:#eef2f8;color:#667}
 </div>
 
 <script>
-// Reset all form fields on page load to prevent browser autofill
-window.addEventListener('load', function() {
+// Reset all form fields on page load to prevent browser session restore
+document.addEventListener('DOMContentLoaded', function() {
+  // Reset city and barangay dropdowns
   var city = document.getElementById('city');
   var barangay = document.getElementById('barangay');
+  if (city) { city.selectedIndex = 0; }
+  if (barangay) { barangay.innerHTML = "<option value=''>-- Select City First --</option>"; }
+  // Reset zip and province
+  var zip = document.getElementById('zipCode');
+  var prov = document.getElementById('province');
+  if (zip) zip.value = '';
+  if (prov) prov.value = 'Laguna';
+  // Reset all text/email/tel/password inputs
+  document.querySelectorAll('input[type=text],input[type=email],input[type=tel],input[type=password],input[type=number]')
+    .forEach(function(el) {
+      if (el.id !== 'province') el.value = '';
+    });
+});
+window.addEventListener('load', function() {
+  var city = document.getElementById('city');
   if (city) city.selectedIndex = 0;
-  if (barangay) barangay.selectedIndex = 0;
-  // Reset all text inputs
-  document.querySelectorAll('input[type=text], input[type=email], input[type=tel], input[type=password]')
-    .forEach(function(el) { el.value = ''; });
+  var zip = document.getElementById('zipCode');
+  if (zip) zip.value = '';
+  // setTimeout fires AFTER browser session restore — guaranteed clean state
+  setTimeout(function() {
+    var c = document.getElementById('city');
+    var b = document.getElementById('barangay');
+    var z = document.getElementById('zipCode');
+    if (c) c.selectedIndex = 0;
+    if (b) b.innerHTML = "<option value=''>-- Select City First --</option>";
+    if (z) z.value = '';
+  }, 50);
 });
 
 var currentStep = 1;
