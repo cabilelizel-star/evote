@@ -20,6 +20,35 @@ public class ElectionService {
     public ElectionService(JdbcTemplate db) {
         this.db = db;
         ensureColumns();
+        startScheduler();
+    }
+
+    /** Auto-open/close election based on scheduled start/end times */
+    private void startScheduler() {
+        java.util.concurrent.Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+            try {
+                Election e = getElection();
+                String now = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm").format(new java.util.Date());
+                // Auto-open
+                if (!e.isOpen() && e.getStartTime() != null && !e.getStartTime().isBlank()) {
+                    String start = e.getStartTime().length() > 16 ? e.getStartTime().substring(0, 16) : e.getStartTime();
+                    if (now.compareTo(start) >= 0) {
+                        setElectionOpen(true);
+                        logActivity("System", "Auto-opened election: " + e.getTitle());
+                        sendNotificationToAll("🗳 Election is Now OPEN!", e.getTitle() + " is now open. Log in and cast your vote!");
+                    }
+                }
+                // Auto-close
+                if (e.isOpen() && e.getEndTime() != null && !e.getEndTime().isBlank()) {
+                    String end = e.getEndTime().length() > 16 ? e.getEndTime().substring(0, 16) : e.getEndTime();
+                    if (now.compareTo(end) >= 0) {
+                        setElectionOpen(false);
+                        logActivity("System", "Auto-closed election: " + e.getTitle());
+                        sendNotificationToAll("🔒 Election is Now CLOSED", e.getTitle() + " has ended. Thank you for participating!");
+                    }
+                }
+            } catch (Exception ignored) {}
+        }, 1, 1, java.util.concurrent.TimeUnit.MINUTES);
     }
 
     /** Safely add new columns if they don't exist yet (idempotent) */

@@ -570,12 +570,31 @@ tr:hover td{background:#f8faff}
         <!-- Start / End Time -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
           <div class="form-field">
-            <label>📅 Start Date &amp; Time</label>
-            <input type="datetime-local" name="startTime" th:value="${election.startTime}">
+            <label>📅 Scheduled Open Date &amp; Time</label>
+            <input type="datetime-local" name="startTime"
+                   th:value="${election.startTime}"
+                   style="font-size:15px;padding:11px 14px">
+            <div style="font-size:11px;color:#888;margin-top:4px">Election will auto-open at this time</div>
           </div>
           <div class="form-field">
-            <label>🏁 End Date &amp; Time</label>
-            <input type="datetime-local" name="endTime" th:value="${election.endTime}">
+            <label>🏁 Scheduled Close Date &amp; Time</label>
+            <input type="datetime-local" name="endTime"
+                   th:value="${election.endTime}"
+                   style="font-size:15px;padding:11px 14px">
+            <div style="font-size:11px;color:#888;margin-top:4px">Election will auto-close at this time</div>
+          </div>
+        </div>
+
+        <!-- Current schedule display -->
+        <div th:if="${election.startTime != null or election.endTime != null}"
+             style="background:#f0f7ff;border:1.5px solid #c8d8f0;border-radius:10px;padding:12px 16px;margin-top:4px;display:flex;gap:24px;flex-wrap:wrap">
+          <div th:if="${election.startTime != null}">
+            <div style="font-size:11px;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Opens</div>
+            <div style="font-size:15px;font-weight:700;color:#0044aa" th:text="${election.startTime}"></div>
+          </div>
+          <div th:if="${election.endTime != null}">
+            <div style="font-size:11px;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Closes</div>
+            <div style="font-size:15px;font-weight:700;color:#dc2626" th:text="${election.endTime}"></div>
           </div>
         </div>
 
@@ -626,11 +645,6 @@ tr:hover td{background:#f8faff}
           <button class="btn btn-red" th:disabled="${!election.open}" style="padding:12px 28px;font-size:14px">■ Close Election</button>
         </form>
       </div>
-
-      <p style="font-size:13px;color:#888;margin-top:14px;line-height:1.6">
-        📧 Opening the election will send <strong>email + in-app notifications</strong> to all registered voters.<br>
-        🔔 Closing will also notify all voters by email and in-app.
-      </p>
     </div>
 
     <!-- Schedule Info Card -->
