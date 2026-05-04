@@ -20,8 +20,8 @@ body{
 .ad-nav .nav-right a{color:rgba(255,255,255,.85);text-decoration:none;font-weight:600}
 .badge-open{background:linear-gradient(135deg,#0066cc,#0044aa);color:#fff;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800;box-shadow:0 2px 8px rgba(0,100,200,.4)}
 .badge-closed{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.3);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800}
-.ad-layout{display:grid;grid-template-columns:240px 1fr;gap:0;min-height:calc(100vh - 60px)}
-.ad-sidebar{background:rgba(4,20,40,0.92);backdrop-filter:blur(10px);border-right:1px solid rgba(0,150,255,0.15);position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto;display:flex;flex-direction:column}
+.ad-layout{display:flex;gap:0;min-height:calc(100vh - 60px)}
+.ad-sidebar{background:rgba(4,20,40,0.92);backdrop-filter:blur(10px);border-right:1px solid rgba(0,150,255,0.15);position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto;display:flex;flex-direction:column;z-index:50;flex-shrink:0;width:240px}
 .sidebar-head{padding:20px;border-bottom:1px solid rgba(0,150,255,0.15);text-align:center}
 .admin-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#0044aa,#0066cc);color:#fff;font-size:24px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;box-shadow:0 4px 16px rgba(0,100,200,.4)}
 .admin-name{font-size:15px;font-weight:800;color:#fff;margin-bottom:2px}
@@ -33,7 +33,7 @@ body{
 .ad-nav-links a.active{background:rgba(0,100,200,.2);color:#fff;border-left-color:#0066cc}
 .nav-icon{font-size:16px;width:20px;text-align:center}
 .sidebar-footer{padding:16px 20px;border-top:1px solid rgba(0,150,255,0.15)}
-.ad-main{padding:24px 28px;overflow-y:auto;min-height:calc(100vh - 60px)}
+.ad-main{padding:24px 28px;overflow-y:auto;min-height:calc(100vh - 60px);flex:1;min-width:0;position:relative;z-index:1}
 .section{display:none}.section.active{display:block}
 .sec-title{font-size:20px;font-weight:800;color:#fff;margin-bottom:20px;display:flex;align-items:center;gap:10px}
 .card{background:rgba(255,255,255,0.97);border-radius:12px;padding:22px;margin-bottom:18px;box-shadow:0 4px 20px rgba(0,0,0,.3),0 0 0 1px rgba(0,150,255,.1)}
@@ -89,7 +89,7 @@ tr:hover td{background:#f8faff}
 .rules-list{list-style:none;padding:0}
 .rules-list li{padding:10px 0;border-bottom:1px solid #f0f4ff;font-size:14px;color:#444;display:flex;align-items:flex-start;gap:10px}
 .rules-list li:last-child{border-bottom:none}
-@media(max-width:768px){.ad-layout{grid-template-columns:1fr}.ad-sidebar{position:static;height:auto;border-right:none;border-bottom:1px solid rgba(0,150,255,.15)}.stat-row{grid-template-columns:1fr}.ad-main{padding:16px}.info-grid{grid-template-columns:1fr}.candidate-grid{grid-template-columns:1fr}}
+@media(max-width:768px){.ad-layout{grid-template-columns:1fr}.ad-sidebar{position:static;height:auto;border-right:none;border-bottom:1px solid rgba(0,150,255,.15);z-index:10}.stat-row{grid-template-columns:1fr}.ad-main{padding:16px;min-width:0}.info-grid{grid-template-columns:1fr}.candidate-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -679,7 +679,6 @@ function confirmVote() {
   if (!confirm('Are you sure you want to submit your vote?\n\nThis action is FINAL and cannot be changed.')) return;
   document.getElementById('voteForm').submit();
 }
-}
 
 // ── Notification bell toggle ────────────────────────────────
 function toggleNotif() {
@@ -848,4 +847,4 @@ function showWarning() {
 resetSessionTimer();
 </script>
 </body>
-</html></html>
+</html>
