@@ -6,9 +6,13 @@
     <title>E-Vote System — Voter Registration</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <style>
-        body { background: #f0faf4; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 20px 0 40px; }
+        body { background:
+            radial-gradient(ellipse at 20% 50%, rgba(0,180,255,0.15) 0%, transparent 50%),
+            radial-gradient(ellipse at 80% 20%, rgba(0,100,255,0.12) 0%, transparent 50%),
+            linear-gradient(135deg, #020b18 0%, #041428 40%, #061e3a 70%, #030f22 100%);
+            font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 20px 0 40px; min-height:100vh; }
         .reg-wrap { max-width: 700px; margin: 0 auto; padding: 0 16px; }
-        .reg-card { background: #fff; border-radius: 14px; box-shadow: 0 4px 24px rgba(45,158,95,.13); padding: 36px 40px 32px; }
+        .reg-card { background: rgba(255,255,255,0.97); border-radius: 20px; box-shadow: 0 0 0 1px rgba(0,150,255,0.2), 0 20px 60px rgba(0,0,0,0.5), 0 0 80px rgba(0,100,255,0.15); padding: 36px 40px 32px; }
         h2.reg-title { text-align: center; color: #1a6b3c; margin: 0 0 6px; font-size: 1.5rem; }
         p.reg-sub { text-align: center; color: #5a7a6a; margin: 0 0 24px; font-size: .93rem; }
 
@@ -41,9 +45,9 @@
         .form-group .hint { font-size: .75rem; color: #7a9a8a; margin-top: 3px; }
 
         /* Buttons */
-        .btn-primary { width: 100%; padding: 11px; background: #2d9e5f; color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background .2s; margin-top: 8px; }
-        .btn-primary:hover { background: #1a6b3c; }
-        .btn-primary:disabled { background: #a8d5b5; cursor: not-allowed; }
+        .btn-primary { width: 100%; padding: 11px; background: linear-gradient(135deg,#0066cc,#0044aa); color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background .2s,box-shadow .2s; margin-top: 8px; box-shadow:0 4px 14px rgba(0,100,200,.3); }
+        .btn-primary:hover { background: linear-gradient(135deg,#0055bb,#003399); box-shadow:0 6px 18px rgba(0,100,200,.4); }
+        .btn-primary:disabled { background: #a8c5e8; cursor: not-allowed; box-shadow:none; }
         .btn-secondary { padding: 9px 22px; background: #e8f5ee; color: #1a6b3c; border: 1.5px solid #a8d5b5; border-radius: 8px; font-size: .93rem; font-weight: 600; cursor: pointer; transition: all .2s; }
         .btn-secondary:hover { background: #d4edda; }
         .btn-row { display: flex; gap: 12px; margin-top: 10px; }
