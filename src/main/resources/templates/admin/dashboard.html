@@ -586,19 +586,50 @@ tr:hover td{background:#f8faff}
     <!-- Open / Close Card -->
     <div class="card">
       <div class="card-title">🔘 Election Status</div>
-      <div style="font-size:16px;font-weight:700;margin-bottom:16px"
+
+      <!-- WARNING: no election type set yet -->
+      <div th:if="${election.electionType == null or #strings.isEmpty(election.electionType)}"
+           style="background:#fff8e1;border:1.5px solid #f59e0b;border-radius:10px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:flex-start;gap:12px">
+        <span style="font-size:22px">⚠️</span>
+        <div>
+          <div style="font-size:15px;font-weight:800;color:#92400e;margin-bottom:4px">Election Type Required</div>
+          <div style="font-size:13px;color:#78350f;line-height:1.5">
+            You must select an <strong>Election Type</strong> in the settings above and click
+            <strong>Save Settings</strong> before you can open the election.
+            The system needs to know what kind of election this is.
+          </div>
+        </div>
+      </div>
+
+      <div style="font-size:16px;font-weight:700;margin-bottom:8px"
            th:text="${election.open} ? '🟢 Currently OPEN — Voting is active' : '🔴 Currently CLOSED — Voting is inactive'"></div>
-      <div style="font-size:14px;color:#555;margin-bottom:20px" th:text="${election.title}"></div>
+
+      <!-- Show type badge if set -->
+      <div th:if="${election.electionType != null and !#strings.isEmpty(election.electionType)}"
+           style="display:inline-flex;align-items:center;gap:6px;background:#e8f0fe;color:#0044aa;padding:4px 14px;border-radius:20px;font-size:13px;font-weight:700;margin-bottom:14px">
+        <span th:text="${election.typeIcon}"></span>
+        <span th:text="${election.electionType}"></span>
+      </div>
+
+      <div style="font-size:14px;color:#555;margin-bottom:16px" th:text="${election.title}"></div>
+
       <div style="display:flex;gap:12px;flex-wrap:wrap">
         <form method="post" th:action="@{/admin/election/open}">
-          <button class="btn btn-blue" th:disabled="${election.open}" style="padding:12px 28px;font-size:14px">▶ Open Election</button>
+          <!-- Disabled if already open OR no election type set -->
+          <button class="btn btn-blue"
+                  th:disabled="${election.open or election.electionType == null or #strings.isEmpty(election.electionType)}"
+                  style="padding:12px 28px;font-size:14px">
+            ▶ Open Election
+          </button>
         </form>
         <form method="post" th:action="@{/admin/election/close}">
           <button class="btn btn-red" th:disabled="${!election.open}" style="padding:12px 28px;font-size:14px">■ Close Election</button>
         </form>
       </div>
-      <p style="font-size:12px;color:#aaa;margin-top:16px">
-        Opening the election will send email &amp; in-app notifications to all registered voters. Closing will also notify all voters.
+
+      <p style="font-size:13px;color:#888;margin-top:14px;line-height:1.6">
+        📧 Opening the election will send <strong>email + in-app notifications</strong> to all registered voters.<br>
+        🔔 Closing will also notify all voters by email and in-app.
       </p>
     </div>
 
