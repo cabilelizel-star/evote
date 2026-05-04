@@ -668,57 +668,15 @@ function validateStep3() {
   if (!terms)        { showAlert("step3Alert","You must agree to the Terms and Conditions."); return; }
   sendOtp();
 }
-  var alertEl = document.getElementById("step1Alert");
-  alertEl.innerHTML = "";
-
-  var firstName = document.getElementById("firstName").value.trim();
-  var lastName  = document.getElementById("lastName").value.trim();
-  var dob       = document.getElementById("dateOfBirth").value;
-  var gender    = document.getElementById("gender").value;
-  var street    = document.getElementById("street").value.trim();
-  var city      = document.getElementById("city").value;
-  var barangay  = document.getElementById("barangay").value;
-  var mobile    = document.getElementById("mobileNumber").value.trim();
-  var email     = document.getElementById("email").value.trim();
-  var voterId   = document.getElementById("voterId").value.trim();
-  var password  = document.getElementById("password").value;
-  var confirm   = document.getElementById("confirm").value;
-  var terms     = document.getElementById("termsCheck").checked;
-
-  if (!firstName) { showAlert("step1Alert", "First name is required."); return; }
-  if (!lastName)  { showAlert("step1Alert", "Last name is required."); return; }
-  if (!dob)       { showAlert("step1Alert", "Date of birth is required."); return; }
-
-  var today = new Date();
-  var birthDate = new Date(dob);
-  var age = today.getFullYear() - birthDate.getFullYear();
-  var m = today.getMonth() - birthDate.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) { age--; }
-  if (age < 18) { showAlert("step1Alert", "You must be at least 18 years old to register."); return; }
-
-  if (!gender)   { showAlert("step1Alert", "Please select your gender."); return; }
-  if (!street)   { showAlert("step1Alert", "Street address is required."); return; }
-  if (!city)     { showAlert("step1Alert", "Please select your city."); return; }
-  if (!barangay) { showAlert("step1Alert", "Please select your barangay."); return; }
-
-  if (!/^09\d{9}$/.test(mobile)) { showAlert("step1Alert", "Mobile number must be 11 digits starting with 09."); return; }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showAlert("step1Alert", "Please enter a valid email address."); return; }
-  if (!voterId)  { showAlert("step1Alert", "Username / Voter ID is required."); return; }
-  if (password.length < 6) { showAlert("step1Alert", "Password must be at least 6 characters."); return; }
-  if (password !== confirm) { showAlert("step1Alert", "Passwords do not match."); return; }
-  if (!terms) { showAlert("step1Alert", "You must agree to the Terms and Conditions."); return; }
-
-  var fullName = firstName + (document.getElementById("middleName").value.trim() ? " " + document.getElementById("middleName").value.trim() : "") + " " + lastName;
-  document.getElementById("hiddenName").value = fullName;
-
-  sendOtp();
-}
 
 // ─── OTP functions ────────────────────────────────────────────────────────────
 function sendOtp() {
   var voterId = document.getElementById("voterId").value.trim();
-  var email   = document.getElementById("email").value.trim();
-  var name    = document.getElementById("hiddenName").value;
+  var email   = document.getElementById("emailField").value.trim();
+  var fn      = document.getElementById("firstName").value.trim();
+  var ln      = document.getElementById("lastName").value.trim();
+  var name    = fn + " " + ln;
+  document.getElementById("hiddenName").value = name;
   var msgEl   = document.getElementById("otpSentMsg");
 
   goToStep(4);
