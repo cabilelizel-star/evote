@@ -122,8 +122,8 @@ tr:hover td{background:#f8fffe}
   <!-- ─── SIDEBAR ─────────────────────────────────────────── -->
   <aside class="ad-sidebar">
     <div class="sidebar-head">
-      <div class="admin-avatar" th:text="${voter != null} ? ${voter.firstName.substring(0,1).toUpperCase()} : 'V'">V</div>
-      <div class="admin-name" th:text="${voter != null} ? ${voter.firstName + ' ' + voter.lastName} : ${userName}">Voter</div>
+      <div class="admin-avatar" th:text="${voter != null and voter.firstName != null} ? ${voter.firstName.substring(0,1).toUpperCase()} : 'V'">V</div>
+      <div class="admin-name" th:text="${voter != null and voter.firstName != null} ? ${voter.firstName + ' ' + (voter.lastName ?: '')} : ${userName}">Voter</div>
       <div class="voter-id-label" th:text="'ID: ' + ${userId}">ID: —</div>
       <div class="admin-role">&#x2705; Verified</div>
     </div>
@@ -283,10 +283,11 @@ tr:hover td{background:#f8fffe}
               <div th:each="c : ${candidates}"
                    th:id="'cand-' + ${c.candidateId}"
                    class="cand-card"
-                   th:onclick="'selectCand(\'' + ${c.candidateId} + '\')'"
+                   th:attr="data-id=${c.candidateId}"
+                   onclick="selectCand(this.getAttribute('data-id'))"
                    role="button"
                    tabindex="0">
-                <div class="cand-avatar" th:text="${c.name.substring(0,1).toUpperCase()}">C</div>
+                <div class="cand-avatar" th:text="${c.name != null} ? ${c.name.substring(0,1).toUpperCase()} : '?'">C</div>
                 <div class="cand-name" th:text="${c.name}">Candidate</div>
                 <div class="cand-party" th:text="${c.party}">Party</div>
                 <div class="cand-id" th:text="'ID: ' + ${c.candidateId}">ID</div>
