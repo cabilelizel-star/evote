@@ -12,11 +12,11 @@
                 radial-gradient(ellipse at 80% 20%, rgba(0,100,255,0.12) 0%, transparent 50%),
                 linear-gradient(135deg, #020b18 0%, #041428 40%, #061e3a 70%, #030f22 100%);
             font-family: 'Segoe UI', Arial, sans-serif;
-            margin: 0; padding: 0;
+            margin: 0; padding: 24px 0;
             min-height: 100vh;
-            display: flex; align-items: center; justify-content: center;
+            display: flex; align-items: flex-start; justify-content: center;
         }
-        .reg-wrap { width: 100%; max-width: 520px; padding: 16px; }
+        .reg-wrap { width: 100%; max-width: 520px; padding: 0 16px 24px; }
         .reg-card {
             background: rgba(255,255,255,0.98);
             border-radius: 20px;
@@ -215,7 +215,7 @@
         </div>
         <div class="form-group">
           <label>Middle Name</label>
-          <input type="text" id="middleName" name="middleName" placeholder="Santos (optional)" autocomplete="off">
+          <input type="text" id="middleName" name="middleName" placeholder="Santos (optional)" autocomplete="new-password">
         </div>
         <div class="form-row">
           <div class="form-group">
@@ -446,8 +446,8 @@
 
     </form>
 
-    <div style="text-align:center;margin-top:14px;font-size:.85rem;color:rgba(255,255,255,.7);">
-      Already registered? <a th:href="@{/login}" style="color:#60a5fa;font-weight:700;">Sign in here</a>
+    <div style="text-align:center;margin-top:14px;padding-bottom:4px;font-size:.85rem;color:#6b7a99;">
+      Already registered? <a th:href="@{/login}" style="color:#0066cc;font-weight:700;">Sign in here</a>
     </div>
 
   </div>
@@ -594,6 +594,17 @@ function calcAge() {
     display.style.color = "#0044aa";
     display.style.border = "1.5px solid #c8d8f0";
   }
+}
+function validateStep1() {
+  var fn  = document.getElementById("firstName").value.trim();
+  var ln  = document.getElementById("lastName").value.trim();
+  var dob = document.getElementById("dateOfBirth").value;
+  if (!fn)  { showAlert("step1Alert", "First name is required."); return; }
+  if (!ln)  { showAlert("step1Alert", "Last name is required."); return; }
+  if (!dob) { showAlert("step1Alert", "Date of birth is required."); return; }
+  var age = Math.floor((new Date() - new Date(dob)) / (365.25 * 24 * 3600 * 1000));
+  if (age < 18) { showAlert("step1Alert", "You must be at least 18 years old to register."); return; }
+  goToStep(2);
 }
 function validateStep2() {
   var street = document.getElementById("street").value.trim();
