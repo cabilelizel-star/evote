@@ -4,6 +4,7 @@ import com.evote.model.Voter;
 import com.evote.service.ElectionService;
 import com.evote.service.EmailService;
 import com.evote.service.FaceVerificationService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -18,9 +19,12 @@ public class AuthController {
     private final ElectionService         svc;
     private final FaceVerificationService faceService;
     private final EmailService            emailService;
+    private final PasswordEncoder         passwordEncoder;
 
-    public AuthController(ElectionService svc, FaceVerificationService faceService, EmailService emailService) {
-        this.svc = svc; this.faceService = faceService; this.emailService = emailService;
+    public AuthController(ElectionService svc, FaceVerificationService faceService,
+                          EmailService emailService, PasswordEncoder passwordEncoder) {
+        this.svc = svc; this.faceService = faceService;
+        this.emailService = emailService; this.passwordEncoder = passwordEncoder;
     }
 
     // ── Login ─────────────────────────────────────────────────────────────────
@@ -50,7 +54,7 @@ public class AuthController {
             session.setAttribute("role",     "admin");
             return "redirect:/admin/dashboard";
         }
-        Optional<Voter> voter = svc.authenticateVoter(username, password);
+        Optional<Voter> voter = svc.authenticateVoter(username, password, passwordEncoder);
         if (voter.isPresent()) {
             Voter v = voter.get();
             // Only block rejected voters
@@ -172,10 +176,11 @@ public class AuthController {
 
         String fn = firstName != null && !firstName.isBlank() ? firstName : name;
         String ln = lastName  != null ? lastName : "";
-        // Register with status=pending (awaiting admin approval)
+        // Hash password with BCrypt before storing
+        String hashedPassword = passwordEncoder.encode(password);
         svc.addVoterFull(voterId, fn, middleName, ln, dateOfBirth, gender,
             street, barangay, city, province, zipCode, mobileNumber, email,
-            voterIdNumber, votingDistrict, affiliation, idType, idNumber, password);
+            voterIdNumber, votingDistrict, affiliation, idType, idNumber, hashedPassword);
 
         // Save ID photo and selfie images for admin review
         try {

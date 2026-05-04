@@ -20,6 +20,7 @@ public class Voter {
     private String  affiliation;
     private String  idType;
     private String  idNumber;
+    private String  password;
     private boolean hasVoted;
     private String  status; // pending, approved, rejected
     private String  rejectionReason;
@@ -74,7 +75,8 @@ public class Voter {
     public void setIdType(String v)         { this.idType         = v; }
     public void setIdNumber(String v)       { this.idNumber       = v; }
     public void setHasVoted(boolean v)      { this.hasVoted       = v; }
-    public void setPassword(String v)       { /* not stored in model */ }
+    public void setPassword(String v)       { this.password       = v; }
+    public String getPassword()             { return password; }
     public String  getStatus()              { return status; }
     public String  getRejectionReason()     { return rejectionReason; }
     public void    setStatus(String v)      { this.status           = v; }

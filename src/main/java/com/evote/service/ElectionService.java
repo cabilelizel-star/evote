@@ -1,4 +1,4 @@
-package com.evote.service;
+﻿package com.evote.service;
 
 import com.evote.model.Candidate;
 import com.evote.model.Election;
@@ -19,7 +19,7 @@ public class ElectionService {
 
     public ElectionService(JdbcTemplate db) { this.db = db; }
 
-    // ── Election ──────────────────────────────────────────────────────────────
+    // â”€â”€ Election â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     public Election getElection() {
         return db.queryForObject(
             "SELECT id, title, is_open FROM elections WHERE id = ?",
@@ -30,7 +30,7 @@ public class ElectionService {
         db.update("UPDATE elections SET is_open = ? WHERE id = ?", open, ELECTION_ID);
     }
 
-    // ── Candidates ────────────────────────────────────────────────────────────
+    // â”€â”€ Candidates â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     public List<Candidate> getCandidates() {
         return db.query(
             "SELECT candidate_id, name, party, vote_count FROM candidates " +
@@ -47,7 +47,7 @@ public class ElectionService {
         db.update("DELETE FROM candidates WHERE candidate_id = ? AND election_id = ?", id, ELECTION_ID);
     }
 
-    // ── Voters ────────────────────────────────────────────────────────────────
+    // â”€â”€ Voters â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     public List<Voter> getVoters() {
         return db.query(
             "SELECT voter_id, name, has_voted, first_name, middle_name, last_name, " +
@@ -116,16 +116,36 @@ public class ElectionService {
         db.update("DELETE FROM voters WHERE voter_id = ? AND election_id = ?", id, ELECTION_ID);
     }
 
-    // ── Auth ──────────────────────────────────────────────────────────────────
-    public Optional<Voter> authenticateVoter(String voterId, String password) {
+    // â”€â”€ Auth â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    public Optional<Voter> authenticateVoter(String voterId, String password,
+                                              org.springframework.security.crypto.password.PasswordEncoder encoder) {
         List<Voter> list = db.query(
-            "SELECT voter_id, name, has_voted FROM voters " +
-            "WHERE voter_id = ? AND password = ? AND election_id = ?",
-            voterMapper(), voterId, password, ELECTION_ID);
-        return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
+            "SELECT voter_id, name, has_voted, password, status, rejection_reason FROM voters " +
+            "WHERE voter_id = ? AND election_id = ?",
+            (rs, i) -> {
+                Voter v = new Voter(rs.getString("voter_id"), rs.getString("name"), rs.getBoolean("has_voted"));
+                v.setStatus(rs.getString("status"));
+                v.setRejectionReason(rs.getString("rejection_reason"));
+                // Store raw password hash temporarily for verification
+                v.setPassword(rs.getString("password"));
+                return v;
+            }, voterId, ELECTION_ID);
+        if (list.isEmpty()) return Optional.empty();
+        Voter v = list.get(0);
+        String stored = v.getPassword();
+        // Support both BCrypt hashes and legacy plain text
+        boolean match = (stored != null && stored.startsWith("$2")) 
+            ? encoder.matches(password, stored)
+            : password.equals(stored);
+        return match ? Optional.of(v) : Optional.empty();
     }
 
-    // ── Voting ────────────────────────────────────────────────────────────────
+    public Optional<Voter> authenticateVoter(String voterId, String password) {
+        return authenticateVoter(voterId, password,
+            new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder());
+    }
+
+    // â”€â”€ Voting â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     @Transactional
     public String castVotes(String voterId, List<String> candidateIds) {
         Election e = getElection();
@@ -155,7 +175,7 @@ public class ElectionService {
         return castVotes(voterId, java.util.List.of(candidateId));
     }
 
-    // ── Vote receipt ──────────────────────────────────────────────────────────
+    // â”€â”€ Vote receipt â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     public String getVoteTimestamp(String voterId) {
         try {
             List<String> rows = db.query(
@@ -174,7 +194,7 @@ public class ElectionService {
         return "EVT-" + date + "-" + prefix + "-" + String.format("%05d", hash);
     }
 
-    // ── Stats ─────────────────────────────────────────────────────────────────
+    // â”€â”€ Stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     public int getTotalVotes() {
         Integer n = db.queryForObject(
             "SELECT COUNT(*) FROM votes WHERE election_id = ?", Integer.class, ELECTION_ID);
@@ -199,13 +219,20 @@ public class ElectionService {
     }
 
     public boolean verifyVoterPassword(String voterId, String password) {
-        Integer count = db.queryForObject(
-            "SELECT COUNT(*) FROM voters WHERE voter_id=? AND password=? AND election_id=?",
-            Integer.class, voterId, password, ELECTION_ID);
-        return count != null && count > 0;
+        try {
+            List<String> rows = db.query(
+                "SELECT password FROM voters WHERE voter_id=? AND election_id=?",
+                (rs, i) -> rs.getString("password"), voterId, ELECTION_ID);
+            if (rows.isEmpty() || rows.get(0) == null) return false;
+            String stored = rows.get(0);
+            if (stored.startsWith("$2")) {
+                return new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().matches(password, stored);
+            }
+            return password.equals(stored);
+        } catch (Exception e) { return false; }
     }
 
-    // ── Security questions ────────────────────────────────────────────────────
+    // -- Security questions --
     public void saveSecurityQuestion(String voterId, String question, String answer) {
         db.update("INSERT INTO security_questions (voter_id, election_id, question, answer) " +
                   "VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE question=VALUES(question), answer=VALUES(answer)",
@@ -227,11 +254,11 @@ public class ElectionService {
     }
 
     public void updatePassword(String voterId, String newPassword) {
-        db.update("UPDATE voters SET password = ? WHERE voter_id = ? AND election_id = ?",
-            newPassword, voterId, ELECTION_ID);
+        String hashed = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode(newPassword);
+        db.update("UPDATE voters SET password = ? WHERE voter_id = ? AND election_id = ?", hashed, voterId, ELECTION_ID);
     }
 
-    // ── Voter blocking ────────────────────────────────────────────────────────
+    // â”€â”€ Voter blocking â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     public void setVoterBlocked(String voterId, boolean blocked) {
         try {
             db.update("UPDATE voters SET is_blocked = ? WHERE voter_id = ? AND election_id = ?",
@@ -239,7 +266,7 @@ public class ElectionService {
         } catch (Exception ignored) {}
     }
 
-    // ── Image storage ─────────────────────────────────────────────────────────
+    // â”€â”€ Image storage â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     public void saveVoterImages(String voterId, byte[] idPhotoBytes, byte[] selfieBytes) {
         try {
             db.update("UPDATE voters SET id_photo = ?, selfie_photo = ? WHERE voter_id = ? AND election_id = ?",
@@ -267,7 +294,7 @@ public class ElectionService {
         } catch (Exception e) { return null; }
     }
 
-    // ── Approval ──────────────────────────────────────────────────────────────
+    // â”€â”€ Approval â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     public void approveVoter(String voterId) {
         db.update("UPDATE voters SET status='approved' WHERE voter_id=? AND election_id=?",
             voterId, ELECTION_ID);
@@ -286,7 +313,7 @@ public class ElectionService {
             voterMapper(), ELECTION_ID);
     }
 
-    // ── Notifications ─────────────────────────────────────────────────────────
+    // â”€â”€ Notifications â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     public void sendNotificationToAll(String title, String message) {
         try {
             List<Voter> voters = getVoters();
@@ -322,7 +349,7 @@ public class ElectionService {
         } catch (Exception e) { System.err.println("markAllRead failed: " + e.getMessage()); }
     }
 
-    // ── Audit log ─────────────────────────────────────────────────────────────
+    // â”€â”€ Audit log â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     public void logActivity(String actor, String action) {
         try {
             db.update("INSERT INTO audit_log (actor, action, logged_at) VALUES (?, ?, NOW())",
@@ -339,7 +366,7 @@ public class ElectionService {
         }
     }
 
-    // ── Row mappers ───────────────────────────────────────────────────────────
+    // â”€â”€ Row mappers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private RowMapper<Election> electionMapper() {
         return (rs, i) -> new Election(rs.getInt("id"), rs.getString("title"), rs.getBoolean("is_open"));
     }
@@ -376,3 +403,5 @@ public class ElectionService {
         };
     }
 }
+
+
