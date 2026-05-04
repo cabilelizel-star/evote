@@ -324,20 +324,29 @@ tr:hover td{background:#f8faff}
         <tbody>
           <tr th:if="${#lists.isEmpty(candidates)}"><td colspan="7" style="text-align:center;padding:20px;color:#aaa">No candidates yet.</td></tr>
           <tr th:each="c, rowStat : ${candidates}">
-            <td>
-              <div style="width:46px;height:46px;border-radius:50%;overflow:hidden;background:#e8f0fe;display:flex;align-items:center;justify-content:center;border:2px solid #c8d8f0;flex-shrink:0">
+            <td style="text-align:center;vertical-align:top;padding-top:8px">
+              <!-- Photo circle -->
+              <div style="width:52px;height:52px;border-radius:50%;overflow:hidden;background:#e8f0fe;display:flex;align-items:center;justify-content:center;border:2px solid #c8d8f0;margin:0 auto 5px">
                 <img th:src="@{/admin/candidate/photo/{id}(id=${c.candidateId})}"
-                     style="width:46px;height:46px;object-fit:cover"
+                     style="width:52px;height:52px;object-fit:cover"
                      alt="Photo"
                      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-                <span style="font-size:20px;display:none">👤</span>
+                <span style="font-size:22px;display:none">👤</span>
               </div>
+              <!-- Upload button directly under photo -->
+              <form method="post" th:action="@{/admin/candidate/photo}" enctype="multipart/form-data">
+                <input type="hidden" name="candidateId" th:value="${c.candidateId}">
+                <label style="cursor:pointer;display:inline-flex;align-items:center;gap:3px;background:#e8f0fe;color:#0044aa;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;border:1.5px solid #c8d8f0">
+                  📷
+                  <input type="file" name="photo" accept="image/*" style="display:none" onchange="this.form.submit()">
+                </label>
+              </form>
             </td>
-            <td th:text="${rowStat.count}" style="color:#aaa;font-size:13px"></td>
-            <td><span class="pill pill-green" th:text="${c.candidateId}"></span></td>
-            <td style="font-weight:700;font-size:15px" th:text="${c.name}"></td>
-            <td th:text="${c.party}" style="font-size:14px"></td>
-            <td>
+            <td th:text="${rowStat.count}" style="color:#aaa;font-size:13px;vertical-align:middle"></td>
+            <td style="vertical-align:middle"><span class="pill pill-green" th:text="${c.candidateId}"></span></td>
+            <td style="font-weight:700;font-size:15px;vertical-align:middle" th:text="${c.name}"></td>
+            <td th:text="${c.party}" style="font-size:14px;vertical-align:middle"></td>
+            <td style="vertical-align:middle">
               <span th:if="${c.electionType != null}"
                     style="display:inline-flex;align-items:center;gap:4px;background:#e8f0fe;color:#0044aa;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700">
                 <span th:text="${c.typeIcon}"></span>
@@ -345,17 +354,7 @@ tr:hover td{background:#f8faff}
               </span>
               <span th:if="${c.electionType == null}" style="color:#aaa;font-size:12px">—</span>
             </td>
-            <td style="white-space:nowrap">
-              <!-- Upload photo -->
-              <form method="post" th:action="@{/admin/candidate/photo}" enctype="multipart/form-data" style="display:inline-block;margin-bottom:4px">
-                <input type="hidden" name="candidateId" th:value="${c.candidateId}">
-                <label style="cursor:pointer;display:inline-flex;align-items:center;gap:4px;background:#e8f0fe;color:#0044aa;padding:5px 10px;border-radius:6px;font-size:12px;font-weight:700;border:1.5px solid #c8d8f0">
-                  📷 Upload
-                  <input type="file" name="photo" accept="image/*" style="display:none" onchange="this.form.submit()">
-                </label>
-              </form>
-              <br>
-              <!-- Remove -->
+            <td style="vertical-align:middle">
               <form method="post" th:action="@{/admin/candidate/remove}" style="display:inline">
                 <input type="hidden" name="candidateId" th:value="${c.candidateId}">
                 <button class="btn btn-red btn-sm" onclick="return confirm('Remove this candidate?')">Remove</button>

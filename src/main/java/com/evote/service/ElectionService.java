@@ -101,14 +101,21 @@ public class ElectionService {
     public List<Candidate> getCandidates() {
         return db.query(
             "SELECT candidate_id, name, party, vote_count, election_type, " +
-            "(photo IS NOT NULL AND LENGTH(photo) > 0) AS has_photo " +
-            "FROM candidates WHERE election_id = ? ORDER BY election_type, party, name",
+            "(photo IS NOT NULL AND LENGTH(photo) > 0) AS has_photo, " +
+            "CASE " +
+            "  WHEN party LIKE '%Governor%' AND party NOT LIKE '%Vice%' THEN 1 " +
+            "  WHEN party LIKE '%Vice Governor%' THEN 2 " +
+            "  WHEN party LIKE '%Mayor%' AND party NOT LIKE '%Vice%' THEN 3 " +
+            "  WHEN party LIKE '%Vice Mayor%' THEN 4 " +
+            "  WHEN party LIKE '%Representative%' THEN 5 " +
+            "  ELSE 6 END AS pos_order " +
+            "FROM candidates WHERE election_id = ? " +
+            "ORDER BY pos_order, party, name",
             (rs, i) -> {
                 Candidate c = new Candidate(
                     rs.getString("candidate_id"), rs.getString("name"),
                     rs.getString("party"), rs.getInt("vote_count"));
                 try { c.setElectionType(rs.getString("election_type")); } catch (Exception ignored) {}
-                // Set a 1-byte marker so hasPhoto() returns true without loading the full blob
                 try {
                     boolean hp = rs.getBoolean("has_photo");
                     if (hp) c.setPhoto(new byte[]{1});
