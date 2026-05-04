@@ -221,7 +221,6 @@
           <div class="form-group">
             <label>Date of Birth *</label>
             <input type="date" id="dateOfBirth" name="dateOfBirth" required onchange="calcAge()">
-            <div class="hint" id="ageDisplay">Must be 18 or older</div>
           </div>
           <div class="form-group">
             <label>Gender</label>
@@ -233,6 +232,8 @@
             </select>
           </div>
         </div>
+        <!-- Age display — shown after birthdate is entered -->
+        <div id="ageDisplay" style="display:none;padding:8px 14px;border-radius:8px;font-size:.88rem;font-weight:700;margin-bottom:4px;text-align:center"></div>
         <button type="button" class="btn-primary" onclick="validateStep1()" style="margin-top:14px">Next &#8594;</button>
       </div>
 
@@ -579,16 +580,19 @@ function populateBarangay() {
 function calcAge() {
   var dob = document.getElementById("dateOfBirth").value;
   var display = document.getElementById("ageDisplay");
-  if (!dob) { display.textContent = "Must be 18 or older"; display.style.color = "#8a9ab8"; return; }
+  if (!dob) { display.style.display = "none"; return; }
   var age = Math.floor((new Date() - new Date(dob)) / (365.25 * 24 * 3600 * 1000));
+  display.style.display = "block";
   if (age < 18) {
-    display.textContent = "Age: " + age + " — Must be at least 18 years old";
+    display.innerHTML = "&#128683; Age: " + age + " &mdash; You must be at least 18 years old";
+    display.style.background = "#fff0f0";
     display.style.color = "#c0392b";
-    display.style.fontWeight = "700";
+    display.style.border = "1.5px solid #f5c6cb";
   } else {
-    display.textContent = "Age: " + age + " ✓";
+    display.innerHTML = "&#10003; Age: <strong>" + age + "</strong> years old &mdash; Eligible to register";
+    display.style.background = "#f0f8ff";
     display.style.color = "#0044aa";
-    display.style.fontWeight = "700";
+    display.style.border = "1.5px solid #c8d8f0";
   }
 }
 function validateStep2() {
