@@ -1,563 +1,838 @@
 ﻿<!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>E-Vote — Create Account</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0faf4;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:32px 16px}
-.card{background:#fff;border-radius:24px;padding:44px 52px;width:100%;max-width:720px;margin:0 auto;box-shadow:0 8px 48px rgba(26,107,60,.12)}
-h1{font-size:28px;font-weight:900;color:#111;text-align:center;margin-bottom:4px}
-.subtitle{text-align:center;font-size:14px;color:#888;margin-bottom:28px}
-/* Progress */
-.prog-wrap{display:flex;align-items:center;margin-bottom:32px}
-.prog-step{flex:1;text-align:center}
-.prog-step .dot{width:42px;height:42px;border-radius:50%;background:#e5e7eb;color:#aaa;font-size:15px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 6px;transition:all .3s;border:2px solid #e5e7eb}
-.prog-step .lbl{font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.5px}
-.prog-step.active .dot{background:#2d9e5f;color:#fff;border-color:#2d9e5f;box-shadow:0 0 0 5px rgba(45,158,95,.2)}
-.prog-step.done .dot{background:#1a6b3c;color:#fff;border-color:#1a6b3c}
-.prog-step.active .lbl,.prog-step.done .lbl{color:#1a6b3c}
-.prog-line{flex:1;height:3px;background:#e5e7eb;margin-bottom:22px;transition:background .3s;border-radius:2px}
-.prog-line.done{background:#2d9e5f}
-/* Steps */
-.step-panel{display:none}.step-panel.active{display:block}
-.sec-title{font-size:12px;font-weight:800;color:#2d9e5f;text-transform:uppercase;letter-spacing:1px;margin:22px 0 14px;padding-bottom:8px;border-bottom:2px solid #e0f2e9}
-.sec-title:first-child{margin-top:0}
-/* Fields */
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
-.field{margin-bottom:16px}
-.field label{display:block;font-size:11px;font-weight:700;color:#777;letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px}
-.field input,.field select{width:100%;padding:12px 16px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#222;background:#fff;outline:none;transition:border-color .2s,box-shadow .2s}
-.field input[type=email],.field input[type=password],.field input[type=date],.field input[type=number],.field input[type=tel]{text-transform:none}
-.field input:focus,.field select:focus{border-color:#2d9e5f;box-shadow:0 0 0 3px rgba(45,158,95,.10)}
-.field input::placeholder{color:#ccc}
-.field .hint{font-size:11px;color:#aaa;margin-top:5px}
-.req{color:#e74c3c}
-/* Buttons */
-.btn-row{display:flex;gap:12px;margin-top:24px}
-.btn-next{flex:1;padding:14px;background:#2d9e5f;border:none;border-radius:50px;color:#fff;font-size:15px;font-weight:800;cursor:pointer;transition:background .2s}
-.btn-next:hover{background:#1a6b3c}
-.btn-back{padding:14px 24px;background:#f3f4f6;border:none;border-radius:50px;color:#555;font-size:15px;font-weight:700;cursor:pointer}
-.btn-back:hover{background:#e5e7eb}
-/* OTP */
-.otp-row{display:flex;gap:10px;justify-content:center;margin:20px 0}
-.otp-box{width:52px;height:60px;text-align:center;font-size:24px;font-weight:800;color:#1a6b3c;border:1.5px solid #d1d5db;border-radius:12px;outline:none;background:#fff;transition:border-color .2s,box-shadow .2s}
-.otp-box:focus{border-color:#2d9e5f;box-shadow:0 0 0 3px rgba(45,158,95,.12)}
-.otp-status{padding:12px 16px;border-radius:10px;font-size:13px;margin:12px 0;text-align:center}
-.otp-ok{background:#f0faf4;color:#1a6b3c;border:1px solid #a8dfc0}
-.otp-err{background:#fff0f0;color:#c0392b;border:1px solid #f5c6c6}
-.otp-info{background:#f0f9ff;color:#0369a1;border:1px solid #bae6fd}
-/* Camera */
-.cam-wrap{position:relative;border-radius:14px;overflow:hidden;background:#000;margin-bottom:14px}
-#camFeed{width:100%;display:block;border-radius:14px}
-.face-oval{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:180px;height:220px;border:3px solid rgba(45,158,95,.85);border-radius:50%;pointer-events:none}
-.cam-hint{position:absolute;bottom:10px;left:0;right:0;text-align:center;color:#fff;font-size:12px;text-shadow:0 1px 3px rgba(0,0,0,.8)}
-/* Upload */
-.upload-area{border:2px dashed #c8e6d4;border-radius:12px;padding:28px 20px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;margin-bottom:14px}
-.upload-area:hover,.upload-area.has-file{border-color:#2d9e5f;background:#f8fffe}
-/* ID type */
-.id-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
-.id-card{border:2px solid #e5e7eb;border-radius:10px;padding:14px 10px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s}
-.id-card:hover{border-color:#2d9e5f;background:#f8fffe}
-.id-card.sel{border-color:#1a6b3c;background:#f0faf4}
-.id-card input{display:none}.id-card .ico{font-size:24px;margin-bottom:6px}.id-card .lbl{font-size:12px;font-weight:700;color:#333}
-/* Terms */
-.terms-row{display:flex;align-items:flex-start;gap:12px;margin:14px 0;font-size:13px;color:#555;line-height:1.6}
-.terms-row input{width:18px;height:18px;margin-top:2px;accent-color:#2d9e5f;cursor:pointer;flex-shrink:0}
-.terms-row a{color:#1a6b3c;font-weight:700;text-decoration:underline;cursor:pointer}
-/* Alert */
-.alert-err{background:#fff0f0;color:#c0392b;border:1px solid #f5c6c6;border-radius:10px;padding:14px 18px;font-size:13px;margin-bottom:18px}
-/* Footer */
-.footer-link{text-align:center;font-size:14px;color:#888;margin-top:20px}
-.footer-link a{color:#2d9e5f;font-weight:700;text-decoration:none}
-/* Modal */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
-.modal-overlay.active{display:flex}
-.modal{background:#fff;border-radius:18px;width:520px;max-width:95vw;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.2);overflow:hidden}
-.modal-header{padding:18px 22px;background:#f0faf4;border-bottom:2px solid #e0f2e9;display:flex;align-items:center;gap:10px}
-.modal-header h2{color:#1a6b3c;font-size:16px;font-weight:800;margin:0}
-.modal-body{padding:20px 22px;overflow-y:auto;flex:1;color:#444;font-size:13px;line-height:1.8}
-.modal-body h3{color:#1a6b3c;font-size:13px;margin:14px 0 4px;font-weight:700}
-.modal-body h3:first-child{margin-top:0}
-.modal-body p{margin-bottom:8px}
-.modal-footer{padding:14px 22px;border-top:2px solid #e0f2e9;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:#f8fffe}
-.modal-footer label{display:flex;align-items:center;gap:8px;color:#444;font-size:13px;cursor:pointer;font-weight:600}
-.scroll-hint{text-align:center;font-size:11px;color:#aaa;padding:6px 0 0}
-.btn-agree{padding:10px 24px;background:#2d9e5f;border:none;border-radius:50px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;opacity:.4;pointer-events:none}
-.btn-agree.enabled{opacity:1;pointer-events:all}
-.btn-cancel-modal{padding:10px 18px;background:transparent;border:1.5px solid #c8e6d4;border-radius:50px;color:#2d9e5f;font-size:13px;font-weight:600;cursor:pointer}
-@media(max-width:600px){.card{padding:28px 18px}.g2,.g3{grid-template-columns:1fr}.id-grid{grid-template-columns:1fr 1fr}.otp-box{width:42px;height:50px;font-size:20px}}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>E-Vote System — Voter Registration</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        body { background: #f0faf4; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 20px 0 40px; }
+        .reg-wrap { max-width: 700px; margin: 0 auto; padding: 0 16px; }
+        .reg-card { background: #fff; border-radius: 14px; box-shadow: 0 4px 24px rgba(45,158,95,.13); padding: 36px 40px 32px; }
+        h2.reg-title { text-align: center; color: #1a6b3c; margin: 0 0 6px; font-size: 1.5rem; }
+        p.reg-sub { text-align: center; color: #5a7a6a; margin: 0 0 24px; font-size: .93rem; }
+
+        /* Progress bar */
+        .progress-bar { display: flex; align-items: center; margin-bottom: 32px; }
+        .prog-step { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; }
+        .prog-circle { width: 36px; height: 36px; border-radius: 50%; background: #d4edda; color: #1a6b3c; font-weight: 700; font-size: .95rem; display: flex; align-items: center; justify-content: center; border: 2px solid #a8d5b5; transition: all .3s; z-index: 1; }
+        .prog-circle.active { background: #2d9e5f; color: #fff; border-color: #2d9e5f; box-shadow: 0 0 0 4px rgba(45,158,95,.18); }
+        .prog-circle.done { background: #1a6b3c; color: #fff; border-color: #1a6b3c; }
+        .prog-label { font-size: .72rem; color: #5a7a6a; margin-top: 5px; text-align: center; white-space: nowrap; }
+        .prog-label.active { color: #1a6b3c; font-weight: 600; }
+        .prog-line { flex: 1; height: 3px; background: #d4edda; margin: 0 -1px; margin-bottom: 22px; transition: background .3s; }
+        .prog-line.done { background: #2d9e5f; }
+
+        /* Steps */
+        .step { display: none; }
+        .step.active { display: block; }
+
+        /* Form elements */
+        .form-row { display: flex; gap: 14px; margin-bottom: 14px; }
+        .form-row .form-group { flex: 1; }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: .85rem; color: #2d5a3d; font-weight: 600; margin-bottom: 4px; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 9px 12px; border: 1.5px solid #b8d9c5; border-radius: 7px;
+            font-size: .93rem; color: #1a3a2a; background: #f8fdf9; box-sizing: border-box;
+            transition: border-color .2s;
+        }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #2d9e5f; background: #fff; }
+        .form-group .hint { font-size: .75rem; color: #7a9a8a; margin-top: 3px; }
+
+        /* Buttons */
+        .btn-primary { width: 100%; padding: 11px; background: #2d9e5f; color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background .2s; margin-top: 8px; }
+        .btn-primary:hover { background: #1a6b3c; }
+        .btn-primary:disabled { background: #a8d5b5; cursor: not-allowed; }
+        .btn-secondary { padding: 9px 22px; background: #e8f5ee; color: #1a6b3c; border: 1.5px solid #a8d5b5; border-radius: 8px; font-size: .93rem; font-weight: 600; cursor: pointer; transition: all .2s; }
+        .btn-secondary:hover { background: #d4edda; }
+        .btn-row { display: flex; gap: 12px; margin-top: 10px; }
+        .btn-row .btn-primary { flex: 2; margin-top: 0; }
+        .btn-row .btn-secondary { flex: 1; }
+
+        /* Alerts */
+        .alert { padding: 10px 14px; border-radius: 7px; margin-bottom: 14px; font-size: .9rem; }
+        .alert-error { background: #fde8e8; color: #c0392b; border: 1px solid #f5c6cb; }
+        .alert-success { background: #d4edda; color: #1a6b3c; border: 1px solid #a8d5b5; }
+        .alert-info { background: #e8f4fd; color: #1a5276; border: 1px solid #b8d9f5; }
+
+        /* OTP */
+        .otp-box { display: flex; gap: 10px; justify-content: center; margin: 18px 0; }
+        .otp-box input { width: 46px; height: 54px; text-align: center; font-size: 1.4rem; font-weight: 700; border: 2px solid #b8d9c5; border-radius: 8px; background: #f8fdf9; color: #1a3a2a; }
+        .otp-box input:focus { border-color: #2d9e5f; outline: none; background: #fff; }
+        .otp-info { text-align: center; color: #5a7a6a; font-size: .9rem; margin-bottom: 6px; }
+        .otp-resend { text-align: center; margin-top: 10px; font-size: .85rem; color: #5a7a6a; }
+        .otp-resend a { color: #2d9e5f; cursor: pointer; text-decoration: underline; }
+
+        /* ID upload */
+        .upload-area { border: 2px dashed #a8d5b5; border-radius: 10px; padding: 22px; text-align: center; background: #f8fdf9; cursor: pointer; transition: border-color .2s; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 120px; }
+        .upload-area:hover { border-color: #2d9e5f; }
+        .upload-area .upload-icon { font-size: 2rem; margin-bottom: 6px; }
+        .upload-area p { margin: 0; color: #5a7a6a; font-size: .88rem; }
+        .upload-hint { display: flex; flex-direction: column; align-items: center; }
+        #idPhotoPreview { width: 200px; height: 130px; object-fit: cover; border-radius: 8px; border: 2px solid #2d9e5f; display: none; margin: 0 auto; }
+
+        /* Camera */
+        .camera-wrap { position: relative; background: #1a3a2a; border-radius: 12px; overflow: hidden; margin-bottom: 14px; }
+        #cameraVideo { width: 100%; display: block; border-radius: 12px; }
+        #cameraCanvas { display: none; }
+        #selfiePreview { width: 100%; border-radius: 12px; display: none; }
+        .camera-btn-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 10px; }
+        .camera-btn-row button { padding: 9px 20px; border-radius: 8px; font-size: .93rem; font-weight: 600; cursor: pointer; border: none; }
+        #startCamBtn { background: #2d9e5f; color: #fff; }
+        #snapBtn { background: #1a6b3c; color: #fff; display: none; }
+        #retakeBtn { background: #e8f5ee; color: #1a6b3c; border: 1.5px solid #a8d5b5 !important; display: none; }
+
+        /* Terms modal */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-overlay.open { display: flex; }
+        .modal-box { background: #fff; border-radius: 14px; max-width: 520px; width: 94%; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 8px 40px rgba(0,0,0,.18); }
+        .modal-header { padding: 18px 22px 12px; border-bottom: 1px solid #e0ede6; }
+        .modal-header h3 { margin: 0; color: #1a6b3c; font-size: 1.1rem; }
+        .modal-body { padding: 16px 22px; overflow-y: auto; flex: 1; font-size: .88rem; color: #2d4a3a; line-height: 1.6; }
+        .modal-footer { padding: 14px 22px; border-top: 1px solid #e0ede6; display: flex; gap: 10px; justify-content: flex-end; }
+        #agreeBtn { background: #2d9e5f; color: #fff; border: none; padding: 9px 22px; border-radius: 7px; font-weight: 600; cursor: pointer; }
+        #agreeBtn:disabled { background: #a8d5b5; cursor: not-allowed; }
+        #declineBtn { background: #e8f5ee; color: #1a6b3c; border: 1.5px solid #a8d5b5; padding: 9px 18px; border-radius: 7px; font-weight: 600; cursor: pointer; }
+        .scroll-notice { font-size: .78rem; color: #7a9a8a; text-align: center; margin-top: 6px; }
+
+        /* Section headings */
+        .section-heading { font-size: .8rem; font-weight: 700; color: #2d9e5f; text-transform: uppercase; letter-spacing: .06em; margin: 18px 0 10px; padding-bottom: 4px; border-bottom: 1.5px solid #d4edda; }
+
+        /* Checkbox row */
+        .check-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+        .check-row input[type=checkbox] { width: 17px; height: 17px; accent-color: #2d9e5f; flex-shrink: 0; }
+        .check-row label { font-size: .88rem; color: #2d4a3a; }
+        .check-row a { color: #2d9e5f; cursor: pointer; text-decoration: underline; }
+
+        /* Step icons */
+        .step-icon { text-align: center; font-size: 2.2rem; margin-bottom: 6px; }
+        .step-title { text-align: center; font-size: 1.15rem; font-weight: 700; color: #1a6b3c; margin-bottom: 4px; }
+        .step-desc { text-align: center; font-size: .88rem; color: #5a7a6a; margin-bottom: 20px; }
+
+        @media (max-width: 540px) {
+            .reg-card { padding: 22px 14px 20px; }
+            .form-row { flex-direction: column; gap: 0; }
+            .prog-label { font-size: .65rem; }
+        }
+    </style>
 </head>
 <body>
+<div class="reg-wrap">
+  <div class="reg-card">
+
+    <h2 class="reg-title">&#128683; Voter Registration</h2>
+    <p class="reg-sub">Complete all steps to register as a voter</p>
+
+    <!-- Alerts from server -->
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar">
+      <div class="prog-step">
+        <div class="prog-circle active" id="pc1">1</div>
+        <div class="prog-label active" id="pl1">Register</div>
+      </div>
+      <div class="prog-line" id="pline1"></div>
+      <div class="prog-step">
+        <div class="prog-circle" id="pc2">2</div>
+        <div class="prog-label" id="pl2">OTP</div>
+      </div>
+      <div class="prog-line" id="pline2"></div>
+      <div class="prog-step">
+        <div class="prog-circle" id="pc3">3</div>
+        <div class="prog-label" id="pl3">ID Verify</div>
+      </div>
+      <div class="prog-line" id="pline3"></div>
+      <div class="prog-step">
+        <div class="prog-circle" id="pc4">4</div>
+        <div class="prog-label" id="pl4">Face Verify</div>
+      </div>
+    </div>
+
+    <!-- MAIN FORM -->
+    <form id="regForm" method="post" th:action="@{/register/submit}" enctype="multipart/form-data">
+      <input type="hidden" name="selfieData" id="selfieData" value="">
+      <input type="hidden" name="otpVerified" id="otpVerified" value="false">
+      <input type="hidden" name="name" id="hiddenName" value="">
+
+      <!-- ═══════════════════════════════════════════════════════════
+           STEP 1 — Basic Registration
+      ═══════════════════════════════════════════════════════════ -->
+      <div class="step active" id="step1">
+        <div class="step-icon">&#128100;</div>
+        <div class="step-title">Basic Information</div>
+        <div class="step-desc">Fill in your personal details to create your voter account</div>
+
+        <div id="step1Alert"></div>
+
+        <div class="section-heading">Personal Details</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">First Name *</label>
+            <input type="text" id="firstName" name="firstName" placeholder="Juan" required>
+          </div>
+          <div class="form-group">
+            <label for="middleName">Middle Name</label>
+            <input type="text" id="middleName" name="middleName" placeholder="Santos">
+          </div>
+          <div class="form-group">
+            <label for="lastName">Last Name *</label>
+            <input type="text" id="lastName" name="lastName" placeholder="Dela Cruz" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="dateOfBirth">Date of Birth *</label>
+            <input type="date" id="dateOfBirth" name="dateOfBirth" required>
+          </div>
+          <div class="form-group">
+            <label for="gender">Gender *</label>
+            <select id="gender" name="gender" required>
+              <option value="">Select gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other / Prefer not to say</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="section-heading">Address</div>
+        <div class="form-group">
+          <label for="street">Street / House No. *</label>
+          <input type="text" id="street" name="street" placeholder="123 Rizal St." required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="city">City / Municipality *</label>
+            <select id="city" name="city" required onchange="populateBarangay()">
+              <option value="">Select city</option>
+              <option value="Calamba">Calamba</option>
+              <option value="San Pablo">San Pablo</option>
+              <option value="Santa Rosa">Santa Rosa</option>
+              <option value="Binan">Binan</option>
+              <option value="Cabuyao">Cabuyao</option>
+              <option value="San Pedro">San Pedro</option>
+              <option value="Los Banos">Los Banos</option>
+              <option value="Bay">Bay</option>
+              <option value="Calauan">Calauan</option>
+              <option value="Nagcarlan">Nagcarlan</option>
+              <option value="Liliw">Liliw</option>
+              <option value="Majayjay">Majayjay</option>
+              <option value="Luisiana">Luisiana</option>
+              <option value="Magdalena">Magdalena</option>
+              <option value="Pagsanjan">Pagsanjan</option>
+              <option value="Paete">Paete</option>
+              <option value="Pakil">Pakil</option>
+              <option value="Pangil">Pangil</option>
+              <option value="Siniloan">Siniloan</option>
+              <option value="Famy">Famy</option>
+              <option value="Mabitac">Mabitac</option>
+              <option value="Santa Maria">Santa Maria</option>
+              <option value="Cavinti">Cavinti</option>
+              <option value="Lumban">Lumban</option>
+              <option value="Pila">Pila</option>
+              <option value="Victoria">Victoria</option>
+              <option value="Rizal">Rizal</option>
+              <option value="Alaminos">Alaminos</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="barangay">Barangay *</label>
+            <select id="barangay" name="barangay" required>
+              <option value="">Select city first</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="province">Province</label>
+            <input type="text" id="province" name="province" value="Laguna" readonly style="background:#e8f5ee;color:#5a7a6a;">
+          </div>
+          <div class="form-group">
+            <label for="zipCode">ZIP Code</label>
+            <input type="text" id="zipCode" name="zipCode" placeholder="4027" maxlength="4">
+          </div>
+        </div>
+
+        <div class="section-heading">Contact Information</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="mobileNumber">Mobile Number *</label>
+            <input type="tel" id="mobileNumber" name="mobileNumber" placeholder="09XXXXXXXXX" maxlength="11" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Email Address *</label>
+            <input type="email" id="email" name="email" placeholder="juan@email.com" required>
+          </div>
+        </div>
+
+        <div class="section-heading">Account Credentials</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="voterId">Username / Voter ID *</label>
+            <input type="text" id="voterId" name="voterId" placeholder="e.g. VOTER-001" required>
+            <div class="hint">This will be your login username</div>
+          </div>
+          <div class="form-group">
+            <label for="votingDistrict">Voting District</label>
+            <input type="text" id="votingDistrict" name="votingDistrict" placeholder="District 1">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="password">Password *</label>
+            <input type="password" id="password" name="password" placeholder="Min. 6 characters" required minlength="6">
+          </div>
+          <div class="form-group">
+            <label for="confirm">Confirm Password *</label>
+            <input type="password" id="confirm" name="confirm" placeholder="Repeat password" required>
+          </div>
+        </div>
+
+        <div class="check-row">
+          <input type="checkbox" id="termsCheck">
+          <label for="termsCheck">I have read and agree to the <a onclick="openTerms()">Terms and Conditions</a></label>
+        </div>
+
+        <button type="button" class="btn-primary" onclick="validateStep1()" style="margin-top:18px;">
+          Next: Verify Email &#8594;
+        </button>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════════
+           STEP 2 — OTP Verification
+      ═══════════════════════════════════════════════════════════ -->
+      <div class="step" id="step2">
+        <div class="step-icon">&#128233;</div>
+        <div class="step-title">Email Verification</div>
+        <div class="step-desc">Enter the 6-digit code sent to your email address</div>
+
+        <div id="step2Alert"></div>
+
+        <p class="otp-info" id="otpSentMsg">Sending OTP to your email...</p>
+
+        <div class="otp-box">
+          <input type="text" maxlength="1" class="otp-digit" id="otp0" oninput="otpInput(this,0)" onkeydown="otpKeydown(event,0)">
+          <input type="text" maxlength="1" class="otp-digit" id="otp1" oninput="otpInput(this,1)" onkeydown="otpKeydown(event,1)">
+          <input type="text" maxlength="1" class="otp-digit" id="otp2" oninput="otpInput(this,2)" onkeydown="otpKeydown(event,2)">
+          <input type="text" maxlength="1" class="otp-digit" id="otp3" oninput="otpInput(this,3)" onkeydown="otpKeydown(event,3)">
+          <input type="text" maxlength="1" class="otp-digit" id="otp4" oninput="otpInput(this,4)" onkeydown="otpKeydown(event,4)">
+          <input type="text" maxlength="1" class="otp-digit" id="otp5" oninput="otpInput(this,5)" onkeydown="otpKeydown(event,5)">
+        </div>
+
+        <div class="otp-resend">
+          Didn't receive the code? <a onclick="resendOtp()">Resend OTP</a>
+        </div>
+
+        <button type="button" class="btn-primary" id="verifyOtpBtn" onclick="verifyOtp()" style="margin-top:16px;">
+          &#10003; Verify Code
+        </button>
+
+        <div style="margin-top:12px;">
+          <button type="button" class="btn-secondary" onclick="goToStep(1)">&#8592; Back</button>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════════
+           STEP 3 — ID Verification
+      ═══════════════════════════════════════════════════════════ -->
+      <div class="step" id="step3">
+        <div class="step-icon">&#128196;</div>
+        <div class="step-title">ID Verification</div>
+        <div class="step-desc">Provide a valid government-issued ID for identity verification</div>
+
+        <div id="step3Alert"></div>
+
+        <div class="form-group">
+          <label for="idType">ID Type *</label>
+          <select id="idType" name="idType" onchange="checkStep3()">
+            <option value="">Select ID type</option>
+            <option value="Philippine Passport">Philippine Passport</option>
+            <option value="National ID (PhilSys)">National ID (PhilSys)</option>
+            <option value="Driver's License">Driver's License</option>
+            <option value="Voter's ID">Voter's ID</option>
+            <option value="SSS ID">SSS ID</option>
+            <option value="PhilHealth ID">PhilHealth ID</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="idNumber">ID Number *</label>
+          <input type="text" id="idNumber" name="idNumber" placeholder="Enter your ID number" oninput="checkStep3()">
+        </div>
+
+        <div class="form-group">
+          <label>Upload ID Photo *</label>
+          <div class="upload-area" id="uploadArea" onclick="document.getElementById('idPhoto').click()">
+            <div class="upload-hint" id="uploadHint">
+              <div class="upload-icon">&#128247;</div>
+              <p>Click to upload a clear photo of your ID</p>
+              <p style="font-size:.78rem;margin-top:4px;color:#a8c5b5;">JPG or PNG — max 10MB — must be clear and readable</p>
+            </div>
+            <img id="idPhotoPreview" alt="ID Preview">
+          </div>
+          <input type="file" id="idPhoto" name="idPhoto" accept="image/*" style="display:none" onchange="previewIdPhoto()">
+        </div>
+
+        <div class="form-group">
+          <label for="voterIdNumber">Voter ID Number (optional)</label>
+          <input type="text" id="voterIdNumber" name="voterIdNumber" placeholder="If you have an existing Voter ID">
+        </div>
+
+        <div class="btn-row">
+          <button type="button" class="btn-secondary" onclick="goToStep(2)">&#8592; Back</button>
+          <button type="button" class="btn-primary" id="step3NextBtn" onclick="goToStep(4)" disabled>
+            Next: Face Verify &#8594;
+          </button>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════════
+           STEP 4 — Face Verification
+      ═══════════════════════════════════════════════════════════ -->
+      <div class="step" id="step4">
+        <div class="step-icon">&#129333;</div>
+        <div class="step-title">Face Verification</div>
+        <div class="step-desc">Take a selfie to verify your identity against your ID photo</div>
+
+        <div id="step4Alert"></div>
+
+        <div class="camera-wrap">
+          <video id="cameraVideo" autoplay playsinline></video>
+          <canvas id="cameraCanvas"></canvas>
+          <img id="selfiePreview" alt="Selfie Preview">
+        </div>
+
+        <div class="camera-btn-row">
+          <button type="button" id="startCamBtn" onclick="startCamera()">&#128247; Start Camera</button>
+          <button type="button" id="snapBtn" onclick="takeSelfie()">&#9711; Take Photo</button>
+          <button type="button" id="retakeBtn" onclick="retakeSelfie()">&#8635; Retake</button>
+        </div>
+
+        <div class="btn-row">
+          <button type="button" class="btn-secondary" onclick="goToStep(3)">&#8592; Back</button>
+          <button type="button" class="btn-secondary" onclick="skipSelfie()" style="flex:1;">Skip</button>
+          <button type="submit" class="btn-primary" id="submitBtn" onclick="return prepareSubmit()">
+            &#10003; Submit Registration
+          </button>
+        </div>
+      </div>
+
+    </form>
+
+    <div style="text-align:center;margin-top:18px;font-size:.88rem;color:#5a7a6a;">
+      Already registered? <a th:href="@{/login}" style="color:#2d9e5f;font-weight:600;">Sign in here</a>
+    </div>
+
+  </div>
+</div>
 
 <!-- Terms Modal -->
 <div class="modal-overlay" id="termsModal">
-  <div class="modal">
-    <div class="modal-header"><span>📋</span><h2>Terms &amp; Conditions / Privacy Policy</h2></div>
-    <div class="modal-body" id="modalBody" onscroll="chkScroll()">
-      <h3>1. Eligibility</h3><p>You confirm all information provided is accurate and truthful.</p>
-      <h3>2. One Vote Per Voter</h3><p>Each voter may cast exactly one vote per election.</p>
-      <h3>3. Identity Verification</h3><p>You consent to face verification using your uploaded ID and selfie for identity purposes only.</p>
-      <h3>4. Confidentiality</h3><p>Keep your Voter ID and password confidential at all times.</p>
-      <h3>5. Data Privacy (R.A. 10173)</h3><p>Your personal information is collected and processed in compliance with the Data Privacy Act of 2012, solely for voter verification and election administration.</p>
-      <h3>6. Election Integrity</h3><p>Any attempt to manipulate the voting process is strictly prohibited and may result in legal action.</p>
-      <h3>7. Finality of Vote</h3><p>Once cast, your vote is final and cannot be changed.</p>
-      <h3>8. OTP Verification</h3><p>An OTP sent to your email verifies your identity. It expires in 10 minutes and must not be shared.</p>
-      <h3>9. Acceptance</h3><p>By clicking "I Agree", you accept these Terms &amp; Conditions and Privacy Policy in full.</p>
-      <div class="scroll-hint" id="scrollHint">↓ Scroll to read all terms</div>
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>&#128220; Terms and Conditions</h3>
     </div>
+    <div class="modal-body" id="termsBody" onscroll="checkTermsScroll()">
+      <p><strong>E-Vote System — Voter Registration Terms and Conditions</strong></p>
+      <p>By registering as a voter in the E-Vote System, you agree to the following terms and conditions. Please read them carefully before proceeding.</p>
+      <p><strong>1. Eligibility</strong><br>
+      You must be a Filipino citizen, at least 18 years of age, and a resident of the municipality or city where you are registering. You must not be disqualified from voting under existing laws.</p>
+      <p><strong>2. Accuracy of Information</strong><br>
+      You certify that all information provided during registration is true, accurate, and complete. Providing false information is a violation of election laws and may result in criminal liability.</p>
+      <p><strong>3. One Registration Per Voter</strong><br>
+      Each eligible voter may only register once. Duplicate registrations are prohibited and will be rejected. Any attempt to register multiple times may result in disqualification.</p>
+      <p><strong>4. Privacy and Data Protection</strong><br>
+      Your personal information will be collected, stored, and processed in accordance with the Data Privacy Act of 2012 (Republic Act No. 10173). Your data will only be used for voter registration and election purposes.</p>
+      <p><strong>5. ID Verification</strong><br>
+      You consent to the submission and verification of your government-issued ID. The system may use facial recognition technology to verify your identity against your submitted ID photo.</p>
+      <p><strong>6. Account Security</strong><br>
+      You are responsible for maintaining the confidentiality of your account credentials. Do not share your username or password with anyone. Report any unauthorized access immediately.</p>
+      <p><strong>7. Voting Integrity</strong><br>
+      You agree to cast your vote honestly and independently. Vote buying, selling, or any form of electoral fraud is strictly prohibited and punishable by law.</p>
+      <p><strong>8. System Use</strong><br>
+      You agree to use the E-Vote System only for its intended purpose. Any attempt to manipulate, hack, or disrupt the system is a criminal offense.</p>
+      <p><strong>9. Approval Process</strong><br>
+      Registration is subject to review and approval by the election administrator. You will be notified of the status of your registration.</p>
+      <p><strong>10. Amendments</strong><br>
+      These terms may be updated from time to time. Continued use of the system constitutes acceptance of any changes.</p>
+      <p style="margin-top:16px;color:#7a9a8a;font-size:.82rem;">By clicking "I Agree", you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.</p>
+    </div>
+    <div class="scroll-notice" id="scrollNotice">Please scroll to the bottom to enable the Agree button</div>
     <div class="modal-footer">
-      <label><input type="checkbox" id="agreeCheck" onchange="toggleAgree()" disabled> I agree to the Terms &amp; Conditions and Privacy Policy</label>
-      <div style="display:flex;gap:8px">
-        <button class="btn-cancel-modal" onclick="closeModal()">Cancel</button>
-        <button class="btn-agree" id="agreeBtn" onclick="acceptTerms()">I Agree ✓</button>
-      </div>
+      <button id="declineBtn" onclick="declineTerms()">Decline</button>
+      <button id="agreeBtn" onclick="agreeTerms()" disabled>I Agree</button>
     </div>
   </div>
-</div>
-
-<div class="card">
-  <div style="text-align:center;font-size:28px;margin-bottom:6px">🗳</div>
-  <h1>Create Account</h1>
-  <p class="subtitle">E-Vote System — Voter Registration</p>
-
-  <!-- Progress bar — 4 steps matching the spec -->
-  <div class="prog-wrap">
-    <div class="prog-step active" id="ps1"><div class="dot">1</div><div class="lbl">Register</div></div>
-    <div class="prog-line" id="pl1"></div>
-    <div class="prog-step" id="ps2"><div class="dot">2</div><div class="lbl">OTP</div></div>
-    <div class="prog-line" id="pl2"></div>
-    <div class="prog-step" id="ps3"><div class="dot">3</div><div class="lbl">ID Verify</div></div>
-    <div class="prog-line" id="pl3"></div>
-    <div class="prog-step" id="ps4"><div class="dot">4</div><div class="lbl">Face Verify</div></div>
-  </div>
-
-  <div id="stepError" class="alert-err" style="display:none"></div>
-  <div th:if="${error}" class="alert-err" th:text="${error}"></div>
-
-  <form method="post" th:action="@{/register/submit}" id="regForm" enctype="multipart/form-data">
-    <input type="hidden" name="selfieData" id="selfieData">
-    <input type="hidden" name="otpVerified" id="otpVerified" value="false">
-    <input type="hidden" name="name" id="fullName">
-
-    <!-- ══ STEP 1: Basic Registration ══════════════════════ -->
-    <div class="step-panel active" id="sp1">
-      <div class="sec-title">🧾 Step 1 — Basic Registration</div>
-
-      <div class="sec-title" style="margin-top:0">👤 Personal Information</div>
-      <div class="g3">
-        <div class="field"><label>First Name <span class="req">*</span></label><input type="text" name="firstName" id="fn" required></div>
-        <div class="field"><label>Middle Name</label><input type="text" name="middleName"></div>
-        <div class="field"><label>Last Name <span class="req">*</span></label><input type="text" name="lastName" id="ln" required></div>
-      </div>
-      <div class="g2">
-        <div class="field"><label>Date of Birth <span class="req">*</span></label><input type="date" name="dateOfBirth" id="dob" required><div class="hint">Must be 18+</div></div>
-        <div class="field"><label>Gender</label>
-          <select name="gender"><option value="" disabled selected>Select gender</option><option>Male</option><option>Female</option><option>Other</option><option>Prefer not to say</option></select>
-        </div>
-      </div>
-
-      <div class="sec-title">📍 Address</div>
-      <div class="field"><label>House/Unit No. &amp; Street <span class="req">*</span></label><input type="text" name="street" required></div>
-      <div class="g2">
-        <div class="field"><label>Barangay <span class="req">*</span></label>
-          <select name="barangay" id="brgySelect" required><option value="" disabled selected>Select city first</option></select>
-        </div>
-        <div class="field"><label>City / Municipality <span class="req">*</span></label>
-          <select name="city" id="citySelect" onchange="onCity(this.value)" required>
-            <option value="" disabled selected>Select city</option>
-            <option>Alaminos</option><option>Bay</option><option>Biñan</option><option>Cabuyao</option>
-            <option>Calamba</option><option>Calauan</option><option>Cavinti</option><option>Famy</option>
-            <option>Kalayaan</option><option>Liliw</option><option>Los Baños</option><option>Luisiana</option>
-            <option>Lumban</option><option>Mabitac</option><option>Magdalena</option><option>Majayjay</option>
-            <option>Nagcarlan</option><option>Paete</option><option>Pagsanjan</option><option>Pakil</option>
-            <option>Pangil</option><option>Pila</option><option>Rizal</option><option>San Pablo</option>
-            <option>San Pedro</option><option>Santa Cruz</option><option>Santa Maria</option>
-            <option>Santo Tomas</option><option>Siniloan</option><option>Victoria</option>
-          </select>
-        </div>
-      </div>
-      <div class="g2">
-        <div class="field"><label>Province</label><input type="text" name="province" value="Laguna" readonly style="background:#f0faf4;color:#1a6b3c;font-weight:700;cursor:not-allowed"></div>
-        <div class="field"><label>ZIP Code</label><input type="text" name="zipCode" id="zipField" placeholder="Auto-filled" readonly style="background:#f0faf4;color:#1a6b3c;font-weight:700;cursor:not-allowed"></div>
-      </div>
-
-      <div class="sec-title">📞 Contact &amp; Account</div>
-      <div class="field"><label>Mobile Number <span class="req">*</span></label><input type="tel" name="mobileNumber" id="mobile" placeholder="09XXXXXXXXX" required><div class="hint">Philippine format: 09XXXXXXXXX</div></div>
-      <div class="field"><label>Email Address <span class="req">*</span></label><input type="email" name="email" id="emailField" placeholder="example@gmail.com" required><div class="hint">OTP will be sent here</div></div>
-      <div class="field"><label>Username / Voter ID <span class="req">*</span></label><input type="text" name="voterId" id="voterId" required><div class="hint">This will be your login username</div></div>
-      <div class="g2">
-        <div class="field"><label>Password <span class="req">*</span></label><input type="password" name="password" id="pw" required></div>
-        <div class="field"><label>Confirm Password <span class="req">*</span></label><input type="password" name="confirm" id="cpw" required></div>
-      </div>
-
-      <div class="sec-title">✅ Agreements</div>
-      <div class="terms-row">
-        <input type="checkbox" id="termsCheck">
-        <label for="termsCheck">I have read and agree to the <a onclick="openModal()">Terms &amp; Conditions</a> and <a onclick="openModal()">Privacy Policy</a>.</label>
-      </div>
-      <div class="terms-row">
-        <input type="checkbox" id="privacyCheck">
-        <label for="privacyCheck">I consent to the collection of my personal data under the <strong>Data Privacy Act of 2012 (R.A. 10173)</strong>.</label>
-      </div>
-
-      <div class="btn-row"><button type="button" class="btn-next" onclick="step1Next()">📧 Register &amp; Send OTP →</button></div>
-    </div>
-
-    <!-- ══ STEP 2: OTP Verification ══════════════════════════ -->
-    <div class="step-panel" id="sp2">
-      <div style="text-align:center;font-size:40px;margin-bottom:10px">📧</div>
-      <div class="sec-title" style="text-align:center">Step 2 — OTP Verification</div>
-      <p style="font-size:13px;color:#555;margin-bottom:6px;text-align:center">We sent a 6-digit code to your email.</p>
-      <p style="color:#1a6b3c;font-weight:700;font-size:14px;text-align:center;margin-bottom:16px" id="otpEmailDisplay"></p>
-      <p style="font-size:12px;color:#888;text-align:center;margin-bottom:16px">Verify your contact first to make sure it's valid and avoid fake registrations.</p>
-
-      <div class="otp-row">
-        <input class="otp-box" type="text" maxlength="1" id="o1" oninput="om(this,'o2')" onkeydown="ob(event,this,'')">
-        <input class="otp-box" type="text" maxlength="1" id="o2" oninput="om(this,'o3')" onkeydown="ob(event,this,'o1')">
-        <input class="otp-box" type="text" maxlength="1" id="o3" oninput="om(this,'o4')" onkeydown="ob(event,this,'o2')">
-        <input class="otp-box" type="text" maxlength="1" id="o4" oninput="om(this,'o5')" onkeydown="ob(event,this,'o3')">
-        <input class="otp-box" type="text" maxlength="1" id="o5" oninput="om(this,'o6')" onkeydown="ob(event,this,'o4')">
-        <input class="otp-box" type="text" maxlength="1" id="o6" oninput="om(this,'')"   onkeydown="ob(event,this,'o5')">
-      </div>
-      <div id="otpMsg"></div>
-      <button type="button" class="btn-next" id="verifyOtpBtn" onclick="verifyOtp()" style="width:100%;margin-bottom:10px">✓ Verify Code</button>
-      <p style="text-align:center;font-size:12px;color:#aaa">Code expires in <span id="otpTimer">10:00</span> &nbsp;|&nbsp;
-        <a href="#" onclick="resendOtp();return false" style="color:#2d9e5f;font-weight:700">Resend</a></p>
-
-      <div class="btn-row" style="margin-top:16px">
-        <button type="button" class="btn-back" onclick="go(1)">← Back</button>
-        <button type="button" class="btn-next" id="step2Next" onclick="go(3)" disabled>Next →</button>
-      </div>
-    </div>
-
-    <!-- ══ STEP 3: ID Verification ═══════════════════════════ -->
-    <div class="step-panel" id="sp3">
-      <div style="text-align:center;font-size:40px;margin-bottom:10px">🪪</div>
-      <div class="sec-title" style="text-align:center">Step 3 — ID Verification</div>
-      <p style="font-size:13px;color:#555;margin-bottom:16px;text-align:center">Select your ID type, enter your ID number, and upload a clear photo of your valid government ID.</p>
-
-      <div class="sec-title" style="margin-top:0">Select ID Type <span class="req">*</span></div>
-      <div class="id-grid">
-        <label class="id-card" onclick="selId(this,'Philippine Passport')"><input type="radio" name="idType" value="Philippine Passport"><div class="ico">📘</div><div class="lbl">Passport</div></label>
-        <label class="id-card" onclick="selId(this,'National ID (PhilSys)')"><input type="radio" name="idType" value="National ID (PhilSys)"><div class="ico">🪪</div><div class="lbl">National ID</div></label>
-        <label class="id-card" onclick="selId(this,'Drivers License')"><input type="radio" name="idType" value="Driver's License"><div class="ico">🚗</div><div class="lbl">Driver's License</div></label>
-        <label class="id-card" onclick="selId(this,'Voters ID')"><input type="radio" name="idType" value="Voter's ID"><div class="ico">🗳</div><div class="lbl">Voter's ID</div></label>
-        <label class="id-card" onclick="selId(this,'SSS ID')"><input type="radio" name="idType" value="SSS ID"><div class="ico">🏛</div><div class="lbl">SSS ID</div></label>
-        <label class="id-card" onclick="selId(this,'PhilHealth ID')"><input type="radio" name="idType" value="PhilHealth ID"><div class="ico">🏥</div><div class="lbl">PhilHealth ID</div></label>
-      </div>
-
-      <div class="field"><label>ID Number <span class="req">*</span></label><input type="text" name="idNumber" id="idNumberField" placeholder="Enter your ID number" required></div>
-
-      <div class="sec-title">Upload ID Photo <span class="req">*</span></div>
-      <div class="upload-area" id="uploadArea" onclick="document.getElementById('idPhoto').click()">
-        <div style="font-size:28px;margin-bottom:6px">📤</div>
-        <p style="font-size:13px;color:#666;font-weight:600">Click to upload ID photo</p>
-        <p style="font-size:11px;color:#aaa;margin-top:3px">JPG or PNG — max 10MB — must be clear and readable</p>
-        <img id="idPreview" src="" alt="" style="max-width:100%;max-height:160px;border-radius:8px;margin-top:8px;display:none">
-      </div>
-      <input type="file" name="idPhoto" id="idPhoto" accept="image/*" style="display:none" onchange="prevId(this)">
-
-      <div class="btn-row">
-        <button type="button" class="btn-back" onclick="go(2)">← Back</button>
-        <button type="button" class="btn-next" onclick="step3Next()">Next: Take Selfie →</button>
-      </div>
-    </div>
-
-    <!-- ══ STEP 4: Face Verification ═════════════════════════ -->
-    <div class="step-panel" id="sp4">
-      <div style="text-align:center;font-size:40px;margin-bottom:10px">📸</div>
-      <div class="sec-title" style="text-align:center">Step 4 — Face Verification</div>
-      <p style="font-size:13px;color:#555;margin-bottom:16px;text-align:center">
-        Take a selfie to confirm you are the same person as in your ID.<br>
-        <span style="color:#888;font-size:12px">This ensures the ID belongs to you.</span>
-      </p>
-
-      <div id="camSection">
-        <div class="cam-wrap"><video id="camFeed" autoplay playsinline muted></video><div class="face-oval"></div><div class="cam-hint">Align your face with the oval</div></div>
-        <div class="btn-row">
-          <button type="button" class="btn-next" onclick="snap()">📸 Take Selfie</button>
-          <button type="button" class="btn-back" onclick="skipFace()">Skip →</button>
-        </div>
-      </div>
-      <div id="selfieSection" style="display:none">
-        <img id="selfiePreview" src="" alt="" style="width:100%;border-radius:12px;border:3px solid #2d9e5f;margin-bottom:10px">
-        <div class="otp-status otp-ok">✅ Selfie captured! System will compare with your ID.</div>
-        <button type="button" class="btn-back" style="width:100%;margin-bottom:10px" onclick="retake()">🔄 Retake Selfie</button>
-      </div>
-
-      <div style="background:#f0faf4;border:1.5px solid #a8dfc0;border-radius:10px;padding:14px;margin:16px 0;font-size:13px;color:#555">
-        <strong style="color:#1a6b3c">⏳ What happens next?</strong><br>
-        After submitting, an admin will review your ID and face match.<br>
-        ✅ Approved → you can log in and vote<br>
-        ❌ Rejected → you'll receive a reason by email
-      </div>
-
-      <div class="btn-row">
-        <button type="button" class="btn-back" onclick="stopCam();go(3)">← Back</button>
-        <button type="button" class="btn-next" onclick="submitFinal()">✅ Submit Registration</button>
-      </div>
-    </div>
-
-  </form>
-  <div class="footer-link">Already have an account? <a th:href="@{/login}">Sign in</a></div>
 </div>
 
 <script>
-// ── Navigation (4 steps) ──────────────────────────────────────
-let cur = 1;
-const TOTAL = 4;
+// ─── Barangay data ────────────────────────────────────────────────────────────
+var barangayData = {
+  "Calamba": ["Bagong Kalsada","Banadero","Banlic","Batino","Burol","Canlubang","Halang","Laguerta","Lawa","Lecheria","Lingga","Looc","Mabato","Makiling","Mapagong","Masili","Maunong","Mayapa","Milagrosa","Paciano Rizal","Palingon","Palo-Alto","Pansol","Parian","Prinza","Punta","Putho-Tuntungin","Real","Saimsim","Sampiruhan","San Cristobal","San Jose","San Juan","Sirang Lupa","Sucol","Turbina","Ulango","Uno"],
+  "San Pablo": ["Atisan","Bagong Bayan","Barangay I","Barangay II","Barangay III","Barangay IV","Barangay V","Barangay VI","Barangay VII","Concepcion","Del Remedio","Dolores","San Buenaventura","San Francisco","San Gabriel","San Gregorio","San Ignacio","San Jose","San Juan","San Lucas I","San Lucas II","San Marcos","San Mateo","San Miguel","San Nicolas","San Pedro","San Rafael","San Roque","San Salvador","San Vicente","Santa Ana","Santa Catalina","Santa Cruz","Santa Elena","Santa Filomena","Santa Isabel","Santa Maria","Santa Monica","Santa Veronica","Santiago I","Santiago II","Santisimo Rosario","Santo Angel","Santo Cristo","Santo Nino","Soledad"],
+  "Santa Rosa": ["Aplaya","Balibago","Caingin","Dila","Dita","Don Jose","Ibaba","Kanluran","Labas","Macabling","Malitlit","Malusak","Market Area","Pooc","Pulong Santa Cruz","Sinalhan","Tagapo"],
+  "Binan": ["Bungahan","Canlalay","Casile","De La Paz","Ganado","Langkiwa","Loma","Malaban","Malamig","Mampalasan","Platero","Poblacion","San Antonio","San Francisco","San Jose","San Vicente","Santo Domingo","Santo Tomas","Soro-soro","Timbao","Tubigan","Zapote"],
+  "Cabuyao": ["Baclaran","Banay-Banay","Banlic","Bigaa","Butong","Casile","Diezmo","Gulod","Mamatid","Marinig","Niugan","Pittland","Pulo","Sala","San Isidro","Barangay I","Barangay II","Barangay III"],
+  "San Pedro": ["Bagong Silang","Calendola","Chrysanthemum","Cuyab","Estrella","Fatima","G.S.I.S.","Landayan","Langgam","Laram","Magsaysay","Maharlika","Narra","Nueva","Pacita I","Pacita II","Palatiw","Poblacion","Riverside","Rosario","Sampaguita","San Antonio","San Lorenzo","San Vicente","Santo Nino","Siena","Southside","United Bayanihan","United Better Living"],
+  "Los Banos": ["Bagong Silang","Bambang","Batong Malake","Baybayin","Bayog","Lalakay","Maahas","Malinta","Mayondon","Putho-Tuntungin","San Antonio","Tadlak","Timugan","Anos"],
+  "Bay": ["Bitin","Calo","Dila","Maitim","Masaya","Paciano Rizal","Palayan","Poblacion","San Agustin","San Antonio","San Isidro","San Nicolas","Tagumpay","Tranca"],
+  "Calauan": ["Balayhangin","Bangyas","Bukal","Burol","Dayap","Hanggan","Imok","Laguio","Lamot I","Lamot II","Limao","Mabacan","Masiit","Paliparan","Perez","Poblacion","Prinza","San Isidro","San Jose","Tubuan"],
+  "Nagcarlan": ["Bukal Norte","Bukal Sur","Ibabang Bukal","Ibabang Palina","Ibabang Sungi","Ibabang Taykin","Ilayang Bukal","Ilayang Palina","Ilayang Sungi","Ilayang Taykin","Kanlurang Bukal","Laguan","Laguio","Malinao","Maravilla","Nagcarlan Poblacion","Nanguma","Palestina","Palina","Pangil","Pinagkawitan","Pinagtagytayan","Poblacion","Pook","Pulo","Regidor","San Isidro","San Jose","San Pablo","Santa Lucia","Santo Nino","Silangan","Sulsuguin","Talangka","Tuy"],
+  "Liliw": ["Bagong Anyo","Bukal","Bungkol","Buo","Burlungan","Cigaras","Halayhayin","Ilayang Iyam","Ilog","Ilumin","Kanlurang Iyam","Labayo","Lalo","Lumbangan","Lunos","Malinao","Maravilla","Naganacan","Nagatmukan","Paagahan","Poblacion","San Isidro","San Jose","Talo-talo","Tanawan","Tipunan"],
+  "Majayjay": ["Aldavoc","Alumbrado","Amuyong","Balanac","Balayong","Balimbing","Bukal","Bunga","Bungkol","Buo","Burol","Coralao","Gagalot","Ibabang Banga","Ibabang Bayucain","Ilayang Banga","Ilayang Bayucain","Isabang","Majayjay Poblacion","Malbog","Malhilig","Malibu","Malinao","Maravilla","Mataas na Lupa","Nanguma","Opak","Oples","Pag-asa","Palayan","Palina","Piit","Pinagbayanan","Platero","Pook","Puypuy","Rizal","Saray","Talortor","Tamlong","Tipunan","Tongko","Udia","Wawa"],
+  "Luisiana": ["Barangay I","Barangay II","Barangay III","Barangay IV","Barangay V","Barangay VI","Barangay VII","Barangay VIII","Barangay IX","Barangay X","Barangay XI","Barangay XII","Barangay XIII"],
+  "Magdalena": ["Alipit","Baanan","Balanac","Bucal","Buenavista","Bungkol","Buo","Burol","Cigaras","Halayhayin","Ibabang Iyam","Ilayang Iyam","Ilog","Ilumin","Kanlurang Iyam","Labayo","Lalo","Lumbangan","Lunos","Malinao","Maravilla","Naganacan","Nagatmukan","Paagahan","Poblacion","San Isidro","San Jose","Talo-talo","Tanawan","Tipunan"],
+  "Pagsanjan": ["Anibong","Barangay I","Barangay II","Barangay III","Barangay IV","Barangay V","Barangay VI","Barangay VII","Barangay VIII","Barangay IX","Barangay X","Barangay XI","Barangay XII","Barangay XIII","Barangay XIV","Barangay XV","Barangay XVI","Barangay XVII","Barangay XVIII","Barangay XIX","Barangay XX"],
+  "Paete": ["Barangay I","Barangay II","Barangay III","Barangay IV","Barangay V","Barangay VI","Barangay VII","Barangay VIII","Barangay IX","Barangay X"],
+  "Pakil": ["Barangay I","Barangay II","Barangay III","Barangay IV","Barangay V","Barangay VI","Barangay VII","Barangay VIII","Barangay IX","Barangay X","Barangay XI","Barangay XII"],
+  "Pangil": ["Barangay I","Barangay II","Barangay III","Barangay IV","Barangay V","Barangay VI","Barangay VII","Barangay VIII","Barangay IX","Barangay X","Barangay XI","Barangay XII","Barangay XIII"],
+  "Siniloan": ["Barangay I","Barangay II","Barangay III","Barangay IV","Barangay V","Barangay VI","Barangay VII","Barangay VIII","Barangay IX","Barangay X","Barangay XI","Barangay XII","Barangay XIII","Barangay XIV","Barangay XV"],
+  "Famy": ["Barangay I","Barangay II","Barangay III","Barangay IV","Barangay V","Barangay VI","Barangay VII","Barangay VIII","Barangay IX","Barangay X","Barangay XI","Barangay XII"],
+  "Mabitac": ["Barangay I","Barangay II","Barangay III","Barangay IV","Barangay V","Barangay VI","Barangay VII","Barangay VIII","Barangay IX","Barangay X","Barangay XI","Barangay XII"],
+  "Santa Maria": ["Barangay I","Barangay II","Barangay III","Barangay IV","Barangay V","Barangay VI","Barangay VII","Barangay VIII","Barangay IX","Barangay X","Barangay XI","Barangay XII"],
+  "Cavinti": ["Barangay I","Barangay II","Barangay III","Barangay IV","Barangay V","Barangay VI","Barangay VII","Barangay VIII","Barangay IX","Barangay X","Barangay XI","Barangay XII","Barangay XIII","Barangay XIV","Barangay XV","Barangay XVI","Barangay XVII","Barangay XVIII","Barangay XIX","Barangay XX"],
+  "Lumban": ["Barangay I","Barangay II","Barangay III","Barangay IV","Barangay V","Barangay VI","Barangay VII","Barangay VIII","Barangay IX","Barangay X","Barangay XI","Barangay XII","Barangay XIII","Barangay XIV","Barangay XV"],
+  "Pila": ["Aplaya","Bagong Pook","Bulilan Norte","Bulilan Sur","Concepcion","Labuin","Malinao","Masyadong Malalim","Matipuno","Pinagbayanan","Poblacion I","Poblacion II","Poblacion III","Poblacion IV","Poblacion V","Poblacion VI","Poblacion VII","Poblacion VIII","Poblacion IX","Poblacion X","San Antonio","San Pedro","Santa Clara","Santa Cruz","Tibig"],
+  "Victoria": ["Barangay I","Barangay II","Barangay III","Barangay IV","Barangay V","Barangay VI","Barangay VII","Barangay VIII","Barangay IX","Barangay X","Barangay XI","Barangay XII","Barangay XIII","Barangay XIV","Barangay XV","Barangay XVI","Barangay XVII","Barangay XVIII","Barangay XIX","Barangay XX"],
+  "Rizal": ["Barangay I","Barangay II","Barangay III","Barangay IV","Barangay V","Barangay VI","Barangay VII","Barangay VIII","Barangay IX","Barangay X","Barangay XI","Barangay XII","Barangay XIII","Barangay XIV","Barangay XV"],
+  "Alaminos": ["Barangay I","Barangay II","Barangay III","Barangay IV","Barangay V","Barangay VI","Barangay VII","Barangay VIII","Barangay IX","Barangay X","Barangay XI","Barangay XII","Barangay XIII","Barangay XIV","Barangay XV","Barangay XVI","Barangay XVII","Barangay XVIII","Barangay XIX","Barangay XX"]
+};
 
-function go(n) {
-  document.getElementById('sp' + cur).classList.remove('active');
-  for (let i = 1; i <= TOTAL; i++) {
-    const ps = document.getElementById('ps' + i);
-    ps.classList.remove('active','done');
-    if (i < n) ps.classList.add('done');
-    if (i === n) ps.classList.add('active');
-    if (i < TOTAL) document.getElementById('pl' + i).classList.toggle('done', i < n);
-  }
-  cur = n;
-  document.getElementById('sp' + n).classList.add('active');
-  window.scrollTo({top:0,behavior:'smooth'});
+// ─── Step navigation ──────────────────────────────────────────────────────────
+function goToStep(n) {
+  document.querySelectorAll(".step").forEach(function(s) { s.classList.remove("active"); });
+  document.getElementById("step" + n).classList.add("active");
+  updateProgress(n);
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-function showErr(m) {
-  const el = document.getElementById('stepError');
-  el.textContent = '⚠ ' + m; el.style.display = 'block';
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-function clearErr() { document.getElementById('stepError').style.display = 'none'; }
-
-// ── Step 1: Validate then send OTP ───────────────────────────
-function step1Next() {
-  // Validate required fields in step 1
-  const required = ['fn','ln','dob','mobile','emailField','voterId','pw','cpw'];
-  for (const id of required) {
-    const el = document.getElementById(id);
-    if (!el || !el.value.trim()) {
-      el && el.focus(); el && (el.style.borderColor='#e74c3c');
-      setTimeout(()=>{ if(el) el.style.borderColor=''; },2000);
-      showErr('Please fill in all required fields.'); return;
+function updateProgress(n) {
+  for (var i = 1; i <= 4; i++) {
+    var circle = document.getElementById("pc" + i);
+    var label  = document.getElementById("pl" + i);
+    circle.classList.remove("active", "done");
+    label.classList.remove("active");
+    if (i < n) {
+      circle.classList.add("done");
+      circle.textContent = "\u2713";
+    } else if (i === n) {
+      circle.classList.add("active");
+      label.classList.add("active");
     }
   }
-  // Street
-  const street = document.querySelector('input[name="street"]');
-  if (!street || !street.value.trim()) { showErr('Please enter your street address.'); return; }
-  // City
-  const city = document.getElementById('citySelect');
-  if (!city || !city.value) { showErr('Please select your city.'); return; }
-  // Age check
-  const dob = document.getElementById('dob').value;
-  if (dob && Math.floor((new Date()-new Date(dob))/(365.25*24*3600*1000)) < 18) {
-    showErr('You must be at least 18 years old.'); return;
+  for (var j = 1; j <= 3; j++) {
+    var line = document.getElementById("pline" + j);
+    if (j < n) {
+      line.classList.add("done");
+    } else {
+      line.classList.remove("done");
+    }
   }
-  // Mobile format
-  if (!/^09\d{9}$/.test(document.getElementById('mobile').value.trim())) {
-    showErr('Mobile must be 09XXXXXXXXX format.'); return;
+}
+
+// ─── Barangay population ──────────────────────────────────────────────────────
+function populateBarangay() {
+  var city = document.getElementById("city").value;
+  var sel  = document.getElementById("barangay");
+  sel.innerHTML = "";
+  var def = document.createElement("option");
+  def.value = "";
+  def.textContent = city ? "Select barangay" : "Select city first";
+  sel.appendChild(def);
+  if (city && barangayData[city]) {
+    barangayData[city].forEach(function(b) {
+      var opt = document.createElement("option");
+      opt.value = b;
+      opt.textContent = b;
+      sel.appendChild(opt);
+    });
   }
-  // Password match
-  const pw = document.getElementById('pw').value;
-  const cpw = document.getElementById('cpw').value;
-  if (pw.length < 6) { showErr('Password must be at least 6 characters.'); return; }
-  if (pw !== cpw) { showErr('Passwords do not match.'); return; }
-  // Terms
-  if (!document.getElementById('termsCheck').checked || !document.getElementById('privacyCheck').checked) {
-    showErr('You must agree to the Terms & Conditions and Privacy Policy.'); return;
-  }
-  clearErr();
+}
+
+// ─── Step 1 validation ────────────────────────────────────────────────────────
+function validateStep1() {
+  var alertEl = document.getElementById("step1Alert");
+  alertEl.innerHTML = "";
+
+  var firstName = document.getElementById("firstName").value.trim();
+  var lastName  = document.getElementById("lastName").value.trim();
+  var dob       = document.getElementById("dateOfBirth").value;
+  var gender    = document.getElementById("gender").value;
+  var street    = document.getElementById("street").value.trim();
+  var city      = document.getElementById("city").value;
+  var barangay  = document.getElementById("barangay").value;
+  var mobile    = document.getElementById("mobileNumber").value.trim();
+  var email     = document.getElementById("email").value.trim();
+  var voterId   = document.getElementById("voterId").value.trim();
+  var password  = document.getElementById("password").value;
+  var confirm   = document.getElementById("confirm").value;
+  var terms     = document.getElementById("termsCheck").checked;
+
+  if (!firstName) { showAlert("step1Alert", "First name is required."); return; }
+  if (!lastName)  { showAlert("step1Alert", "Last name is required."); return; }
+  if (!dob)       { showAlert("step1Alert", "Date of birth is required."); return; }
+
+  var today = new Date();
+  var birthDate = new Date(dob);
+  var age = today.getFullYear() - birthDate.getFullYear();
+  var m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) { age--; }
+  if (age < 18) { showAlert("step1Alert", "You must be at least 18 years old to register."); return; }
+
+  if (!gender)   { showAlert("step1Alert", "Please select your gender."); return; }
+  if (!street)   { showAlert("step1Alert", "Street address is required."); return; }
+  if (!city)     { showAlert("step1Alert", "Please select your city."); return; }
+  if (!barangay) { showAlert("step1Alert", "Please select your barangay."); return; }
+
+  if (!/^09\d{9}$/.test(mobile)) { showAlert("step1Alert", "Mobile number must be 11 digits starting with 09."); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showAlert("step1Alert", "Please enter a valid email address."); return; }
+  if (!voterId)  { showAlert("step1Alert", "Username / Voter ID is required."); return; }
+  if (password.length < 6) { showAlert("step1Alert", "Password must be at least 6 characters."); return; }
+  if (password !== confirm) { showAlert("step1Alert", "Passwords do not match."); return; }
+  if (!terms) { showAlert("step1Alert", "You must agree to the Terms and Conditions."); return; }
+
+  var fullName = firstName + (document.getElementById("middleName").value.trim() ? " " + document.getElementById("middleName").value.trim() : "") + " " + lastName;
+  document.getElementById("hiddenName").value = fullName;
+
   sendOtp();
 }
 
-// ── OTP ───────────────────────────────────────────────────────
-let otpTimerInterval;
-function om(el, nid) {
-  el.value = el.value.replace(/[^0-9]/g,'');
-  if (el.value && nid) document.getElementById(nid).focus();
-  const v = ['o1','o2','o3','o4','o5','o6'].map(id=>document.getElementById(id).value);
-  if (v.every(x=>x)) verifyOtp();
-}
-function ob(e,el,pid) { if(e.key==='Backspace'&&!el.value&&pid) document.getElementById(pid).focus(); }
-
+// ─── OTP functions ────────────────────────────────────────────────────────────
 function sendOtp() {
-  const email  = document.getElementById('emailField').value.trim();
-  const fn     = document.getElementById('fn').value.trim();
-  const ln     = document.getElementById('ln').value.trim();
-  const vid    = document.getElementById('voterId').value.trim();
-  fetch('/register/otp/send', {
-    method:'POST',
-    headers:{'Content-Type':'application/x-www-form-urlencoded'},
-    body:'voterId='+encodeURIComponent(vid)+'&email='+encodeURIComponent(email)+'&name='+encodeURIComponent(fn+' '+ln)
-  }).then(r=>r.json()).then(d=>{
-    if (d.status === 'error') { showErr(d.message); return; }
-    // Go to OTP step
-    document.getElementById('otpEmailDisplay').textContent = email;
-    go(2);
-    document.getElementById('o1').focus();
-    const msg = document.getElementById('otpMsg');
-    if (d.status === 'fallback') {
-      msg.innerHTML = '<div class="otp-status otp-err">⚠ Email failed. Your code: <strong style="font-size:20px;letter-spacing:6px">'+d.otp+'</strong></div>';
-    } else {
-      msg.innerHTML = '<div class="otp-status otp-info">📧 Code sent to '+email+'</div>';
-    }
-    startOtpTimer();
-  }).catch(()=>showErr('Failed to send OTP. Please try again.'));
+  var voterId = document.getElementById("voterId").value.trim();
+  var email   = document.getElementById("email").value.trim();
+  var name    = document.getElementById("hiddenName").value;
+  var msgEl   = document.getElementById("otpSentMsg");
+
+  goToStep(2);
+  msgEl.textContent = "Sending OTP to " + email + "...";
+
+  var params = new URLSearchParams();
+  params.append("voterId", voterId);
+  params.append("email", email);
+  params.append("name", name);
+
+  fetch("/register/otp/send", { method: "POST", body: params })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status === "error") {
+        showAlert("step2Alert", data.message);
+        msgEl.textContent = "Failed to send OTP.";
+      } else if (data.status === "fallback") {
+        msgEl.textContent = "Email unavailable. Use this code: " + data.otp;
+        showAlert("step2Alert", "Dev mode — OTP: " + data.otp, "info");
+      } else {
+        msgEl.textContent = "OTP sent to " + email + ". Check your inbox.";
+      }
+    })
+    .catch(function() {
+      msgEl.textContent = "Network error. Please try again.";
+    });
 }
 
 function resendOtp() {
-  ['o1','o2','o3','o4','o5','o6'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('otpMsg').innerHTML='';
-  document.getElementById('step2Next').disabled = true;
-  document.getElementById('otpVerified').value = 'false';
+  clearOtpInputs();
+  document.getElementById("otpVerified").value = "false";
   sendOtp();
 }
 
-function startOtpTimer() {
-  clearInterval(otpTimerInterval);
-  let s = 600;
-  otpTimerInterval = setInterval(()=>{
-    s--;
-    const el = document.getElementById('otpTimer');
-    if (!el) { clearInterval(otpTimerInterval); return; }
-    el.textContent = Math.floor(s/60).toString().padStart(2,'0')+':'+(s%60).toString().padStart(2,'0');
-    if (s<=0) { clearInterval(otpTimerInterval); el.textContent='Expired'; }
-  },1000);
+function clearOtpInputs() {
+  for (var i = 0; i < 6; i++) {
+    document.getElementById("otp" + i).value = "";
+  }
+  document.getElementById("otp0").focus();
+}
+
+function otpInput(el, idx) {
+  el.value = el.value.replace(/[^0-9]/g, "");
+  if (el.value.length === 1 && idx < 5) {
+    document.getElementById("otp" + (idx + 1)).focus();
+  }
+  // Clear any previous result message while user is still typing
+  document.getElementById("step2Alert").innerHTML = "";
+}
+
+function otpKeydown(e, idx) {
+  if (e.key === "Backspace" && !document.getElementById("otp" + idx).value && idx > 0) {
+    document.getElementById("otp" + (idx - 1)).focus();
+  }
 }
 
 function verifyOtp() {
-  const otp = ['o1','o2','o3','o4','o5','o6'].map(id=>document.getElementById(id).value).join('');
-  if (otp.length < 6) return;
-  const vid = document.getElementById('voterId').value.trim();
-  document.getElementById('verifyOtpBtn').textContent = '⏳ Verifying...';
-  fetch('/register/otp/verify', {
-    method:'POST',
-    headers:{'Content-Type':'application/x-www-form-urlencoded'},
-    body:'voterId='+encodeURIComponent(vid)+'&otp='+encodeURIComponent(otp)
-  }).then(r=>r.json()).then(d=>{
-    document.getElementById('verifyOtpBtn').textContent = '✓ Verify Code';
-    const msg = document.getElementById('otpMsg');
-    if (d.status === 'ok') {
-      msg.innerHTML = '<div class="otp-status otp-ok">✅ Email verified! You may proceed.</div>';
-      document.getElementById('otpVerified').value = 'true';
-      document.getElementById('step2Next').disabled = false;
-      clearInterval(otpTimerInterval);
-    } else {
-      msg.innerHTML = '<div class="otp-status otp-err">⚠ '+d.message+'</div>';
-    }
-  }).catch(()=>{ document.getElementById('verifyOtpBtn').textContent='✓ Verify Code'; });
+  var code = "";
+  for (var i = 0; i < 6; i++) {
+    code += document.getElementById("otp" + i).value;
+  }
+  if (code.length < 6) {
+    showAlert("step2Alert", "Please enter the complete 6-digit code.");
+    return;
+  }
+
+  var voterId = document.getElementById("voterId").value.trim();
+  var params  = new URLSearchParams();
+  params.append("voterId", voterId);
+  params.append("otp", code);
+
+  fetch("/register/otp/verify", { method: "POST", body: params })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status === "ok") {
+        document.getElementById("otpVerified").value = "true";
+        showAlert("step2Alert", "&#10003; Email verified! Proceeding...", "success");
+        setTimeout(function() { goToStep(3); }, 800);
+      } else {
+        showAlert("step2Alert", data.message || "Invalid OTP. Please try again.");
+      }
+    })
+    .catch(function() {
+      showAlert("step2Alert", "Network error. Please try again.");
+    });
 }
 
-// ── Step 3: ID validation ─────────────────────────────────────
-function step3Next() {
-  if (!document.querySelector('.id-card.sel')) { showErr('Please select an ID type.'); return; }
-  const idNum = document.getElementById('idNumberField').value.trim();
-  if (!idNum) { showErr('Please enter your ID number.'); return; }
-  if (!document.getElementById('idPhoto').files[0]) { showErr('Please upload a photo of your ID.'); return; }
-  clearErr();
-  go(4);
-  startCam();
+// ─── Step 3 validation ────────────────────────────────────────────────────────
+function checkStep3() {
+  var idType   = document.getElementById("idType").value;
+  var idNumber = document.getElementById("idNumber").value.trim();
+  var idPhoto  = document.getElementById("idPhoto").files.length > 0;
+  document.getElementById("step3NextBtn").disabled = !(idType && idNumber && idPhoto);
 }
 
-// ── ID upload ─────────────────────────────────────────────────
-function selId(card) {
-  document.querySelectorAll('.id-card').forEach(c=>c.classList.remove('sel'));
-  card.classList.add('sel');
-}
-function prevId(input) {
-  if (!input.files[0]) return;
-  const r = new FileReader();
-  r.onload = e => {
-    const img = document.getElementById('idPreview');
-    img.src = e.target.result; img.style.display='block';
-    document.getElementById('uploadArea').classList.add('has-file');
-  };
-  r.readAsDataURL(input.files[0]);
-}
-
-// ── City / Barangay / ZIP ─────────────────────────────────────
-const ZIPS = {'Alaminos':'4001','Bay':'4033','Biñan':'4024','Cabuyao':'4025','Calamba':'4027','Calauan':'4012','Cavinti':'4013','Famy':'4021','Kalayaan':'4015','Liliw':'4004','Los Baños':'4030','Luisiana':'4032','Lumban':'4014','Mabitac':'4020','Magdalena':'4007','Majayjay':'4005','Nagcarlan':'4002','Paete':'4016','Pagsanjan':'4008','Pakil':'4017','Pangil':'4018','Pila':'4010','Rizal':'4003','San Pablo':'4000','San Pedro':'4023','Santa Cruz':'4009','Santa Maria':'4022','Santo Tomas':'4234','Siniloan':'4019','Victoria':'4011'};
-const BRGYS = {'Santa Cruz':['Bagong Anyo','Bubukal','Duhat','Gatid','Labuin','Palasan','Pagsawitan','Patimbao','Poblacion Uno','Poblacion Dos','Sto. Angel Norte','Sto. Angel Sur','Sto. Angel Central'],'Biñan':['Biñan','Canlalay','Casile','De La Paz','Ganado','Langkiwa','Loma','Malaban','Malamig','Mampalasan','Platero','Poblacion','San Antonio','San Francisco','San Jose','San Vicente','Santo Domingo','Santo Tomas','Soro-soro','Timbao','Tubigan','Zapote'],'Calamba':['Bagong Kalsada','Banadero','Banlic','Batino','Burol','Canlubang','Halang','Laguerta','Lawa','Lecheria','Lingga','Looc','Mabato','Makiling','Mapagong','Masili','Maunong','Mayapa','Milagrosa','Paciano Rizal','Palo-Alto','Pansol','Parian','Prinza','Punta','Puting Lupa','Real','Saimsim','Sampiruhan','San Cristobal','San Jose','San Juan','Sirang Lupa','Sucol','Turbina','Ulango','Uwisan'],'San Pablo':['Atisan','Bagong Bayan','Concepcion','Del Remedio','Dolores','San Antonio 1','San Antonio 2','San Bartolome','San Buenaventura','San Francisco','San Gabriel','San Gregorio','San Ignacio','San Isidro','San Jose','San Juan','San Lucas 1','San Lucas 2','San Marcos','San Mateo','San Miguel','San Nicolas','San Pedro','San Rafael','San Roque','San Salvador','San Sebastian','Santa Catalina','Santa Cruz','Santa Filomena','Santa Maria','Santa Monica','Santa Veronica','Santiago 1','Santiago 2','Santisimo Rosario','Santo Angel','Santo Cristo','Santo Niño 1','Santo Niño 2','Soledad']};
-
-function onCity(city) {
-  document.getElementById('zipField').value = ZIPS[city] || '';
-  const sel = document.getElementById('brgySelect');
-  sel.innerHTML = '<option value="" disabled selected>Select barangay</option>';
-  const brgys = BRGYS[city];
-  if (brgys) {
-    brgys.sort().forEach(b => { const o=document.createElement('option'); o.value=b; o.textContent=b; sel.appendChild(o); });
-    sel.disabled=false; sel.name='barangay';
+function previewIdPhoto() {
+  var file = document.getElementById("idPhoto").files[0];
+  var preview = document.getElementById("idPhotoPreview");
+  var hint    = document.getElementById("uploadHint");
+  if (file && file.type.startsWith("image/")) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      preview.src = e.target.result;
+      preview.style.display = "block";
+      hint.style.display = "none";
+    };
+    reader.readAsDataURL(file);
   } else {
-    sel.disabled=true; sel.removeAttribute('name');
-    let fb=document.getElementById('brgyFb');
-    if (!fb) { fb=document.createElement('input'); fb.type='text'; fb.id='brgyFb'; fb.name='barangay'; fb.placeholder='Enter barangay name'; fb.required=true; fb.style.cssText='width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;margin-top:6px;outline:none;box-sizing:border-box'; sel.parentNode.appendChild(fb); }
-    else { fb.style.display='block'; fb.name='barangay'; }
+    preview.style.display = "none";
+    hint.style.display = "flex";
+  }
+  checkStep3();
+}
+
+// ─── Camera / selfie ──────────────────────────────────────────────────────────
+var cameraStream = null;
+
+function startCamera() {
+  var video = document.getElementById("cameraVideo");
+  var startBtn = document.getElementById("startCamBtn");
+  var snapBtn  = document.getElementById("snapBtn");
+
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false })
+    .then(function(stream) {
+      cameraStream = stream;
+      video.srcObject = stream;
+      video.style.display = "block";
+      startBtn.style.display = "none";
+      snapBtn.style.display  = "inline-block";
+    })
+    .catch(function() {
+      showAlert("step4Alert", "Camera access denied. You can skip face verification.", "info");
+    });
+}
+
+function takeSelfie() {
+  var video   = document.getElementById("cameraVideo");
+  var canvas  = document.getElementById("cameraCanvas");
+  var preview = document.getElementById("selfiePreview");
+  var snapBtn  = document.getElementById("snapBtn");
+  var retakeBtn = document.getElementById("retakeBtn");
+
+  canvas.width  = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext("2d").drawImage(video, 0, 0);
+
+  var dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+  document.getElementById("selfieData").value = dataUrl;
+
+  preview.src = dataUrl;
+  preview.style.display = "block";
+  video.style.display   = "none";
+  snapBtn.style.display   = "none";
+  retakeBtn.style.display = "inline-block";
+
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(function(t) { t.stop(); });
+    cameraStream = null;
   }
 }
 
-// ── Camera ────────────────────────────────────────────────────
-let stream = null;
-async function startCam() {
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:640,height:480}});
-    document.getElementById('camFeed').srcObject = stream;
-  } catch(e) { console.log('Camera not available'); }
-}
-function stopCam() { if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;} }
-function snap() {
-  const v=document.getElementById('camFeed'), c=document.createElement('canvas');
-  c.width=v.videoWidth||640; c.height=v.videoHeight||480;
-  c.getContext('2d').drawImage(v,0,0);
-  const data=c.toDataURL('image/jpeg',.9);
-  document.getElementById('selfieData').value=data;
-  document.getElementById('selfiePreview').src=data;
-  document.getElementById('camSection').style.display='none';
-  document.getElementById('selfieSection').style.display='block';
-  stopCam();
-}
-function retake() {
-  document.getElementById('camSection').style.display='block';
-  document.getElementById('selfieSection').style.display='none';
-  document.getElementById('selfieData').value='';
-  startCam();
-}
-function skipFace() {
-  document.getElementById('selfieData').value='';
-  stopCam();
-  submitFinal();
+function retakeSelfie() {
+  var video   = document.getElementById("cameraVideo");
+  var preview = document.getElementById("selfiePreview");
+  var startBtn  = document.getElementById("startCamBtn");
+  var snapBtn   = document.getElementById("snapBtn");
+  var retakeBtn = document.getElementById("retakeBtn");
+
+  preview.style.display   = "none";
+  retakeBtn.style.display = "none";
+  startBtn.style.display  = "inline-block";
+  document.getElementById("selfieData").value = "";
+  startCamera();
 }
 
-// ── Terms modal ───────────────────────────────────────────────
-function openModal() {
-  document.getElementById('agreeCheck').checked=false;
-  document.getElementById('agreeCheck').disabled=true;
-  document.getElementById('agreeBtn').classList.remove('enabled');
-  document.getElementById('scrollHint').style.display='block';
-  document.getElementById('modalBody').scrollTop=0;
-  document.getElementById('termsModal').classList.add('active');
-}
-function closeModal() { document.getElementById('termsModal').classList.remove('active'); }
-function chkScroll() {
-  const b=document.getElementById('modalBody');
-  if(b.scrollHeight-b.scrollTop<=b.clientHeight+50){document.getElementById('agreeCheck').disabled=false;document.getElementById('scrollHint').style.display='none';}
-}
-function toggleAgree() { document.getElementById('agreeCheck').checked?document.getElementById('agreeBtn').classList.add('enabled'):document.getElementById('agreeBtn').classList.remove('enabled'); }
-function acceptTerms() { document.getElementById('termsCheck').checked=true; closeModal(); }
-document.getElementById('termsModal').addEventListener('click',e=>{if(e.target===document.getElementById('termsModal'))closeModal();});
-
-// ── Final submit ──────────────────────────────────────────────
-function submitFinal() {
-  if (document.getElementById('otpVerified').value !== 'true') {
-    showErr('Please verify your email with the OTP code first.'); go(2); return;
+function skipSelfie() {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(function(t) { t.stop(); });
+    cameraStream = null;
   }
-  const fn = document.getElementById('fn').value.trim();
-  const ln = document.getElementById('ln').value.trim();
-  document.getElementById('fullName').value = fn + ' ' + ln;
-  clearErr();
-  stopCam();
-  document.getElementById('regForm').submit();
+  document.getElementById("selfieData").value = "";
+  document.getElementById("regForm").submit();
+}
+
+function prepareSubmit() {
+  if (document.getElementById("otpVerified").value !== "true") {
+    showAlert("step4Alert", "Email OTP verification is required before submitting.");
+    return false;
+  }
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(function(t) { t.stop(); });
+    cameraStream = null;
+  }
+  return true;
+}
+
+// ─── Terms modal ──────────────────────────────────────────────────────────────
+function openTerms() {
+  document.getElementById("termsModal").classList.add("open");
+  document.getElementById("agreeBtn").disabled = true;
+  document.getElementById("scrollNotice").style.display = "block";
+  var body = document.getElementById("termsBody");
+  body.scrollTop = 0;
+}
+
+function checkTermsScroll() {
+  var body = document.getElementById("termsBody");
+  if (body.scrollTop + body.clientHeight >= body.scrollHeight - 10) {
+    document.getElementById("agreeBtn").disabled = false;
+    document.getElementById("scrollNotice").style.display = "none";
+  }
+}
+
+function agreeTerms() {
+  document.getElementById("termsCheck").checked = true;
+  document.getElementById("termsModal").classList.remove("open");
+}
+
+function declineTerms() {
+  document.getElementById("termsCheck").checked = false;
+  document.getElementById("termsModal").classList.remove("open");
+}
+
+// ─── Alert helper ─────────────────────────────────────────────────────────────
+function showAlert(containerId, message, type) {
+  var t = type || "error";
+  var cls = t === "success" ? "alert-success" : (t === "info" ? "alert-info" : "alert-error");
+  document.getElementById(containerId).innerHTML =
+    "<div class=\"alert " + cls + "\">" + message + "</div>";
 }
 </script>
 </body>

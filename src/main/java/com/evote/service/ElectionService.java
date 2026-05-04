@@ -106,7 +106,7 @@ public class ElectionService {
             "(voter_id, election_id, name, first_name, middle_name, last_name, date_of_birth, gender, " +
             "street, barangay, city, province, zip_code, mobile_number, email, " +
             "voter_id_number, voting_district, affiliation, id_type, id_number, password, status) " +
-            "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'pending')",
+            "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'approved')",
             voterId, ELECTION_ID, name, firstName, middleName, lastName, dob, gender,
             street, barangay, city, province, zip, mobile, email,
             voterIdNumber, votingDistrict, affiliation, idType, idNumber, password);

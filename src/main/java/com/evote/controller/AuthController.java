@@ -33,7 +33,7 @@ public class AuthController {
             if ("admin".equals(role)) return "redirect:/admin/dashboard";
             if ("voter".equals(role)) return "redirect:/voter/dashboard";
         }
-        if ("registered".equals(success)) model.addAttribute("success", "Registration submitted! Awaiting admin approval.");
+        if ("registered".equals(success)) model.addAttribute("success", "Registration successful! You can now log in.");
         if ("reset".equals(success))      model.addAttribute("success", "Password reset successfully!");
         return "login";
     }
@@ -53,14 +53,10 @@ public class AuthController {
         Optional<Voter> voter = svc.authenticateVoter(username, password);
         if (voter.isPresent()) {
             Voter v = voter.get();
-            // Check approval status
+            // Only block rejected voters
             if ("rejected".equals(v.getStatus())) {
                 model.addAttribute("error", "Your registration was rejected. Reason: " +
                     (v.getRejectionReason() != null ? v.getRejectionReason() : "Contact admin."));
-                return "login";
-            }
-            if (v.isPending()) {
-                model.addAttribute("error", "Your account is pending admin approval. Please wait.");
                 return "login";
             }
             session.setAttribute("userId",   v.getVoterId());
@@ -193,7 +189,7 @@ public class AuthController {
             System.err.println("Image save error: " + e.getMessage());
         }
 
-        svc.logActivity(voterId, "Registered — awaiting admin approval");
+        svc.logActivity(voterId, "Registered — account active");
 
         return "redirect:/login?success=registered";
     }
