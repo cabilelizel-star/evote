@@ -82,15 +82,51 @@
         #idPhotoPreview { width: 200px; height: 130px; object-fit: cover; border-radius: 8px; border: 2px solid #0066cc; display: none; margin: 0 auto; }
 
         /* Camera */
-        .camera-wrap { position: relative; background: #020b18; border-radius: 12px; border: 1px solid rgba(0,150,255,.2); overflow: hidden; margin-bottom: 14px; }
-        #cameraVideo { width: 100%; display: block; border-radius: 12px; }
+        .camera-wrap { position: relative; background: #020b18; border-radius: 16px; border: 1px solid rgba(0,150,255,.2); overflow: hidden; margin-bottom: 14px; min-height: 280px; display: flex; align-items: center; justify-content: center; }
+        #cameraVideo { width: 100%; display: block; border-radius: 16px; }
         #cameraCanvas { display: none; }
-        #selfiePreview { width: 100%; border-radius: 12px; display: none; }
+        #selfiePreview { width: 100%; border-radius: 16px; display: none; }
+
+        /* Face oval overlay */
+        .face-overlay { position: absolute; inset: 0; pointer-events: none; display: flex; align-items: center; justify-content: center; }
+        .face-oval-svg { width: 200px; height: 260px; }
+        .face-oval-ellipse {
+            fill: none;
+            stroke: rgba(0,180,255,0.9);
+            stroke-width: 3;
+            stroke-dasharray: 12 6;
+            animation: ovalPulse 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 8px rgba(0,180,255,0.8));
+        }
+        .face-oval-ellipse.detected {
+            stroke: #00ff88;
+            stroke-dasharray: none;
+            animation: ovalGlow 1s ease-in-out infinite;
+        }
+        @keyframes ovalPulse {
+            0%, 100% { stroke-opacity: 0.7; stroke-width: 3; }
+            50% { stroke-opacity: 1; stroke-width: 4; }
+        }
+        @keyframes ovalGlow {
+            0%, 100% { filter: drop-shadow(0 0 8px rgba(0,255,136,0.6)); }
+            50% { filter: drop-shadow(0 0 16px rgba(0,255,136,1)); }
+        }
+
+        /* Corner guides */
+        .face-corner { position: absolute; width: 20px; height: 20px; border-color: rgba(0,180,255,0.9); border-style: solid; }
+        .face-corner.tl { top: calc(50% - 130px); left: calc(50% - 100px); border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
+        .face-corner.tr { top: calc(50% - 130px); right: calc(50% - 100px); border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
+        .face-corner.bl { bottom: calc(50% - 130px); left: calc(50% - 100px); border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
+        .face-corner.br { bottom: calc(50% - 130px); right: calc(50% - 100px); border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
+
+        /* Camera hint */
+        .cam-hint { position: absolute; bottom: 12px; left: 0; right: 0; text-align: center; color: #fff; font-size: 12px; font-weight: 600; text-shadow: 0 1px 4px rgba(0,0,0,.8); background: rgba(0,0,0,.3); padding: 6px; }
+
         .camera-btn-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 10px; }
-        .camera-btn-row button { padding: 9px 20px; border-radius: 8px; font-size: .93rem; font-weight: 600; cursor: pointer; border: none; }
+        .camera-btn-row button { padding: 10px 22px; border-radius: 8px; font-size: .93rem; font-weight: 700; cursor: pointer; border: none; transition: all .2s; }
         #startCamBtn { background: linear-gradient(135deg,#0066cc,#0044aa); color: #fff; box-shadow: 0 3px 10px rgba(0,100,200,.3); }
         #snapBtn { background: linear-gradient(135deg,#0044aa,#002288); color: #fff; display: none; box-shadow: 0 3px 10px rgba(0,100,200,.3); }
-        #retakeBtn { background: #f0f4ff; color: #0044aa; border: 1.5px solid #a8d5b5 !important; display: none; }
+        #retakeBtn { background: #f0f4ff; color: #0044aa; border: 1.5px solid #c8d8f0 !important; display: none; }
 
         /* Terms modal */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; align-items: center; justify-content: center; }
@@ -403,10 +439,23 @@
 
         <div id="step4Alert"></div>
 
-        <div class="camera-wrap">
+        <div class="camera-wrap" id="cameraWrap">
           <video id="cameraVideo" autoplay playsinline></video>
           <canvas id="cameraCanvas"></canvas>
           <img id="selfiePreview" alt="Selfie Preview">
+
+          <!-- Face oval guide overlay -->
+          <div class="face-overlay" id="faceOverlay">
+            <svg class="face-oval-svg" viewBox="0 0 200 260">
+              <ellipse class="face-oval-ellipse" id="faceOval" cx="100" cy="130" rx="80" ry="110"/>
+            </svg>
+            <!-- Corner guides -->
+            <div class="face-corner tl"></div>
+            <div class="face-corner tr"></div>
+            <div class="face-corner bl"></div>
+            <div class="face-corner br"></div>
+          </div>
+          <div class="cam-hint" id="camHint" style="display:none">&#128100; Align your face inside the oval</div>
         </div>
 
         <div class="camera-btn-row">
@@ -726,17 +775,21 @@ function previewIdPhoto() {
 var cameraStream = null;
 
 function startCamera() {
-  var video = document.getElementById("cameraVideo");
+  var video    = document.getElementById("cameraVideo");
   var startBtn = document.getElementById("startCamBtn");
   var snapBtn  = document.getElementById("snapBtn");
+  var overlay  = document.getElementById("faceOverlay");
+  var hint     = document.getElementById("camHint");
 
-  navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false })
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: 640, height: 480 }, audio: false })
     .then(function(stream) {
       cameraStream = stream;
       video.srcObject = stream;
       video.style.display = "block";
       startBtn.style.display = "none";
       snapBtn.style.display  = "inline-block";
+      if (overlay) overlay.style.display = "flex";
+      if (hint)    hint.style.display    = "block";
     })
     .catch(function() {
       showAlert("step4Alert", "Camera access denied. You can skip face verification.", "info");
@@ -744,11 +797,13 @@ function startCamera() {
 }
 
 function takeSelfie() {
-  var video   = document.getElementById("cameraVideo");
-  var canvas  = document.getElementById("cameraCanvas");
-  var preview = document.getElementById("selfiePreview");
-  var snapBtn  = document.getElementById("snapBtn");
+  var video     = document.getElementById("cameraVideo");
+  var canvas    = document.getElementById("cameraCanvas");
+  var preview   = document.getElementById("selfiePreview");
+  var snapBtn   = document.getElementById("snapBtn");
   var retakeBtn = document.getElementById("retakeBtn");
+  var overlay   = document.getElementById("faceOverlay");
+  var hint      = document.getElementById("camHint");
 
   canvas.width  = video.videoWidth;
   canvas.height = video.videoHeight;
@@ -762,6 +817,8 @@ function takeSelfie() {
   video.style.display   = "none";
   snapBtn.style.display   = "none";
   retakeBtn.style.display = "inline-block";
+  if (overlay) overlay.style.display = "none";
+  if (hint)    hint.style.display    = "none";
 
   if (cameraStream) {
     cameraStream.getTracks().forEach(function(t) { t.stop(); });
@@ -770,8 +827,8 @@ function takeSelfie() {
 }
 
 function retakeSelfie() {
-  var video   = document.getElementById("cameraVideo");
-  var preview = document.getElementById("selfiePreview");
+  var video     = document.getElementById("cameraVideo");
+  var preview   = document.getElementById("selfiePreview");
   var startBtn  = document.getElementById("startCamBtn");
   var snapBtn   = document.getElementById("snapBtn");
   var retakeBtn = document.getElementById("retakeBtn");
