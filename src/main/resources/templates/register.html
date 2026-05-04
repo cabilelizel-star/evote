@@ -160,8 +160,8 @@ input[readonly],select[disabled]{background:#eef2f8;color:#667}
       </div>
       <div class="form-group">
         <label>City / Municipality *</label>
-        <select id="city" name="city" onchange="populateBarangay()" autocomplete="off">
-          <option value="" selected>-- Select City --</option>
+        <select id="city" name="city" onchange="populateBarangay()" autocomplete="nope" data-form-type="other">
+          <option value="" selected disabled>-- Select City --</option>
           <option value="Calamba">Calamba</option>
           <option value="San Pablo">San Pablo</option>
           <option value="Santa Rosa">Santa Rosa</option>
@@ -393,19 +393,41 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 window.addEventListener('load', function() {
-  var city = document.getElementById('city');
-  if (city) city.selectedIndex = 0;
-  var zip = document.getElementById('zipCode');
-  if (zip) zip.value = '';
-  // setTimeout fires AFTER browser session restore — guaranteed clean state
-  setTimeout(function() {
+  function resetCity() {
     var c = document.getElementById('city');
     var b = document.getElementById('barangay');
     var z = document.getElementById('zipCode');
-    if (c) c.selectedIndex = 0;
-    if (b) b.innerHTML = "<option value=''>-- Select City First --</option>";
-    if (z) z.value = '';
-  }, 50);
+    if (c && c.selectedIndex !== 0) {
+      c.selectedIndex = 0;
+      if (b) b.innerHTML = "<option value=''>-- Select City First --</option>";
+      if (z) z.value = '';
+    }
+  }
+  // Fire at multiple points to catch browser session restore
+  resetCity();
+  setTimeout(resetCity, 0);
+  setTimeout(resetCity, 100);
+  setTimeout(resetCity, 300);
+  setTimeout(resetCity, 600);
+
+  // MutationObserver: if browser changes the select after load, reset it
+  var cityEl = document.getElementById('city');
+  if (cityEl) {
+    var observer = new MutationObserver(function() { resetCity(); });
+    observer.observe(cityEl, { attributes: true, childList: true });
+    // Also watch for value changes via property descriptor override
+    var origVal = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
+    if (origVal) {
+      Object.defineProperty(cityEl, 'value', {
+        get: function() { return origVal.get.call(this); },
+        set: function(v) {
+          origVal.set.call(this, v);
+          // If browser tries to set a value on page load, reset after tick
+          setTimeout(resetCity, 0);
+        }
+      });
+    }
+  }
 });
 
 var currentStep = 1;
