@@ -127,7 +127,7 @@ public class ElectionService {
 
     // ── Voting ────────────────────────────────────────────────────────────────
     @Transactional
-    public String castVote(String voterId, String candidateId) {
+    public String castVotes(String voterId, List<String> candidateIds) {
         Election e = getElection();
         if (!e.isOpen()) return "Election is currently CLOSED.";
 
@@ -135,16 +135,24 @@ public class ElectionService {
         if (v.isEmpty())          return "Voter not found.";
         if (v.get().isHasVoted()) return "You have already voted.";
 
-        int updated = db.update(
-            "UPDATE candidates SET vote_count = vote_count + 1 " +
-            "WHERE candidate_id = ? AND election_id = ?", candidateId, ELECTION_ID);
-        if (updated == 0) return "Invalid candidate.";
+        for (String candidateId : candidateIds) {
+            int updated = db.update(
+                "UPDATE candidates SET vote_count = vote_count + 1 " +
+                "WHERE candidate_id = ? AND election_id = ?", candidateId, ELECTION_ID);
+            if (updated > 0) {
+                db.update("INSERT INTO votes (voter_id, candidate_id, election_id) VALUES (?,?,?)",
+                    voterId, candidateId, ELECTION_ID);
+            }
+        }
 
         db.update("UPDATE voters SET has_voted = 1 WHERE voter_id = ? AND election_id = ?",
             voterId, ELECTION_ID);
-        db.update("INSERT INTO votes (voter_id, candidate_id, election_id) VALUES (?,?,?)",
-            voterId, candidateId, ELECTION_ID);
         return "ok";
+    }
+
+    @Transactional
+    public String castVote(String voterId, String candidateId) {
+        return castVotes(voterId, java.util.List.of(candidateId));
     }
 
     // ── Stats ─────────────────────────────────────────────────────────────────

@@ -292,12 +292,12 @@ tr:hover td{background:#f8faff}
                 <div style="font-size:11px;font-weight:800;color:#0044aa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding:6px 12px;background:#e8f0fe;border-radius:6px;border-left:4px solid #0066cc">
                   &#x1F451; Governor
                 </div>
-                <div class="candidate-grid">
+                <div class="candidate-grid" data-group="governor">
                   <div th:each="c : ${candidates.?[party.contains('Governor') and !party.contains('Vice')]}"
                        th:id="'cand-' + ${c.candidateId}"
                        class="cand-card"
-                       th:attr="data-id=${c.candidateId}"
-                       onclick="selectCand(this.getAttribute('data-id'))">
+                       th:attr="data-id=${c.candidateId},data-group='governor'"
+                       onclick="selectCand(this)">
                     <div class="cand-avatar" th:text="${c.name != null} ? ${c.name.substring(0,1).toUpperCase()} : '?'">C</div>
                     <div class="cand-name" th:text="${c.name}">Candidate</div>
                     <div class="cand-party" th:text="${c.party.contains('Incumbent') ? 'Incumbent' : 'Challenger'}">Party</div>
@@ -311,12 +311,12 @@ tr:hover td{background:#f8faff}
                 <div style="font-size:11px;font-weight:800;color:#0044aa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding:6px 12px;background:#e8f0fe;border-radius:6px;border-left:4px solid #0066cc">
                   &#x1F947; Vice Governor
                 </div>
-                <div class="candidate-grid">
+                <div class="candidate-grid" data-group="vicegov">
                   <div th:each="c : ${candidates.?[party.contains('Vice Governor')]}"
                        th:id="'cand-' + ${c.candidateId}"
                        class="cand-card"
-                       th:attr="data-id=${c.candidateId}"
-                       onclick="selectCand(this.getAttribute('data-id'))">
+                       th:attr="data-id=${c.candidateId},data-group='vicegov'"
+                       onclick="selectCand(this)">
                     <div class="cand-avatar" th:text="${c.name != null} ? ${c.name.substring(0,1).toUpperCase()} : '?'">C</div>
                     <div class="cand-name" th:text="${c.name}">Candidate</div>
                     <div class="cand-party" th:text="${c.party.contains('Incumbent') ? 'Incumbent' : 'Challenger'}">Party</div>
@@ -330,12 +330,12 @@ tr:hover td{background:#f8faff}
                 <div style="font-size:11px;font-weight:800;color:#0044aa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding:6px 12px;background:#e8f0fe;border-radius:6px;border-left:4px solid #0066cc">
                   &#x1F3DB; Mayor — Santa Cruz
                 </div>
-                <div class="candidate-grid">
+                <div class="candidate-grid" data-group="mayor">
                   <div th:each="c : ${candidates.?[party.contains('Mayor') and !party.contains('Vice')]}"
                        th:id="'cand-' + ${c.candidateId}"
                        class="cand-card"
-                       th:attr="data-id=${c.candidateId}"
-                       onclick="selectCand(this.getAttribute('data-id'))">
+                       th:attr="data-id=${c.candidateId},data-group='mayor'"
+                       onclick="selectCand(this)">
                     <div class="cand-avatar" th:text="${c.name != null} ? ${c.name.substring(0,1).toUpperCase()} : '?'">C</div>
                     <div class="cand-name" th:text="${c.name}">Candidate</div>
                     <div class="cand-party" th:text="${c.party.contains('Incumbent') ? 'Incumbent' : 'Challenger'}">Party</div>
@@ -349,12 +349,12 @@ tr:hover td{background:#f8faff}
                 <div style="font-size:11px;font-weight:800;color:#0044aa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding:6px 12px;background:#e8f0fe;border-radius:6px;border-left:4px solid #0066cc">
                   &#x1F948; Vice Mayor — Santa Cruz
                 </div>
-                <div class="candidate-grid">
+                <div class="candidate-grid" data-group="vicemayor">
                   <div th:each="c : ${candidates.?[party.contains('Vice Mayor')]}"
                        th:id="'cand-' + ${c.candidateId}"
                        class="cand-card"
-                       th:attr="data-id=${c.candidateId}"
-                       onclick="selectCand(this.getAttribute('data-id'))">
+                       th:attr="data-id=${c.candidateId},data-group='vicemayor'"
+                       onclick="selectCand(this)">
                     <div class="cand-avatar" th:text="${c.name != null} ? ${c.name.substring(0,1).toUpperCase()} : '?'">C</div>
                     <div class="cand-name" th:text="${c.name}">Candidate</div>
                     <div class="cand-party" th:text="${c.party.contains('Incumbent') ? 'Incumbent' : 'Challenger'}">Party</div>
@@ -368,12 +368,12 @@ tr:hover td{background:#f8faff}
                 <div style="font-size:11px;font-weight:800;color:#0044aa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding:6px 12px;background:#e8f0fe;border-radius:6px;border-left:4px solid #0066cc">
                   &#x1F3DB; House of Representatives
                 </div>
-                <div class="candidate-grid">
+                <div class="candidate-grid" data-group="rep">
                   <div th:each="c : ${candidates.?[party.contains('District Representative')]}"
                        th:id="'cand-' + ${c.candidateId}"
                        class="cand-card"
-                       th:attr="data-id=${c.candidateId}"
-                       onclick="selectCand(this.getAttribute('data-id'))">
+                       th:attr="data-id=${c.candidateId},data-group='rep'"
+                       onclick="selectCand(this)">
                     <div class="cand-avatar" th:text="${c.name != null} ? ${c.name.substring(0,1).toUpperCase()} : '?'">C</div>
                     <div class="cand-name" th:text="${c.name}">Candidate</div>
                     <div class="cand-party" style="font-size:11px" th:text="${c.party}">Party</div>
@@ -575,36 +575,55 @@ function showSection(name, el) {
   if (el) { el.classList.add('active'); }
 }
 
-// ── Candidate selection ─────────────────────────────────────
-function selectCand(id) {
-  // Deselect all cards
-  var cards = document.querySelectorAll('.cand-card');
-  for (var i = 0; i < cards.length; i++) {
-    cards[i].classList.remove('selected');
+// ── Candidate selection (one per group) ────────────────────
+function selectCand(el) {
+  var group = el.getAttribute('data-group');
+  var id    = el.getAttribute('data-id');
+
+  // Deselect all cards in the same group
+  var groupCards = document.querySelectorAll('.cand-card[data-group="' + group + '"]');
+  for (var i = 0; i < groupCards.length; i++) {
+    groupCards[i].classList.remove('selected');
   }
   // Select clicked card
-  var card = document.getElementById('cand-' + id);
-  if (card) { card.classList.add('selected'); }
+  el.classList.add('selected');
 
-  // Set hidden input value
-  var input = document.getElementById('selectedCandidateId');
-  if (input) { input.value = id; }
+  // Update or add hidden input for this group
+  var existing = document.getElementById('sel-' + group);
+  if (existing) {
+    existing.value = id;
+  } else {
+    var input = document.createElement('input');
+    input.type  = 'hidden';
+    input.name  = 'candidateIds';
+    input.id    = 'sel-' + group;
+    input.value = id;
+    document.getElementById('voteForm').appendChild(input);
+  }
 
-  // Enable vote button
+  // Enable Cast My Vote button if at least one group has a selection
+  var anySelected = document.querySelectorAll('.cand-card.selected').length > 0;
   var btn = document.getElementById('castVoteBtn');
-  if (btn) { btn.disabled = false; }
+  if (btn) { btn.disabled = !anySelected; }
 }
 
 // ── Confirm and submit vote ─────────────────────────────────
 function confirmVote() {
-  var input = document.getElementById('selectedCandidateId');
-  if (!input || !input.value) {
-    alert('Please select a candidate first.');
+  var selected = document.querySelectorAll('.cand-card.selected');
+  if (selected.length === 0) {
+    alert('Please select at least one candidate.');
     return;
   }
-  var card = document.getElementById('cand-' + input.value);
-  var name = card ? card.querySelector('.cand-name').textContent : input.value;
-  var ok = confirm('You are about to vote for: ' + name + '\n\nThis action cannot be undone. Confirm your vote?');
+
+  var summary = 'You are about to vote for:\n\n';
+  for (var i = 0; i < selected.length; i++) {
+    var name  = selected[i].querySelector('.cand-name').textContent;
+    var party = selected[i].querySelector('.cand-party').textContent;
+    summary += '• ' + name + ' (' + party + ')\n';
+  }
+  summary += '\nThis action cannot be undone. Confirm your vote?';
+
+  var ok = confirm(summary);
   if (ok) {
     document.getElementById('voteForm').submit();
   }

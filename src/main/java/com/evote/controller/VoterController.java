@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -51,21 +52,27 @@ public class VoterController {
     }
 
     @PostMapping("/vote")
-    public String castVote(@RequestParam String candidateId, HttpSession session) {
+    public String castVote(@RequestParam(value="candidateIds", required=false) List<String> candidateIds,
+                           @RequestParam(value="candidateId", required=false) String singleId,
+                           HttpSession session) {
         if (!"voter".equals(session.getAttribute("role"))) return "redirect:/login";
         String voterId = (String) session.getAttribute("userId");
-        String result  = svc.castVote(voterId, candidateId);
+
+        // Support both single and multiple candidate IDs
+        List<String> ids = new java.util.ArrayList<>();
+        if (candidateIds != null) ids.addAll(candidateIds);
+        if (singleId != null && !singleId.isBlank() && !ids.contains(singleId)) ids.add(singleId);
+        if (ids.isEmpty()) return "redirect:/voter/dashboard?error=No candidate selected";
+
+        String result = svc.castVotes(voterId, ids);
         if ("ok".equals(result)) {
             session.setAttribute("hasVoted", true);
             Optional<Voter> voter = svc.findVoter(voterId);
-            Optional<Candidate> candidate = svc.getCandidates().stream()
-                .filter(c -> c.getCandidateId().equals(candidateId)).findFirst();
-            if (voter.isPresent() && candidate.isPresent()
-                    && voter.get().getEmail() != null && !voter.get().getEmail().isBlank()) {
+            if (voter.isPresent() && voter.get().getEmail() != null && !voter.get().getEmail().isBlank()) {
                 String em = voter.get().getEmail(), nm = voter.get().getName();
-                String cn = candidate.get().getName(), pt = candidate.get().getParty();
                 String et = svc.getElection().getTitle();
-                new Thread(() -> emailService.sendVoteConfirmation(em, nm, cn, pt, et)).start();
+                new Thread(() -> emailService.sendVoteConfirmation(em, nm,
+                    ids.size() + " candidate(s)", "Multiple positions", et)).start();
             }
             return "redirect:/voter/dashboard?success=voted";
         }
