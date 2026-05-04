@@ -6,31 +6,35 @@
     <title>E-Vote System — Voter Registration</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <style>
-        body { background:
-            radial-gradient(ellipse at 20% 50%, rgba(0,180,255,0.15) 0%, transparent 50%),
-            radial-gradient(ellipse at 80% 20%, rgba(0,100,255,0.12) 0%, transparent 50%),
-            linear-gradient(135deg, #020b18 0%, #041428 40%, #061e3a 70%, #030f22 100%);
-            font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 20px 0 40px; min-height:100vh; }
-        .reg-wrap { max-width: 700px; margin: 0 auto; padding: 0 16px; }
-        .reg-card { background: rgba(255,255,255,0.97); border-radius: 20px; box-shadow: 0 0 0 1px rgba(0,150,255,0.2), 0 20px 60px rgba(0,0,0,0.5), 0 0 80px rgba(0,100,255,0.15); padding: 36px 40px 32px; }
-        h2.reg-title { text-align: center; color: #0044aa; margin: 0 0 4px; font-size: 1.6rem; font-weight: 800; }
-        p.reg-sub { text-align: center; color: #6b7a99; margin: 0 0 28px; font-size: .93rem; }
+        body {
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(0,180,255,0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(0,100,255,0.12) 0%, transparent 50%),
+                linear-gradient(135deg, #020b18 0%, #041428 40%, #061e3a 70%, #030f22 100%);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0; padding: 0;
+            min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .reg-wrap { width: 100%; max-width: 520px; padding: 16px; }
+        .reg-card {
+            background: rgba(255,255,255,0.98);
+            border-radius: 20px;
+            box-shadow: 0 0 0 1px rgba(0,150,255,0.2), 0 20px 60px rgba(0,0,0,0.5);
+            padding: 28px 32px 24px;
+        }
+        h2.reg-title { text-align: center; color: #0044aa; margin: 0 0 2px; font-size: 1.3rem; font-weight: 800; }
+        p.reg-sub { text-align: center; color: #6b7a99; margin: 0 0 16px; font-size: .85rem; }
 
         /* Progress bar */
-        .progress-bar { display: flex; align-items: flex-start; margin-bottom: 32px; background: rgba(0,50,150,0.08); border-radius: 50px; padding: 14px 20px; border: 1px solid rgba(0,100,200,0.15); }
+        .progress-bar { display: flex; align-items: flex-start; margin-bottom: 16px; background: rgba(0,50,150,0.08); border-radius: 50px; padding: 10px 16px; border: 1px solid rgba(0,100,200,0.15); }
         .prog-step { display: flex; flex-direction: column; align-items: center; flex: 1; }
-        .prog-circle { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.6); color: #8a9ab8; font-weight: 700; font-size: .95rem; display: flex; align-items: center; justify-content: center; border: 2px solid #c8d8f0; transition: all .3s; z-index: 1; }
-        .prog-circle.active { background: linear-gradient(135deg,#0066cc,#0044aa); color: #fff; border-color: #0066cc; box-shadow: 0 0 0 4px rgba(0,100,200,.2); }
+        .prog-circle { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.6); color: #8a9ab8; font-weight: 700; font-size: .82rem; display: flex; align-items: center; justify-content: center; border: 2px solid #c8d8f0; transition: all .3s; z-index: 1; }
+        .prog-circle.active { background: linear-gradient(135deg,#0066cc,#0044aa); color: #fff; border-color: #0066cc; box-shadow: 0 0 0 3px rgba(0,100,200,.2); }
         .prog-circle.done { background: #0044aa; color: #fff; border-color: #0044aa; }
-        .prog-label { font-size: .68rem; color: #8a9ab8; margin-top: 6px; text-align: center; white-space: nowrap; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+        .prog-label { font-size: .6rem; color: #9aa5b8; margin-top: 4px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; text-align: center; white-space: nowrap; }
         .prog-label.active { color: #0044aa; }
-        .prog-line { flex: 1; height: 2px; background: rgba(0,100,200,0.2); margin: 0 -1px; margin-bottom: 28px; transition: background .3s; border-radius: 2px; }
-        .prog-line.done { background: linear-gradient(90deg,#0066cc,#0044aa); }
-        .prog-circle.active { background: linear-gradient(135deg,#0066cc,#0044aa); color: #fff; border-color: #0066cc; box-shadow: 0 0 0 4px rgba(0,100,200,.18); }
-        .prog-circle.done { background: #0044aa; color: #fff; border-color: #0044aa; }
-        .prog-label { font-size: .72rem; color: #9aa5b8; margin-top: 5px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; text-align: center; white-space: nowrap; }
-        .prog-label.active { color: #0044aa; font-weight: 600; }
-        .prog-line { flex: 1; height: 3px; background: #c8d8f0; margin: 0 -1px; margin-bottom: 22px; border-radius: 2px; transition: background .3s; }
+        .prog-line { flex: 1; height: 2px; background: #c8d8f0; margin: 0 -1px; margin-bottom: 18px; border-radius: 2px; transition: background .3s; }
         .prog-line.done { background: linear-gradient(90deg,#0066cc,#0044aa); }
 
         /* Steps */
@@ -38,25 +42,26 @@
         .step.active { display: block; }
 
         /* Form elements */
-        .form-row { display: flex; gap: 14px; margin-bottom: 14px; }
+        .form-row { display: flex; gap: 10px; margin-bottom: 0; }
         .form-row .form-group { flex: 1; }
-        .form-group { margin-bottom: 14px; }
-        .form-group label { display: block; font-size: .85rem; color: #4a5568; font-weight: 700; margin-bottom: 5px; text-transform: uppercase; letter-spacing: .04em; font-size: .8rem; }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%; padding: 9px 12px; border: 1.5px solid #b8d9c5; border-radius: 7px;
-            font-size: .93rem; color: #1a3a2a; background: #f8fdf9; box-sizing: border-box;
-            transition: border-color .2s;
+        .form-group { margin-bottom: 10px; }
+        .form-group label { display: block; font-size: .72rem; color: #4a5568; font-weight: 700; margin-bottom: 3px; text-transform: uppercase; letter-spacing: .04em; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 8px 11px;
+            border: 1.5px solid #c8d8f0; border-radius: 8px;
+            font-size: .9rem; color: #1a2a4a; background: #f8faff;
+            box-sizing: border-box; transition: border-color .2s;
         }
-        .form-group input:focus, .form-group select:focus { outline: none; border-color: #0066cc; box-shadow: 0 0 0 3px rgba(0,100,200,.12); background: #fff; }
-        .form-group .hint { font-size: .75rem; color: #8a9ab8; margin-top: 4px; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #0066cc; box-shadow: 0 0 0 3px rgba(0,100,200,.10); background: #fff; }
+        .form-group .hint { font-size: .7rem; color: #8a9ab8; margin-top: 2px; }
 
         /* Buttons */
-        .btn-primary { width: 100%; padding: 11px; background: linear-gradient(135deg,#0066cc,#0044aa); color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background .2s,box-shadow .2s; margin-top: 8px; box-shadow:0 4px 14px rgba(0,100,200,.3); }
-        .btn-primary:hover { background: linear-gradient(135deg,#0055bb,#003399); box-shadow:0 6px 18px rgba(0,100,200,.4); }
-        .btn-primary:disabled { background: #a8c5e8; cursor: not-allowed; box-shadow:none; }
-        .btn-secondary { padding: 9px 22px; background: #f0f4ff; color: #0044aa; border: 1.5px solid #c8d8f0; border-radius: 10px; font-size: .93rem; font-weight: 600; cursor: pointer; transition: all .2s; }
+        .btn-primary { width: 100%; padding: 11px; background: linear-gradient(135deg,#0066cc,#0044aa); color: #fff; border: none; border-radius: 8px; font-size: .95rem; font-weight: 700; cursor: pointer; transition: all .2s; margin-top: 12px; box-shadow:0 4px 14px rgba(0,100,200,.3); }
+        .btn-primary:hover { background: linear-gradient(135deg,#0055bb,#003399); box-shadow:0 6px 18px rgba(0,100,200,.4); transform: translateY(-1px); }
+        .btn-primary:disabled { background: #a8c5e8; cursor: not-allowed; box-shadow:none; transform: none; }
+        .btn-secondary { padding: 9px 22px; background: #f0f4ff; color: #0044aa; border: 1.5px solid #c8d8f0; border-radius: 8px; font-size: .88rem; font-weight: 700; cursor: pointer; transition: all .2s; }
         .btn-secondary:hover { background: #e0eeff; border-color: #0066cc; }
-        .btn-row { display: flex; gap: 12px; margin-top: 10px; }
+        .btn-row { display: flex; gap: 10px; margin-top: 12px; }
         .btn-row .btn-primary { flex: 2; margin-top: 0; }
         .btn-row .btn-secondary { flex: 1; }
 
@@ -149,9 +154,9 @@
         .check-row label { font-size: .88rem; color: #2d3a5a; line-height: 1.5; } .check-row a { color: #0066cc; font-weight: 600; cursor: pointer; text-decoration: underline; }
 
         /* Step icons */
-        .step-icon { text-align: center; font-size: 2.4rem; margin-bottom: 8px; }
-        .step-title { text-align: center; font-size: 1.2rem; font-weight: 800; color: #0044aa; margin-bottom: 4px; }
-        .step-desc { text-align: center; font-size: .88rem; color: #6b7a99; margin-bottom: 20px; }
+        .step-icon { text-align: center; font-size: 1.8rem; margin-bottom: 4px; }
+        .step-title { text-align: center; font-size: 1rem; font-weight: 800; color: #0044aa; margin-bottom: 2px; }
+        .step-desc { text-align: center; font-size: .8rem; color: #6b7a99; margin-bottom: 14px; }
 
         @media (max-width: 540px) {
             .reg-card { padding: 22px 14px 20px; }
@@ -170,27 +175,19 @@
     <!-- Alerts from server -->
     <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
 
-    <!-- Progress Bar -->
+    <!-- Progress Bar — 6 steps -->
     <div class="progress-bar">
-      <div class="prog-step">
-        <div class="prog-circle active" id="pc1">1</div>
-        <div class="prog-label active" id="pl1">Register</div>
-      </div>
+      <div class="prog-step"><div class="prog-circle active" id="pc1">1</div><div class="prog-label active" id="pl1">Name</div></div>
       <div class="prog-line" id="pline1"></div>
-      <div class="prog-step">
-        <div class="prog-circle" id="pc2">2</div>
-        <div class="prog-label" id="pl2">OTP</div>
-      </div>
+      <div class="prog-step"><div class="prog-circle" id="pc2">2</div><div class="prog-label" id="pl2">Address</div></div>
       <div class="prog-line" id="pline2"></div>
-      <div class="prog-step">
-        <div class="prog-circle" id="pc3">3</div>
-        <div class="prog-label" id="pl3">ID Verify</div>
-      </div>
+      <div class="prog-step"><div class="prog-circle" id="pc3">3</div><div class="prog-label" id="pl3">Account</div></div>
       <div class="prog-line" id="pline3"></div>
-      <div class="prog-step">
-        <div class="prog-circle" id="pc4">4</div>
-        <div class="prog-label" id="pl4">Face Verify</div>
-      </div>
+      <div class="prog-step"><div class="prog-circle" id="pc4">4</div><div class="prog-label" id="pl4">OTP</div></div>
+      <div class="prog-line" id="pline4"></div>
+      <div class="prog-step"><div class="prog-circle" id="pc5">5</div><div class="prog-label" id="pl5">ID</div></div>
+      <div class="prog-line" id="pline5"></div>
+      <div class="prog-step"><div class="prog-circle" id="pc6">6</div><div class="prog-label" id="pl6">Face</div></div>
     </div>
 
     <!-- MAIN FORM -->
@@ -199,89 +196,74 @@
       <input type="hidden" name="otpVerified" id="otpVerified" value="false">
       <input type="hidden" name="name" id="hiddenName" value="">
 
-      <!-- ═══════════════════════════════════════════════════════════
-           STEP 1 — Basic Registration
-      ═══════════════════════════════════════════════════════════ -->
+      <!-- ══ STEP 1: Personal Info ══ -->
       <div class="step active" id="step1">
         <div class="step-icon">&#128100;</div>
-        <div class="step-title">Basic Information</div>
-        <div class="step-desc">Fill in your personal details to create your voter account</div>
-
+        <div class="step-title">Personal Information</div>
+        <div class="step-desc">Tell us about yourself</div>
         <div id="step1Alert"></div>
-
-        <div class="section-heading">Personal Details</div>
         <div class="form-row">
           <div class="form-group">
-            <label for="firstName">First Name *</label>
+            <label>First Name *</label>
             <input type="text" id="firstName" name="firstName" placeholder="Juan" required>
           </div>
           <div class="form-group">
-            <label for="middleName">Middle Name</label>
-            <input type="text" id="middleName" name="middleName" placeholder="Santos">
-          </div>
-          <div class="form-group">
-            <label for="lastName">Last Name *</label>
+            <label>Last Name *</label>
             <input type="text" id="lastName" name="lastName" placeholder="Dela Cruz" required>
           </div>
         </div>
+        <div class="form-group">
+          <label>Middle Name</label>
+          <input type="text" id="middleName" name="middleName" placeholder="Santos (optional)">
+        </div>
         <div class="form-row">
           <div class="form-group">
-            <label for="dateOfBirth">Date of Birth *</label>
+            <label>Date of Birth *</label>
             <input type="date" id="dateOfBirth" name="dateOfBirth" required>
+            <div class="hint">Must be 18 or older</div>
           </div>
           <div class="form-group">
-            <label for="gender">Gender *</label>
-            <select id="gender" name="gender" required>
-              <option value="">Select gender</option>
+            <label>Gender</label>
+            <select id="gender" name="gender">
+              <option value="">Select</option>
               <option value="Male">Male</option>
               <option value="Female">Female</option>
-              <option value="Other">Other / Prefer not to say</option>
+              <option value="Other">Other</option>
             </select>
           </div>
         </div>
+        <button type="button" class="btn-primary" onclick="validateStep1()">Next &#8594;</button>
+      </div>
 
-        <div class="section-heading">Address</div>
+      <!-- ══ STEP 2: Address ══ -->
+      <div class="step" id="step2">
+        <div class="step-icon">&#128205;</div>
+        <div class="step-title">Your Address</div>
+        <div class="step-desc">Where are you registered?</div>
+        <div id="step4Alert"></div>
         <div class="form-group">
-          <label for="street">Street / House No. *</label>
+          <label>House / Street *</label>
           <input type="text" id="street" name="street" placeholder="123 Rizal St." required>
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label for="city">City / Municipality *</label>
+            <label>City *</label>
             <select id="city" name="city" required onchange="populateBarangay()">
               <option value="">Select city</option>
-              <option value="Calamba">Calamba</option>
-              <option value="San Pablo">San Pablo</option>
-              <option value="Santa Rosa">Santa Rosa</option>
-              <option value="Binan">Binan</option>
-              <option value="Cabuyao">Cabuyao</option>
-              <option value="San Pedro">San Pedro</option>
-              <option value="Los Banos">Los Banos</option>
-              <option value="Bay">Bay</option>
-              <option value="Calauan">Calauan</option>
-              <option value="Nagcarlan">Nagcarlan</option>
-              <option value="Liliw">Liliw</option>
-              <option value="Majayjay">Majayjay</option>
-              <option value="Luisiana">Luisiana</option>
-              <option value="Magdalena">Magdalena</option>
-              <option value="Pagsanjan">Pagsanjan</option>
-              <option value="Paete">Paete</option>
-              <option value="Pakil">Pakil</option>
-              <option value="Pangil">Pangil</option>
-              <option value="Siniloan">Siniloan</option>
-              <option value="Famy">Famy</option>
-              <option value="Mabitac">Mabitac</option>
-              <option value="Santa Maria">Santa Maria</option>
-              <option value="Cavinti">Cavinti</option>
-              <option value="Lumban">Lumban</option>
-              <option value="Pila">Pila</option>
-              <option value="Victoria">Victoria</option>
-              <option value="Rizal">Rizal</option>
-              <option value="Alaminos">Alaminos</option>
+              <option>Calamba</option><option>San Pablo</option><option>Santa Rosa</option>
+              <option>Binan</option><option>Cabuyao</option><option>San Pedro</option>
+              <option>Los Banos</option><option>Bay</option><option>Calauan</option>
+              <option>Nagcarlan</option><option>Liliw</option><option>Majayjay</option>
+              <option>Luisiana</option><option>Magdalena</option><option>Pagsanjan</option>
+              <option>Paete</option><option>Pakil</option><option>Pangil</option>
+              <option>Siniloan</option><option>Famy</option><option>Mabitac</option>
+              <option>Santa Maria</option><option>Cavinti</option><option>Lumban</option>
+              <option>Pila</option><option>Victoria</option><option>Rizal</option>
+              <option>Alaminos</option><option>Santa Cruz</option>
             </select>
           </div>
           <div class="form-group">
-            <label for="barangay">Barangay *</label>
+            <label>Barangay *</label>
             <select id="barangay" name="barangay" required>
               <option value="">Select city first</option>
             </select>
@@ -289,69 +271,61 @@
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label for="province">Province</label>
-            <input type="text" id="province" name="province" value="Laguna" readonly style="background:#e8f5ee;color:#5a7a6a;">
+            <label>Province</label>
+            <input type="text" name="province" value="Laguna" readonly style="background:#f0f4ff;color:#6b7a99;cursor:not-allowed">
           </div>
           <div class="form-group">
-            <label for="zipCode">ZIP Code</label>
-            <input type="text" id="zipCode" name="zipCode" placeholder="4027" maxlength="4">
+            <label>ZIP Code</label>
+            <input type="text" id="zipCode" name="zipCode" placeholder="Auto-filled" readonly style="background:#f0f4ff;color:#6b7a99;cursor:not-allowed">
           </div>
         </div>
+        <button type="button" class="btn-primary" onclick="validateStep2()">Next &#8594;</button>
+      </div>
 
-        <div class="section-heading">Contact Information</div>
+      <!-- ══ STEP 3: Contact & Account ══ -->
+      <div class="step" id="step3">
+        <div class="step-icon">&#128274;</div>
+        <div class="step-title">Contact &amp; Account</div>
+        <div class="step-desc">Set up your login credentials</div>
+        <div id="step5Alert"></div>
         <div class="form-row">
           <div class="form-group">
-            <label for="mobileNumber">Mobile Number *</label>
+            <label>Mobile *</label>
             <input type="tel" id="mobileNumber" name="mobileNumber" placeholder="09XXXXXXXXX" maxlength="11" required>
           </div>
           <div class="form-group">
-            <label for="email">Email Address *</label>
-            <input type="email" id="email" name="email" placeholder="juan@email.com" required>
+            <label>Email *</label>
+            <input type="email" id="emailField" name="email" placeholder="you@email.com" required>
           </div>
         </div>
-
-        <div class="section-heading">Account Credentials</div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="voterId">Username / Voter ID *</label>
-            <input type="text" id="voterId" name="voterId" placeholder="e.g. VOTER-001" required>
-            <div class="hint">This will be your login username</div>
-          </div>
-          <div class="form-group">
-            <label for="votingDistrict">Voting District</label>
-            <input type="text" id="votingDistrict" name="votingDistrict" placeholder="District 1">
-          </div>
+        <div class="form-group">
+          <label>Username / Voter ID *</label>
+          <input type="text" id="voterId" name="voterId" placeholder="e.g. VOTER-001" required>
+          <div class="hint">This will be your login username</div>
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label for="password">Password *</label>
-            <input type="password" id="password" name="password" placeholder="Min. 6 characters" required minlength="6">
+            <label>Password *</label>
+            <input type="password" id="password" name="password" placeholder="Min. 6 chars" required>
           </div>
           <div class="form-group">
-            <label for="confirm">Confirm Password *</label>
-            <input type="password" id="confirm" name="confirm" placeholder="Repeat password" required>
+            <label>Confirm *</label>
+            <input type="password" id="confirm" name="confirm" placeholder="Repeat" required>
           </div>
         </div>
-
         <div class="check-row">
           <input type="checkbox" id="termsCheck">
-          <label for="termsCheck">I have read and agree to the <a onclick="openTerms()">Terms and Conditions</a></label>
+          <label for="termsCheck">I agree to the <a onclick="openTerms()">Terms &amp; Conditions</a></label>
         </div>
-
-        <button type="button" class="btn-primary" onclick="validateStep1()" style="margin-top:18px;">
-          Next &#8594;
-        </button>
+        <button type="button" class="btn-primary" onclick="validateStep3()" style="margin-top:10px">Next &#8594;</button>
       </div>
-
-      <!-- ═══════════════════════════════════════════════════════════
-           STEP 2 — OTP Verification
-      ═══════════════════════════════════════════════════════════ -->
-      <div class="step" id="step2">
+      <!-- ══ STEP 4 — OTP Verification ══ -->
+      <div class="step" id="step4">
         <div class="step-icon">&#128233;</div>
         <div class="step-title">Email Verification</div>
-        <div class="step-desc">Enter the 6-digit code sent to your email address</div>
+        <div class="step-desc">Enter the 6-digit code sent to your email</div>
 
-        <div id="step2Alert"></div>
+        <div id="step4Alert"></div>
 
         <p class="otp-info" id="otpSentMsg">Sending OTP to your email...</p>
 
@@ -376,19 +350,17 @@
         </div>
       </div>
 
-      <!-- ═══════════════════════════════════════════════════════════
-           STEP 3 — ID Verification
-      ═══════════════════════════════════════════════════════════ -->
-      <div class="step" id="step3">
+      <!-- ══ STEP 5 — ID Verification ══ -->
+      <div class="step" id="step5">
         <div class="step-icon">&#128196;</div>
         <div class="step-title">ID Verification</div>
         <div class="step-desc">Provide a valid government-issued ID for identity verification</div>
 
-        <div id="step3Alert"></div>
+        <div id="step5Alert"></div>
 
         <div class="form-group">
           <label for="idType">ID Type *</label>
-          <select id="idType" name="idType" onchange="checkStep3()">
+          <select id="idType" name="idType" onchange="checkStep5()">
             <option value="">Select ID type</option>
             <option value="Philippine Passport">Philippine Passport</option>
             <option value="National ID (PhilSys)">National ID (PhilSys)</option>
@@ -401,7 +373,7 @@
 
         <div class="form-group">
           <label for="idNumber">ID Number *</label>
-          <input type="text" id="idNumber" name="idNumber" placeholder="Enter your ID number" oninput="checkStep3()">
+          <input type="text" id="idNumber" name="idNumber" placeholder="Enter your ID number" oninput="checkStep5()">
         </div>
 
         <div class="form-group">
@@ -423,21 +395,19 @@
         </div>
 
         <div class="btn-row">
-          <button type="button" class="btn-primary" id="step3NextBtn" onclick="goToStep(4)" disabled>
+          <button type="button" class="btn-primary" id="step5NextBtn" onclick="goToStep(6)" disabled>
             Next &#8594;
           </button>
         </div>
       </div>
 
-      <!-- ═══════════════════════════════════════════════════════════
-           STEP 4 — Face Verification
-      ═══════════════════════════════════════════════════════════ -->
-      <div class="step" id="step4">
+      <!-- ══ STEP 6 — Face Verification ══ -->
+      <div class="step" id="step6">
         <div class="step-icon">&#129333;</div>
         <div class="step-title">Face Verification</div>
-        <div class="step-desc">Take a selfie to verify your identity against your ID photo</div>
+        <div class="step-desc">Take a selfie to verify your identity</div>
 
-        <div id="step4Alert"></div>
+        <div id="step6Alert"></div>
 
         <div class="camera-wrap" id="cameraWrap">
           <video id="cameraVideo" autoplay playsinline></video>
@@ -474,8 +444,8 @@
 
     </form>
 
-    <div style="text-align:center;margin-top:18px;font-size:.88rem;color:#5a7a6a;">
-      Already registered? <a th:href="@{/login}" style="color:#2d9e5f;font-weight:600;">Sign in here</a>
+    <div style="text-align:center;margin-top:14px;font-size:.85rem;color:rgba(255,255,255,.7);">
+      Already registered? <a th:href="@{/login}" style="color:#60a5fa;font-weight:700;">Sign in here</a>
     </div>
 
   </div>
@@ -562,7 +532,7 @@ function goToStep(n) {
 }
 
 function updateProgress(n) {
-  for (var i = 1; i <= 4; i++) {
+  for (var i = 1; i <= 6; i++) {
     var circle = document.getElementById("pc" + i);
     var label  = document.getElementById("pl" + i);
     circle.classList.remove("active", "done");
@@ -575,7 +545,7 @@ function updateProgress(n) {
       label.classList.add("active");
     }
   }
-  for (var j = 1; j <= 3; j++) {
+  for (var j = 1; j <= 5; j++) {
     var line = document.getElementById("pline" + j);
     if (j < n) {
       line.classList.add("done");
@@ -604,8 +574,32 @@ function populateBarangay() {
   }
 }
 
-// ─── Step 1 validation ────────────────────────────────────────────────────────
-function validateStep1() {
+// ─── Step validation ─────────────────────────────────────────────────────────
+function validateStep2() {
+  var street = document.getElementById("street").value.trim();
+  var city   = document.getElementById("city").value;
+  var brgy   = document.getElementById("barangay").value;
+  if (!street) { showAlert("step2Alert","Please enter your street address."); return; }
+  if (!city)   { showAlert("step2Alert","Please select your city."); return; }
+  if (!brgy)   { showAlert("step2Alert","Please select your barangay."); return; }
+  goToStep(3);
+}
+
+function validateStep3() {
+  var mobile  = document.getElementById("mobileNumber").value.trim();
+  var email   = document.getElementById("emailField").value.trim();
+  var vid     = document.getElementById("voterId").value.trim();
+  var pw      = document.getElementById("password").value;
+  var cpw     = document.getElementById("confirm").value;
+  var terms   = document.getElementById("termsCheck").checked;
+  if (!/^09\d{9}$/.test(mobile)) { showAlert("step3Alert","Mobile must be 09XXXXXXXXX format."); return; }
+  if (!email)  { showAlert("step3Alert","Please enter your email address."); return; }
+  if (!vid)    { showAlert("step3Alert","Please enter a Username / Voter ID."); return; }
+  if (pw.length < 6) { showAlert("step3Alert","Password must be at least 6 characters."); return; }
+  if (pw !== cpw)    { showAlert("step3Alert","Passwords do not match."); return; }
+  if (!terms)        { showAlert("step3Alert","You must agree to the Terms and Conditions."); return; }
+  sendOtp();
+}
   var alertEl = document.getElementById("step1Alert");
   alertEl.innerHTML = "";
 
@@ -659,7 +653,7 @@ function sendOtp() {
   var name    = document.getElementById("hiddenName").value;
   var msgEl   = document.getElementById("otpSentMsg");
 
-  goToStep(2);
+  goToStep(4);
   msgEl.textContent = "Sending OTP to " + email + "...";
 
   var params = new URLSearchParams();
@@ -671,11 +665,11 @@ function sendOtp() {
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (data.status === "error") {
-        showAlert("step2Alert", data.message);
+        showAlert("step4Alert", data.message);
         msgEl.textContent = "Failed to send OTP.";
       } else if (data.status === "fallback") {
         msgEl.textContent = "Email unavailable. Use this code: " + data.otp;
-        showAlert("step2Alert", "Dev mode — OTP: " + data.otp, "info");
+        showAlert("id="step4Alert", "info");
       } else {
         msgEl.textContent = "OTP sent to " + email + ". Check your inbox.";
       }
@@ -704,7 +698,7 @@ function otpInput(el, idx) {
     document.getElementById("otp" + (idx + 1)).focus();
   }
   // Clear any previous result message while user is still typing
-  document.getElementById("step2Alert").innerHTML = "";
+  document.getElementById("step4Alert").innerHTML = "";
 }
 
 function otpKeydown(e, idx) {
@@ -719,7 +713,7 @@ function verifyOtp() {
     code += document.getElementById("otp" + i).value;
   }
   if (code.length < 6) {
-    showAlert("step2Alert", "Please enter the complete 6-digit code.");
+    showAlert("step4Alert", "Please enter the complete 6-digit code.");
     return;
   }
 
@@ -733,19 +727,19 @@ function verifyOtp() {
     .then(function(data) {
       if (data.status === "ok") {
         document.getElementById("otpVerified").value = "true";
-        showAlert("step2Alert", "&#10003; Email verified! Proceeding...", "success");
-        setTimeout(function() { goToStep(3); }, 800);
+        showAlert("step4Alert", "&#10003; Email verified! Proceeding...", "success");
+        setTimeout(function() { goToStep(5); }, 800);
       } else {
-        showAlert("step2Alert", data.message || "Invalid OTP. Please try again.");
+        showAlert("id="step4Alert". Please try again.");
       }
     })
     .catch(function() {
-      showAlert("step2Alert", "Network error. Please try again.");
+      showAlert("step4Alert", "Network error. Please try again.");
     });
 }
 
 // ─── Step 3 validation ────────────────────────────────────────────────────────
-function checkStep3() {
+function checkStep5() {
   var idType   = document.getElementById("idType").value;
   var idNumber = document.getElementById("idNumber").value.trim();
   var idPhoto  = document.getElementById("idPhoto").files.length > 0;
@@ -768,7 +762,7 @@ function previewIdPhoto() {
     preview.style.display = "none";
     hint.style.display = "flex";
   }
-  checkStep3();
+  checkStep5();
 }
 
 // ─── Camera / selfie ──────────────────────────────────────────────────────────
@@ -851,7 +845,7 @@ function skipSelfie() {
 
 function prepareSubmit() {
   if (document.getElementById("otpVerified").value !== "true") {
-    showAlert("step4Alert", "Email OTP verification is required before submitting.");
+    showAlert("id="step4Alert" verification is required before submitting.");
     return false;
   }
   if (cameraStream) {
@@ -898,4 +892,7 @@ function showAlert(containerId, message, type) {
 </script>
 </body>
 </html>
+
+
+
 
