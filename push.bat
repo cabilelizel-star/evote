@@ -1,8 +1,11 @@
 @echo off
 cd /d "%~dp0"
-git add .
-git commit -m "Rewrite voter dashboard to match admin layout - fix all errors"
+echo Adding all changes...
+git add -A
+echo Committing...
+git commit -m "Fix voter dashboard: rewrite to match admin layout, fix error overlay"
+echo Pushing to Railway...
 git push origin main
 echo.
-echo Done! Railway will redeploy automatically.
+echo Done! Check Railway dashboard for deployment status.
 pause
