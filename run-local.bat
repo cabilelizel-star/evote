@@ -1,5 +1,5 @@
 @echo off
-setlocal enabledelayedexpansion
+setlocal
 title eVOTE Local Server
 
 echo ============================================
@@ -9,70 +9,33 @@ echo.
 
 :: ── 1. Find Java ─────────────────────────────────────────────
 set JAVA_HOME=
-for %%J in (
-    "C:\Program Files\Java\jdk-25"
-    "C:\Program Files\Java\jdk-21"
-    "C:\Program Files\Java\jdk-17"
-    "C:\Program Files\Eclipse Adoptium\jdk-21"
-    "C:\Program Files\Microsoft\jdk-21"
-) do (
-    if exist "%%~J\bin\java.exe" (
-        set JAVA_HOME=%%~J
-        goto java_found
-    )
-)
-:: fallback: use java from PATH
+if exist "C:\Program Files\Java\jdk-25\bin\java.exe" set JAVA_HOME=C:\Program Files\Java\jdk-25
+if exist "C:\Program Files\Java\jdk-21\bin\java.exe" set JAVA_HOME=C:\Program Files\Java\jdk-21
+if exist "C:\Program Files\Java\jdk-17\bin\java.exe" set JAVA_HOME=C:\Program Files\Java\jdk-17
+if defined JAVA_HOME goto java_found
 where java >nul 2>&1
 if %errorlevel%==0 goto java_found
 echo [ERROR] Java not found. Please install Java 17+ from https://adoptium.net
-pause & exit /b 1
+pause
+exit /b 1
 :java_found
-echo [OK] Java: %JAVA_HOME%
+echo [OK] Java found
 
-:: ── 2. Find or Download Maven ─────────────────────────────────
+:: ── 2. Find Maven ─────────────────────────────────────────────
 set MVN=
-:: Check common locations
-for %%M in (
-    "C:\maven\bin\mvn.cmd"
-    "C:\tools\maven\bin\mvn.cmd"
-    "C:\Program Files\Maven\bin\mvn.cmd"
-) do (
-    if exist %%M (
-        set MVN=%%M
-        goto mvn_found
-    )
-)
-:: Check Downloads folder
-for /d %%D in ("C:\Users\%USERNAME%\Downloads\apache-maven-*") do (
-    if exist "%%D\bin\mvn.cmd" ( set MVN=%%D\bin\mvn.cmd & goto mvn_found )
-    for /d %%E in ("%%D\apache-maven-*") do (
-        if exist "%%E\bin\mvn.cmd" ( set MVN=%%E\bin\mvn.cmd & goto mvn_found )
-    )
-)
-:: Check if mvn is on PATH
+if exist "C:\maven\bin\mvn.cmd"                          set MVN=C:\maven\bin\mvn.cmd
+if exist "C:\tools\maven\bin\mvn.cmd"                    set MVN=C:\tools\maven\bin\mvn.cmd
+if exist "C:\Program Files\Maven\bin\mvn.cmd"            set MVN=C:\Program Files\Maven\bin\mvn.cmd
+if defined MVN goto mvn_found
 where mvn >nul 2>&1
-if %errorlevel%==0 ( set MVN=mvn & goto mvn_found )
+if %errorlevel%==0 set MVN=mvn & goto mvn_found
 
 :: ── Auto-download Maven ───────────────────────────────────────
-echo [*] Maven not found. Downloading Maven 3.9.6...
-set MVN_URL=https://archive.apache.org/dist/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.zip
-set MVN_ZIP=C:\maven-download.zip
-set MVN_DIR=C:\maven
-
-powershell -Command "Write-Host 'Downloading...'; Invoke-WebRequest -Uri '%MVN_URL%' -OutFile '%MVN_ZIP%' -UseBasicParsing"
-if not exist "%MVN_ZIP%" (
-    echo [ERROR] Download failed. Please install Maven manually from https://maven.apache.org
-    pause & exit /b 1
-)
-echo [*] Extracting Maven to C:\maven ...
-powershell -Command "Expand-Archive -Path '%MVN_ZIP%' -DestinationPath 'C:\maven-tmp' -Force"
-:: Move the inner folder to C:\maven
-for /d %%D in ("C:\maven-tmp\apache-maven-*") do (
-    if exist "%%D\bin\mvn.cmd" (
-        xcopy /E /I /Y "%%D" "C:\maven\" >nul
-    )
-)
-del "%MVN_ZIP%" >nul 2>&1
+echo [*] Maven not found. Downloading Maven 3.9.6 (one-time setup)...
+powershell -Command "Invoke-WebRequest -Uri 'https://archive.apache.org/dist/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.zip' -OutFile 'C:\maven-dl.zip' -UseBasicParsing"
+powershell -Command "Expand-Archive -Path 'C:\maven-dl.zip' -DestinationPath 'C:\maven-tmp' -Force"
+xcopy /E /I /Y "C:\maven-tmp\apache-maven-3.9.6" "C:\maven\" >nul
+del "C:\maven-dl.zip" >nul 2>&1
 rmdir /S /Q "C:\maven-tmp" >nul 2>&1
 set MVN=C:\maven\bin\mvn.cmd
 
@@ -80,24 +43,21 @@ set MVN=C:\maven\bin\mvn.cmd
 echo [OK] Maven: %MVN%
 echo.
 
-:: ── 3. Build and Run ──────────────────────────────────────────
+:: ── 3. Set PATH and Run ───────────────────────────────────────
+if defined JAVA_HOME set PATH=%JAVA_HOME%\bin;%PATH%
+
 set ROOT=%~dp0
 
-echo [*] Building application (first time may take 1-2 minutes)...
-echo [*] This connects to your Railway MySQL database automatically.
+echo [*] Building and starting eVOTE...
 echo.
-echo     Once started, open your browser and go to:
-echo     >>> http://localhost:8080 <<<
+echo     Open your browser and go to:
+echo     ^>^>^> http://localhost:8080 ^<^<^<
 echo.
-echo     Admin login:  Admin / Admin123
-echo     Press Ctrl+C to stop the server
+echo     Admin login : Admin / Admin123
+echo     Press Ctrl+C to stop
 echo.
 
-if defined JAVA_HOME (
-    set PATH=%JAVA_HOME%\bin;%PATH%
-)
-
-"%MVN%" -f "%ROOT%pom.xml" spring-boot:run -Dspring-boot.run.jvmArguments="-Dserver.port=8080"
+"%MVN%" -f "%ROOT%pom.xml" spring-boot:run
 
 echo.
 echo [*] Server stopped.
