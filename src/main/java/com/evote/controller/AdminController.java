@@ -144,10 +144,11 @@ public class AdminController {
     public String addCandidate(@RequestParam String candidateId,
                                @RequestParam String name,
                                @RequestParam String party,
+                               @RequestParam(required = false) String electionType,
                                HttpSession session) {
         if (!"admin".equals(session.getAttribute("role"))) return "redirect:/login";
-        svc.addCandidate(candidateId.trim(), name.trim(), party.trim());
-        svc.logActivity("Admin", "Added candidate: " + name + " (" + candidateId + ")");
+        svc.addCandidate(candidateId.trim(), name.trim(), party.trim(), electionType);
+        svc.logActivity("Admin", "Added candidate: " + name + " (" + candidateId + ") [" + electionType + "]");
         return "redirect:/admin/dashboard?tab=candidates";
     }
 

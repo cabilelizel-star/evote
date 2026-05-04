@@ -26,6 +26,7 @@ public class ElectionService {
     private void ensureColumns() {
         try { db.execute("ALTER TABLE elections ADD COLUMN election_type VARCHAR(100)"); } catch (Exception ignored) {}
         try { db.execute("ALTER TABLE elections ADD COLUMN organization VARCHAR(255)"); }  catch (Exception ignored) {}
+        try { db.execute("ALTER TABLE candidates ADD COLUMN election_type VARCHAR(100)"); } catch (Exception ignored) {}
     }
 
     // â”€â”€ Election â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -54,14 +55,19 @@ public class ElectionService {
     // â”€â”€ Candidates â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     public List<Candidate> getCandidates() {
         return db.query(
-            "SELECT candidate_id, name, party, vote_count FROM candidates " +
-            "WHERE election_id = ? ORDER BY name",
+            "SELECT candidate_id, name, party, vote_count, election_type FROM candidates " +
+            "WHERE election_id = ? ORDER BY election_type, party, name",
             candidateMapper(), ELECTION_ID);
     }
 
+    public void addCandidate(String id, String name, String party, String electionType) {
+        db.update("INSERT IGNORE INTO candidates (candidate_id, election_id, name, party, election_type) VALUES (?,?,?,?,?)",
+            id, ELECTION_ID, name, party, electionType);
+    }
+
+    // backward compat overload
     public void addCandidate(String id, String name, String party) {
-        db.update("INSERT IGNORE INTO candidates (candidate_id, election_id, name, party) VALUES (?,?,?,?)",
-            id, ELECTION_ID, name, party);
+        addCandidate(id, name, party, null);
     }
 
     public void removeCandidate(String id) {
@@ -400,9 +406,13 @@ public class ElectionService {
     }
 
     private RowMapper<Candidate> candidateMapper() {
-        return (rs, i) -> new Candidate(
-            rs.getString("candidate_id"), rs.getString("name"),
-            rs.getString("party"), rs.getInt("vote_count"));
+        return (rs, i) -> {
+            Candidate c = new Candidate(
+                rs.getString("candidate_id"), rs.getString("name"),
+                rs.getString("party"), rs.getInt("vote_count"));
+            try { c.setElectionType(rs.getString("election_type")); } catch (Exception ignored) {}
+            return c;
+        };
     }
 
     private RowMapper<Voter> voterMapper() {

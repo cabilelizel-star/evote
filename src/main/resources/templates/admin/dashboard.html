@@ -300,7 +300,19 @@ tr:hover td{background:#f8faff}
         <div class="form-row">
           <div class="form-group"><label>Candidate ID</label><input type="text" name="candidateId" placeholder="e.g. C001" required></div>
           <div class="form-group"><label>Full Name</label><input type="text" name="name" placeholder="Full name" required></div>
-          <div class="form-group"><label>Party / Position</label><input type="text" name="party" placeholder="Party or position" required></div>
+          <div class="form-group"><label>Party / Position</label><input type="text" name="party" placeholder="e.g. Governor - Incumbent" required></div>
+          <div class="form-group">
+            <label>Election Type</label>
+            <select name="electionType" required style="padding:9px 12px;border:1.5px solid #c8d8f0;border-radius:8px;font-size:14px;color:#222;outline:none;background:#f8faff">
+              <option value="">— Select Type —</option>
+              <option value="National Election">🇵🇭 National Election</option>
+              <option value="Local Government Election">🏛 Local Government</option>
+              <option value="Barangay-Level Voting">🏘 Barangay-Level Voting</option>
+              <option value="School Election">🏫 School Election</option>
+              <option value="Student Council Election">🎓 Student Council</option>
+              <option value="Organization Voting">🏢 Organization Voting</option>
+            </select>
+          </div>
           <button type="submit" class="btn btn-blue" style="align-self:flex-end">Add</button>
         </div>
       </form>
@@ -308,14 +320,22 @@ tr:hover td{background:#f8faff}
     <div class="card">
       <div class="card-title">📋 Candidate List</div>
       <table>
-        <thead><tr><th>#</th><th>ID</th><th>Name</th><th>Party</th><th>Action</th></tr></thead>
+        <thead><tr><th>#</th><th>ID</th><th>Name</th><th>Party / Position</th><th>Election Type</th><th>Action</th></tr></thead>
         <tbody>
-          <tr th:if="${#lists.isEmpty(candidates)}"><td colspan="5" style="text-align:center;padding:20px;color:#aaa">No candidates yet.</td></tr>
+          <tr th:if="${#lists.isEmpty(candidates)}"><td colspan="6" style="text-align:center;padding:20px;color:#aaa">No candidates yet.</td></tr>
           <tr th:each="c,i : ${candidates}">
-            <td th:text="${i.count}" style="color:#aaa;font-size:12px"></td>
+            <td th:text="${i.count}" style="color:#aaa;font-size:13px"></td>
             <td><span class="pill pill-green" th:text="${c.candidateId}"></span></td>
-            <td style="font-weight:700" th:text="${c.name}"></td>
-            <td th:text="${c.party}"></td>
+            <td style="font-weight:700;font-size:15px" th:text="${c.name}"></td>
+            <td th:text="${c.party}" style="font-size:14px"></td>
+            <td>
+              <span th:if="${c.electionType != null}"
+                    style="display:inline-flex;align-items:center;gap:4px;background:#e8f0fe;color:#0044aa;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700">
+                <span th:text="${c.typeIcon}"></span>
+                <span th:text="${c.electionType}"></span>
+              </span>
+              <span th:if="${c.electionType == null}" style="color:#aaa;font-size:12px">—</span>
+            </td>
             <td>
               <form method="post" th:action="@{/admin/candidate/remove}" style="display:inline">
                 <input type="hidden" name="candidateId" th:value="${c.candidateId}">
