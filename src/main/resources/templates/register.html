@@ -232,12 +232,12 @@
         <div class="form-row" style="align-items:flex-end">
           <div class="form-group">
             <label>Date of Birth *</label>
-            <input type="date" id="dateOfBirth" name="dateOfBirth" required onchange="calcAge()">
+            <input type="date" id="dateOfBirth" name="dateOfBirth" required onchange="calcAge()" oninput="calcAge()">
           </div>
           <div class="form-group">
             <label>Age</label>
-            <div id="ageDisplay" style="padding:8px 12px;border-radius:8px;font-size:.9rem;font-weight:700;background:#f8faff;border:1.5px solid #c8d8f0;color:#8a9ab8;min-height:38px;display:flex;align-items:center">
-              Auto-calculated
+            <div id="ageDisplay" style="padding:8px 12px;border-radius:8px;font-size:.9rem;font-weight:700;background:#f8faff;border:1.5px solid #c8d8f0;color:#aaa;min-height:38px;display:flex;align-items:center;justify-content:center;text-align:center">
+              —
             </div>
           </div>
         </div>
@@ -588,9 +588,9 @@ function calcAge() {
   var dob = document.getElementById("dateOfBirth").value;
   var display = document.getElementById("ageDisplay");
   if (!dob) {
-    display.innerHTML = "Auto-calculated";
+    display.innerHTML = "—";
     display.style.background = "#f8faff";
-    display.style.color = "#8a9ab8";
+    display.style.color = "#aaa";
     display.style.border = "1.5px solid #c8d8f0";
     return;
   }
