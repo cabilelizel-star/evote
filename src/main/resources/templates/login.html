@@ -40,19 +40,17 @@
             justify-content:center;
         }
         .form-label-top{
-            font-size:11px;
-            font-weight:800;
-            letter-spacing:3px;
-            color:rgba(255,255,255,0.7);
-            text-transform:uppercase;
-            margin-bottom:8px;
-        }
-        .form-title{
-            font-size:2rem;
-            font-weight:800;
+            font-size:28px;
+            font-weight:900;
+            letter-spacing:4px;
             color:#fff;
-            margin-bottom:8px;
-            line-height:1.2;
+            text-transform:uppercase;
+            margin-bottom:12px;
+            background:rgba(255,255,255,0.15);
+            display:inline-block;
+            padding:6px 20px;
+            border-radius:8px;
+            border-left:4px solid #fff;
         }
         .form-sub{
             font-size:13px;
@@ -204,8 +202,7 @@
 
     <!-- ═══ LEFT — Login Form ═══ -->
     <div class="form-side">
-        <div class="form-label-top">WELCOME</div>
-        <div class="form-title">Welcome back</div>
+        <div class="form-label-top">LOGIN</div>
         <div class="form-sub">Sign in with your registered SecureBallot account to continue voting securely.</div>
 
         <div th:if="${success}" class="alert-box alert-success" th:text="${success}"></div>
