@@ -56,12 +56,13 @@
         .form-group .hint { font-size: .7rem; color: #8a9ab8; margin-top: 2px; }
 
         /* Buttons */
-        .btn-primary { width: 100%; padding: 11px; background: linear-gradient(135deg,#0066cc,#0044aa); color: #fff; border: none; border-radius: 8px; font-size: .95rem; font-weight: 700; cursor: pointer; transition: all .2s; margin-top: 12px; box-shadow:0 4px 14px rgba(0,100,200,.3); }
+        .btn-primary { display:block; width: 100%; padding: 12px; background: linear-gradient(135deg,#0066cc,#0044aa); color: #fff; border: none; border-radius: 8px; font-size: .95rem; font-weight: 700; cursor: pointer; transition: all .2s; margin-top: 14px; box-shadow:0 4px 14px rgba(0,100,200,.3); box-sizing: border-box; }
         .btn-primary:hover { background: linear-gradient(135deg,#0055bb,#003399); box-shadow:0 6px 18px rgba(0,100,200,.4); transform: translateY(-1px); }
+        .btn-primary:active { transform: translateY(0); }
         .btn-primary:disabled { background: #a8c5e8; cursor: not-allowed; box-shadow:none; transform: none; }
-        .btn-secondary { padding: 9px 22px; background: #f0f4ff; color: #0044aa; border: 1.5px solid #c8d8f0; border-radius: 8px; font-size: .88rem; font-weight: 700; cursor: pointer; transition: all .2s; }
+        .btn-secondary { display:inline-block; padding: 10px 20px; background: #f0f4ff; color: #0044aa; border: 1.5px solid #c8d8f0; border-radius: 8px; font-size: .88rem; font-weight: 700; cursor: pointer; transition: all .2s; }
         .btn-secondary:hover { background: #e0eeff; border-color: #0066cc; }
-        .btn-row { display: flex; gap: 10px; margin-top: 12px; }
+        .btn-row { display: flex; gap: 10px; margin-top: 14px; }
         .btn-row .btn-primary { flex: 2; margin-top: 0; }
         .btn-row .btn-secondary { flex: 1; }
 
@@ -219,8 +220,8 @@
         <div class="form-row">
           <div class="form-group">
             <label>Date of Birth *</label>
-            <input type="date" id="dateOfBirth" name="dateOfBirth" required>
-            <div class="hint">Must be 18 or older</div>
+            <input type="date" id="dateOfBirth" name="dateOfBirth" required onchange="calcAge()">
+            <div class="hint" id="ageDisplay">Must be 18 or older</div>
           </div>
           <div class="form-group">
             <label>Gender</label>
@@ -232,7 +233,7 @@
             </select>
           </div>
         </div>
-        <button type="button" class="btn-primary" onclick="validateStep1()">Next &#8594;</button>
+        <button type="button" class="btn-primary" onclick="validateStep1()" style="margin-top:14px">Next &#8594;</button>
       </div>
 
       <!-- ══ STEP 2: Address ══ -->
@@ -574,7 +575,22 @@ function populateBarangay() {
   }
 }
 
-// ─── Step validation ─────────────────────────────────────────────────────────
+// ─── Age calculator ───────────────────────────────────────────────────────────
+function calcAge() {
+  var dob = document.getElementById("dateOfBirth").value;
+  var display = document.getElementById("ageDisplay");
+  if (!dob) { display.textContent = "Must be 18 or older"; display.style.color = "#8a9ab8"; return; }
+  var age = Math.floor((new Date() - new Date(dob)) / (365.25 * 24 * 3600 * 1000));
+  if (age < 18) {
+    display.textContent = "Age: " + age + " — Must be at least 18 years old";
+    display.style.color = "#c0392b";
+    display.style.fontWeight = "700";
+  } else {
+    display.textContent = "Age: " + age + " ✓";
+    display.style.color = "#0044aa";
+    display.style.fontWeight = "700";
+  }
+}
 function validateStep2() {
   var street = document.getElementById("street").value.trim();
   var city   = document.getElementById("city").value;
