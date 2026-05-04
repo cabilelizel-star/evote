@@ -1,21 +1,65 @@
+/* ═══════════════════════════════════════════════════════════════
+   E-VOTE SYSTEM — Global Stylesheet
+   Dark blue tech theme with green accents
+═══════════════════════════════════════════════════════════════ */
+
 /* ── Reset ───────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; color: #1a1a1a; }
 a { text-decoration: none; color: inherit; }
 
-/* ── Auth pages ──────────────────────────────────────────────── */
+/* ── Auth pages (Login, Register, Forgot Password) ───────────── */
 .auth-body {
     display: flex; align-items: center; justify-content: center;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #1a6b3c 0%, #2d9e5f 50%, #1a6b3c 100%);
+    min-height: 100vh; padding: 20px;
+    background:
+        radial-gradient(ellipse at 20% 50%, rgba(0,180,255,0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(0,100,255,0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 60% 80%, rgba(0,200,150,0.10) 0%, transparent 50%),
+        linear-gradient(135deg, #020b18 0%, #041428 40%, #061e3a 70%, #030f22 100%);
+    position: relative; overflow: hidden;
+}
+
+/* Animated floating particles */
+.auth-body::before {
+    content: '';
+    position: fixed; inset: 0; pointer-events: none;
+    background-image:
+        radial-gradient(circle, rgba(0,180,255,0.6) 1px, transparent 1px),
+        radial-gradient(circle, rgba(0,255,200,0.4) 1px, transparent 1px),
+        radial-gradient(circle, rgba(100,150,255,0.5) 1px, transparent 1px);
+    background-size: 120px 120px, 80px 80px, 200px 200px;
+    background-position: 0 0, 40px 40px, 80px 80px;
+    animation: particleFloat 20s linear infinite;
+    opacity: 0.4;
+}
+
+/* Grid lines overlay */
+.auth-body::after {
+    content: '';
+    position: fixed; inset: 0; pointer-events: none;
+    background-image:
+        linear-gradient(rgba(0,180,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,180,255,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+}
+
+@keyframes particleFloat {
+    0% { background-position: 0 0, 40px 40px, 80px 80px; }
+    100% { background-position: 120px 120px, 160px 160px, 280px 280px; }
 }
 
 .auth-card {
-    background: #ffffff;
-    border-radius: 16px;
+    background: rgba(255,255,255,0.97);
+    border-radius: 20px;
     padding: 44px 48px;
     width: 440px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    max-width: 95vw;
+    box-shadow:
+        0 0 0 1px rgba(0,180,255,0.2),
+        0 20px 60px rgba(0,0,0,0.5),
+        0 0 80px rgba(0,100,255,0.1);
+    position: relative; z-index: 1;
 }
 
 .auth-avatar {
@@ -23,7 +67,9 @@ a { text-decoration: none; color: inherit; }
     border: 3px solid #2d9e5f;
     display: flex; align-items: center; justify-content: center;
     margin: 0 auto 20px; font-size: 38px;
-    background: #f0faf4; color: #2d9e5f;
+    background: linear-gradient(135deg, #f0faf4, #e0f2e9);
+    color: #2d9e5f;
+    box-shadow: 0 4px 16px rgba(45,158,95,0.2);
 }
 
 .auth-title-row {
@@ -42,10 +88,13 @@ a { text-decoration: none; color: inherit; }
 .input-group {
     display: flex; align-items: center;
     background: #f8fffe; border: 1.5px solid #c8e6d4;
-    border-radius: 8px; margin-bottom: 14px;
-    transition: border-color .2s;
+    border-radius: 10px; margin-bottom: 14px;
+    transition: border-color .2s, box-shadow .2s;
 }
-.input-group:focus-within { border-color: #2d9e5f; box-shadow: 0 0 0 3px rgba(45,158,95,0.12); }
+.input-group:focus-within {
+    border-color: #2d9e5f;
+    box-shadow: 0 0 0 3px rgba(45,158,95,0.12);
+}
 .input-group .icon {
     padding: 0 14px; font-size: 16px;
     color: #2d9e5f; line-height: 50px;
@@ -69,12 +118,16 @@ a { text-decoration: none; color: inherit; }
 .btn-primary {
     width: 100%; padding: 14px;
     background: linear-gradient(135deg, #2d9e5f, #1a6b3c);
-    border: none; border-radius: 8px;
+    border: none; border-radius: 10px;
     color: #fff; font-size: 16px; font-weight: 700;
-    cursor: pointer; transition: opacity .2s, transform .1s;
+    cursor: pointer; transition: opacity .2s, transform .1s, box-shadow .2s;
     margin-bottom: 16px; letter-spacing: .3px;
+    box-shadow: 0 4px 16px rgba(45,158,95,0.3);
 }
-.btn-primary:hover { opacity: .92; transform: translateY(-1px); }
+.btn-primary:hover {
+    opacity: .92; transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(45,158,95,0.4);
+}
 .btn-primary:active { transform: translateY(0); }
 
 .auth-footer { text-align: center; font-size: 13px; color: #666; }
@@ -85,7 +138,7 @@ a { text-decoration: none; color: inherit; }
 .alert-error   { background: #fff0f0; color: #c0392b; border: 1px solid #f5c6c6; }
 .alert-success { background: #f0faf4; color: #1a6b3c; border: 1px solid #a8dfc0; }
 
-/* ── Dashboard ───────────────────────────────────────────────── */
+/* ── Dashboard shared ────────────────────────────────────────── */
 .dash-body { background: #f4faf6; min-height: 100vh; }
 
 .navbar {
@@ -108,23 +161,24 @@ a { text-decoration: none; color: inherit; }
 .page-title { font-size: 26px; font-weight: 800; color: #1a6b3c; margin-bottom: 24px; }
 
 .card {
-    background: #fff; border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    background: #fff; border-radius: 14px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.07);
     padding: 24px; margin-bottom: 24px;
     border-top: 3px solid #2d9e5f;
 }
 .card-title {
-    font-size: 16px; font-weight: 700; color: #1a6b3c;
+    font-size: 14px; font-weight: 800; color: #1a6b3c;
     margin-bottom: 18px; padding-bottom: 12px;
     border-bottom: 1px solid #e0f2e9;
+    text-transform: uppercase; letter-spacing: .5px;
 }
 
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
 
 .stat-box {
-    background: #fff; border-radius: 12px; padding: 20px 24px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    background: #fff; border-radius: 14px; padding: 20px 24px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.07);
     border-left: 5px solid #2d9e5f;
 }
 .stat-box.green  { border-color: #2d9e5f; }
@@ -140,13 +194,11 @@ a { text-decoration: none; color: inherit; }
     padding: 9px 12px; border: 1.5px solid #c8e6d4;
     border-radius: 8px; font-size: 14px; color: #1a1a1a;
     outline: none; transition: border .2s; background: #f8fffe;
-    text-transform: capitalize;
 }
-.form-group input[type="email"],
-.form-group input[type="password"],
-.form-group input[type="number"],
-.form-group input[type="date"] { text-transform: none; }
-.form-group input:focus, .form-group select:focus { border-color: #2d9e5f; box-shadow: 0 0 0 3px rgba(45,158,95,0.1); }
+.form-group input:focus, .form-group select:focus {
+    border-color: #2d9e5f;
+    box-shadow: 0 0 0 3px rgba(45,158,95,0.1);
+}
 
 .btn { padding: 9px 18px; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity .2s; }
 .btn:hover { opacity: .85; }
@@ -204,7 +256,72 @@ tr:hover td { background: #f8fffe; }
 .tab-content { display: none; }
 .tab-content.active { display: block; }
 
-/* ── Terms Modal ─────────────────────────────────────────────── */
+/* ── Voter Dashboard specific ────────────────────────────────── */
+.vd-body {
+    min-height: 100vh;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background:
+        radial-gradient(ellipse at 10% 30%, rgba(0,180,255,0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 90% 70%, rgba(0,100,200,0.06) 0%, transparent 50%),
+        #f0faf4;
+}
+
+/* Hero banner behind the main content area */
+.vd-hero {
+    background:
+        linear-gradient(rgba(2,11,24,0.82), rgba(4,20,40,0.88)),
+        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle cx="20" cy="20" r="2" fill="rgba(0,180,255,0.3)"/><circle cx="80" cy="60" r="1.5" fill="rgba(0,255,200,0.3)"/><circle cx="50" cy="80" r="1" fill="rgba(100,150,255,0.4)"/><line x1="0" y1="50" x2="100" y2="50" stroke="rgba(0,180,255,0.05)" stroke-width="0.5"/><line x1="50" y1="0" x2="50" y2="100" stroke="rgba(0,180,255,0.05)" stroke-width="0.5"/></svg>');
+    background-size: cover, 100px 100px;
+    padding: 32px 32px 28px;
+    border-bottom: 1px solid rgba(0,180,255,0.15);
+    position: relative; overflow: hidden;
+}
+.vd-hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg,
+        rgba(0,180,255,0.06) 0%,
+        transparent 30%,
+        rgba(45,158,95,0.08) 70%,
+        transparent 100%);
+    animation: heroShimmer 8s ease-in-out infinite alternate;
+}
+@keyframes heroShimmer {
+    0% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+.vd-hero-title {
+    font-size: 26px; font-weight: 900; color: #fff;
+    margin-bottom: 4px; position: relative; z-index: 1;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+.vd-hero-sub {
+    font-size: 13px; color: rgba(255,255,255,0.65);
+    position: relative; z-index: 1;
+}
+.vd-hero-stats {
+    display: flex; gap: 16px; margin-top: 20px;
+    position: relative; z-index: 1; flex-wrap: wrap;
+}
+.vd-hero-stat {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px; padding: 14px 20px;
+    backdrop-filter: blur(10px);
+    min-width: 140px;
+}
+.vd-hero-stat .label {
+    font-size: 10px; color: rgba(255,255,255,0.55);
+    text-transform: uppercase; letter-spacing: .8px; font-weight: 700;
+    margin-bottom: 4px;
+}
+.vd-hero-stat .value {
+    font-size: 18px; font-weight: 800; color: #fff;
+}
+.vd-hero-stat.green .value { color: #4ade80; }
+.vd-hero-stat.yellow .value { color: #fbbf24; }
+
+/* ── Modal ───────────────────────────────────────────────────── */
 .modal-overlay {
     display: none; position: fixed; inset: 0;
     background: rgba(0,0,0,0.5); z-index: 1000;
@@ -241,10 +358,7 @@ tr:hover td { background: #f8fffe; }
     display: flex; align-items: center; gap: 8px;
     color: #444; font-size: 13px; cursor: pointer; font-weight: 600;
 }
-.scroll-hint {
-    text-align: center; font-size: 11px;
-    color: #aaa; padding: 8px 0 0;
-}
+.scroll-hint { text-align: center; font-size: 11px; color: #aaa; padding: 8px 0 0; }
 .btn-agree {
     padding: 10px 28px;
     background: linear-gradient(135deg, #2d9e5f, #1a6b3c);
@@ -261,23 +375,10 @@ tr:hover td { background: #f8fffe; }
 }
 .btn-cancel-modal:hover { background: #f0faf4; }
 
-/* ── Auto capitalize first letter on text inputs ─────────────── */
-input[type="text"],
-input[type="tel"],
-input[type="search"],
-textarea {
-    text-transform: capitalize;
-}
-/* Keep email, password, number as-is */
-input[type="email"],
-input[type="password"],
-input[type="number"],
-input[type="date"] {
-    text-transform: none;
-}
+/* ── Responsive ──────────────────────────────────────────────── */
 @media (max-width: 640px) {
     .grid-2, .grid-3 { grid-template-columns: 1fr; }
-    .auth-card { width: 95vw; padding: 24px 16px; }
+    .auth-card { width: 95vw; padding: 28px 20px; }
     .dash-container { padding: 0 12px; }
     .navbar { padding: 0 12px; height: 54px; }
     .navbar .brand { font-size: 15px; }
@@ -287,39 +388,25 @@ input[type="date"] {
     table { font-size: 12px; }
     th, td { padding: 8px 10px; }
     .btn-primary { font-size: 15px; padding: 13px; }
-    /* Sidebar layouts stack vertically */
     .vd-layout, .ad-layout { grid-template-columns: 1fr !important; }
     .vd-sidebar, .ad-sidebar {
-        position: static !important;
-        height: auto !important;
-        border-right: none !important;
-        border-bottom: 1px solid #e0f2e9;
+        position: static !important; height: auto !important;
+        border-right: none !important; border-bottom: 1px solid #e0f2e9;
     }
     .vd-main, .ad-main { padding: 14px 12px !important; }
-    /* Sidebar nav becomes horizontal scrollable tabs */
     .sidebar-nav, .ad-nav-links {
-        display: flex !important;
-        flex-direction: row !important;
-        overflow-x: auto !important;
-        padding: 6px 8px !important;
-        gap: 4px;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
+        display: flex !important; flex-direction: row !important;
+        overflow-x: auto !important; padding: 6px 8px !important;
+        gap: 4px; -webkit-overflow-scrolling: touch; scrollbar-width: none;
     }
     .sidebar-nav::-webkit-scrollbar, .ad-nav-links::-webkit-scrollbar { display: none; }
     .sidebar-nav a, .ad-nav-links a {
-        flex-shrink: 0;
-        padding: 8px 12px !important;
-        border-left: none !important;
-        border-bottom: 3px solid transparent;
-        border-radius: 8px;
-        font-size: 12px !important;
-        white-space: nowrap;
+        flex-shrink: 0; padding: 8px 12px !important;
+        border-left: none !important; border-bottom: 3px solid transparent;
+        border-radius: 8px; font-size: 12px !important; white-space: nowrap;
     }
     .sidebar-nav a.active, .ad-nav-links a.active {
-        border-bottom-color: #2d9e5f;
-        background: #f0faf4;
-        color: #1a6b3c;
+        border-bottom-color: #2d9e5f; background: #f0faf4; color: #1a6b3c;
     }
     .sidebar-profile, .sidebar-head { padding: 12px 16px; }
     .avatar-circle, .admin-avatar { width: 48px !important; height: 48px !important; font-size: 20px !important; }
@@ -330,9 +417,8 @@ input[type="date"] {
     .vd-nav, .ad-nav { padding: 0 12px !important; height: 54px !important; }
     .vd-nav .brand, .ad-nav .brand { font-size: 15px !important; }
     .vd-nav .nav-right, .ad-nav .nav-right { gap: 8px !important; font-size: 12px !important; }
-    .otp-input { width: 40px !important; height: 48px !important; font-size: 20px !important; }
-    .prog-step .dot { width: 24px !important; height: 24px !important; font-size: 11px !important; }
-    .prog-step .lbl { font-size: 9px !important; }
-    .result-name { width: 100px !important; font-size: 12px !important; }
-    .sec-title, .section-title { font-size: 17px !important; }
+    .vd-hero { padding: 20px 16px; }
+    .vd-hero-title { font-size: 20px; }
+    .vd-hero-stats { gap: 10px; }
+    .vd-hero-stat { min-width: 110px; padding: 10px 14px; }
 }

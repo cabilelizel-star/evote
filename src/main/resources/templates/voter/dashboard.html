@@ -1,133 +1,112 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>E-Vote - Voter Dashboard</title>
-<link rel="stylesheet" th:href="@{/css/style.css}">
+<link rel="stylesheet" th:href="@{/css/style.css}"/>
 <style>
-.vd-body{background:#f0faf4;min-height:100vh;font-family:'Segoe UI',system-ui,sans-serif}
-.vd-nav{background:linear-gradient(135deg,#1a6b3c,#2d9e5f);color:#fff;padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 12px rgba(26,107,60,.3);position:sticky;top:0;z-index:100}
-.vd-nav .brand{font-size:18px;font-weight:800;display:flex;align-items:center;gap:8px}
-.vd-nav .nav-right{display:flex;align-items:center;gap:16px;font-size:13px}
-.vd-nav .nav-right a{color:rgba(255,255,255,.85);text-decoration:none;font-weight:600}
-.vd-nav .nav-right a:hover{color:#fff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f0faf4;min-height:100vh;font-family:'Segoe UI',system-ui,sans-serif}
+.ad-nav{background:linear-gradient(135deg,#1a6b3c,#2d9e5f);color:#fff;padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 12px rgba(26,107,60,.3);position:sticky;top:0;z-index:100}
+.ad-nav .brand{font-size:18px;font-weight:800;display:flex;align-items:center;gap:8px}
+.ad-nav .nav-right{display:flex;align-items:center;gap:16px;font-size:13px}
+.ad-nav .nav-right a{color:rgba(255,255,255,.85);text-decoration:none;font-weight:600}
 .badge-open{background:#fff;color:#1a6b3c;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800}
 .badge-closed{background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.4);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800}
-.vd-layout{display:grid;grid-template-columns:260px 1fr;gap:0;min-height:calc(100vh - 60px)}
-.vd-sidebar{background:#fff;border-right:1px solid #e0f2e9;padding:24px 0;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto}
-.sidebar-profile{padding:20px 20px 16px;border-bottom:1px solid #e0f2e9;text-align:center}
-.avatar-circle{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#2d9e5f,#1a6b3c);color:#fff;font-size:28px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
-.sidebar-name{font-size:15px;font-weight:800;color:#111;margin-bottom:2px}
-.sidebar-id{font-size:12px;color:#888}
-.verified-badge{display:inline-flex;align-items:center;gap:4px;background:#f0faf4;color:#1a6b3c;border:1px solid #a8dfc0;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;margin-top:6px}
-.sidebar-nav{padding:12px 0}
-.sidebar-nav a{display:flex;align-items:center;gap:10px;padding:11px 20px;font-size:14px;font-weight:600;color:#555;text-decoration:none;transition:background .15s,color .15s;border-left:3px solid transparent}
-.sidebar-nav a:hover{background:#f0faf4;color:#1a6b3c}
-.sidebar-nav a.active{background:#f0faf4;color:#1a6b3c;border-left-color:#2d9e5f}
-.sidebar-nav .nav-icon{font-size:16px;width:20px;text-align:center}
-.vd-main{padding:28px 32px;overflow-y:auto}
-.section{display:none}
-.section.active{display:block}
-.section-title{font-size:20px;font-weight:800;color:#1a1a1a;margin-bottom:20px;display:flex;align-items:center;gap:10px}
-.card{background:#fff;border-radius:12px;padding:24px;margin-bottom:20px;box-shadow:0 1px 8px rgba(0,0,0,.06)}
-.card-title{font-size:14px;font-weight:800;color:#1a6b3c;text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #e0f2e9}
-.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
-.stat-card{background:#fff;border-radius:12px;padding:18px 20px;box-shadow:0 1px 8px rgba(0,0,0,.06);border-left:4px solid #2d9e5f}
-.stat-card.yellow{border-color:#f59e0b}
-.stat-card.red{border-color:#ef4444}
+.ad-layout{display:grid;grid-template-columns:240px 1fr;gap:0;min-height:calc(100vh - 60px)}
+.ad-sidebar{background:#fff;border-right:1px solid #e0f2e9;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto;display:flex;flex-direction:column}
+.sidebar-head{padding:20px;border-bottom:1px solid #e0f2e9;text-align:center}
+.admin-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#1a6b3c,#2d9e5f);color:#fff;font-size:24px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+.admin-name{font-size:15px;font-weight:800;color:#111;margin-bottom:2px}
+.admin-role{font-size:11px;color:#888;background:#f0faf4;border:1px solid #a8dfc0;border-radius:20px;padding:2px 10px;display:inline-block;margin-top:4px}
+.voter-id-label{font-size:11px;color:#aaa;margin-top:6px}
+.ad-nav-links{padding:8px 0;flex:1}
+.ad-nav-links a{display:flex;align-items:center;gap:10px;padding:11px 20px;font-size:14px;font-weight:600;color:#555;text-decoration:none;transition:background .15s,color .15s;border-left:3px solid transparent;cursor:pointer}
+.ad-nav-links a:hover{background:#f0faf4;color:#1a6b3c}
+.ad-nav-links a.active{background:#f0faf4;color:#1a6b3c;border-left-color:#2d9e5f}
+.nav-icon{font-size:16px;width:20px;text-align:center}
+.sidebar-footer{padding:16px 20px;border-top:1px solid #e0f2e9}
+.ad-main{padding:24px 28px;overflow-y:auto;min-height:calc(100vh - 60px)}
+.section{display:none}.section.active{display:block}
+.sec-title{font-size:20px;font-weight:800;color:#1a1a1a;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.card{background:#fff;border-radius:12px;padding:22px;margin-bottom:18px;box-shadow:0 1px 8px rgba(0,0,0,.06)}
+.card-title{font-size:13px;font-weight:800;color:#1a6b3c;text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid #e0f2e9}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+.stat-card{background:#fff;border-radius:12px;padding:16px 18px;box-shadow:0 1px 8px rgba(0,0,0,.06);border-left:4px solid #2d9e5f}
+.stat-card.green{border-color:#22c55e}.stat-card.yellow{border-color:#f59e0b}.stat-card.red{border-color:#ef4444}
 .stat-label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px;font-weight:700}
-.stat-value{font-size:24px;font-weight:800;color:#1a1a1a;margin-top:4px}
-.election-card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 8px rgba(0,0,0,.06);border:2px solid #e0f2e9;margin-bottom:16px}
-.election-card.open{border-color:#2d9e5f}
-.election-title{font-size:18px;font-weight:800;color:#111;margin-bottom:8px}
-.election-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
-.status-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700}
-.status-open{background:#dcfce7;color:#16a34a}
-.status-closed{background:#fee2e2;color:#dc2626}
-.status-upcoming{background:#fef9c3;color:#ca8a04}
-.candidate-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
-.cand-card{border:2px solid #e5e7eb;border-radius:10px;padding:16px;cursor:pointer;transition:border-color .2s,background .2s}
-.cand-card:hover{border-color:#2d9e5f;background:#f8fffe}
-.cand-card.selected{border-color:#1a6b3c;background:#f0faf4}
-.cand-card input[type=radio]{display:none}
-.cand-name{font-size:15px;font-weight:800;color:#111;margin-bottom:3px}
-.cand-party{font-size:12px;color:#2d9e5f;font-weight:600}
-.cand-id{font-size:11px;color:#aaa;margin-top:4px}
-.vote-btn{width:100%;padding:14px;background:linear-gradient(135deg,#2d9e5f,#1a6b3c);border:none;border-radius:50px;color:#fff;font-size:15px;font-weight:800;cursor:pointer;transition:opacity .2s}
-.vote-btn:hover{opacity:.9}
-.vote-btn:disabled{opacity:.4;cursor:not-allowed}
-.voted-banner{background:#f0faf4;border:2px solid #2d9e5f;border-radius:12px;padding:28px;text-align:center}
-.voted-banner .check{font-size:48px;margin-bottom:10px}
-.voted-banner h3{font-size:18px;font-weight:800;color:#1a6b3c;margin-bottom:6px}
-.voted-banner p{color:#555;font-size:13px}
-.closed-banner{background:#fff8f0;border:2px solid #f59e0b;border-radius:12px;padding:24px;text-align:center}
-.history-table{width:100%;border-collapse:collapse;font-size:14px}
-.history-table th{background:#f0faf4;color:#1a6b3c;font-size:11px;text-transform:uppercase;letter-spacing:.5px;padding:10px 14px;text-align:left;border-bottom:2px solid #e0f2e9;font-weight:700}
-.history-table td{padding:12px 14px;border-bottom:1px solid #f0faf4;color:#333}
-.history-table tr:last-child td{border-bottom:none}
-.notif-item{display:flex;align-items:flex-start;gap:12px;padding:14px 0;border-bottom:1px solid #f0faf4}
-.notif-item:last-child{border-bottom:none}
-.notif-icon{font-size:20px;flex-shrink:0;margin-top:2px}
-.notif-title{font-size:14px;font-weight:700;color:#111;margin-bottom:2px}
-.notif-desc{font-size:12px;color:#888}
-.notif-time{font-size:11px;color:#aaa;margin-top:3px}
-.form-field{margin-bottom:16px}
-.form-field label{display:block;font-size:12px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
-.form-field input{width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;color:#222;outline:none;transition:border-color .2s;box-sizing:border-box}
-.form-field input:focus{border-color:#2d9e5f;box-shadow:0 0 0 3px rgba(45,158,95,.1)}
-.form-field input[readonly]{background:#f9fafb;color:#888;cursor:not-allowed}
-.btn-save{padding:11px 28px;background:#2d9e5f;border:none;border-radius:50px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;transition:background .2s}
-.btn-save:hover{background:#1a6b3c}
-.btn-danger{padding:11px 28px;background:#ef4444;border:none;border-radius:50px;color:#fff;font-size:14px;font-weight:700;cursor:pointer}
+.stat-value{font-size:22px;font-weight:800;color:#1a1a1a;margin-top:4px}
+.stat-sub{font-size:11px;color:#2d9e5f;margin-top:2px}
 .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .info-item{background:#f8fffe;border:1.5px solid #e0f2e9;border-radius:8px;padding:12px 14px}
 .info-label{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:3px}
 .info-value{font-size:14px;font-weight:600;color:#222}
-.progress-bar-wrap{background:#e0f2e9;border-radius:99px;height:12px;overflow:hidden;margin-top:6px}
+.progress-bar-wrap{background:#e0f2e9;border-radius:99px;height:14px;overflow:hidden;margin-top:8px}
 .progress-bar-fill{height:100%;background:linear-gradient(90deg,#2d9e5f,#1a6b3c);border-radius:99px;transition:width .5s}
-.alert-success{background:#f0faf4;color:#1a6b3c;border:1px solid #a8dfc0;border-radius:8px;padding:12px 16px;font-size:13px;margin-bottom:16px}
 .alert-error{background:#fff0f0;color:#c0392b;border:1px solid #f5c6c6;border-radius:8px;padding:12px 16px;font-size:13px;margin-bottom:16px}
-.rules-section h3{font-size:15px;font-weight:800;color:#1a6b3c;margin:16px 0 8px}
-.rules-section h3:first-child{margin-top:0}
-.rules-section p,.rules-section li{font-size:13px;color:#555;line-height:1.7;margin-bottom:6px}
-.rules-section ul{padding-left:18px}
+.alert-success{background:#f0faf4;color:#1a6b3c;border:1px solid #a8dfc0;border-radius:8px;padding:12px 16px;font-size:13px;margin-bottom:16px}
+.banner{border-radius:10px;padding:20px 24px;margin-bottom:18px;display:flex;align-items:center;gap:14px;font-size:14px;font-weight:600}
+.banner-closed{background:#fff0f0;border:1.5px solid #f5c6c6;color:#c0392b}
+.banner-voted{background:#f0faf4;border:1.5px solid #a8dfc0;color:#1a6b3c}
+.candidate-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:18px}
+.cand-card{background:#fff;border-radius:12px;padding:18px;border:2px solid #e0f2e9;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .15s;text-align:center}
+.cand-card:hover{border-color:#2d9e5f;box-shadow:0 6px 20px rgba(45,158,95,.15);transform:translateY(-2px)}
+.cand-card.selected{border-color:#1a6b3c;background:#f0faf4}
+.cand-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#1a6b3c,#2d9e5f);color:#fff;font-size:20px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+.cand-name{font-size:15px;font-weight:800;color:#1a1a1a;margin-bottom:4px}
+.cand-party{font-size:12px;color:#2d9e5f;font-weight:600}
+.cand-id{font-size:11px;color:#aaa;margin-top:4px}
+.btn{padding:9px 16px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .2s}
+.btn:hover{opacity:.85}.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-blue{background:#2d9e5f;color:#fff}.btn-red{background:#ef4444;color:#fff}.btn-gray{background:#94a3b8;color:#fff}
+.btn-vote{padding:13px 36px;background:linear-gradient(135deg,#2d9e5f,#1a6b3c);border:none;border-radius:50px;color:#fff;font-size:15px;font-weight:800;cursor:pointer;transition:opacity .2s,transform .1s;box-shadow:0 4px 16px rgba(45,158,95,.3)}
+.btn-vote:hover{opacity:.9;transform:translateY(-1px)}.btn-vote:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.form-field{margin-bottom:16px}
+.form-field label{display:block;font-size:12px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.form-field input{width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;color:#222;outline:none;transition:border-color .2s;box-sizing:border-box}
+.form-field input:focus{border-color:#2d9e5f;box-shadow:0 0 0 3px rgba(45,158,95,.1)}
+.form-field input[readonly]{background:#f8fffe;color:#666;cursor:default}
+.btn-save{padding:11px 28px;background:#2d9e5f;border:none;border-radius:50px;color:#fff;font-size:14px;font-weight:700;cursor:pointer}
+.btn-save:hover{background:#1a6b3c}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#f0faf4;color:#1a6b3c;font-size:11px;text-transform:uppercase;letter-spacing:.5px;padding:10px 12px;text-align:left;border-bottom:2px solid #e0f2e9;font-weight:700}
+td{padding:11px 12px;border-bottom:1px solid #f0faf4;color:#333}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f8fffe}
+.pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.pill-green{background:#dcfce7;color:#16a34a}.pill-yellow{background:#fef9c3;color:#ca8a04}.pill-red{background:#fee2e2;color:#dc2626}
 .live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#2d9e5f;margin-right:5px;animation:pulse 1.5s infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
-@media(max-width:768px){
-  .vd-layout{grid-template-columns:1fr}
-  .vd-sidebar{position:static;height:auto;border-right:none;border-bottom:1px solid #e0f2e9}
-  .stat-row{grid-template-columns:1fr}
-  .candidate-grid{grid-template-columns:1fr}
-  .info-grid{grid-template-columns:1fr}
-  .vd-main{padding:16px}
-}
+.rules-list{list-style:none;padding:0}
+.rules-list li{padding:10px 0;border-bottom:1px solid #f0faf4;font-size:14px;color:#444;display:flex;align-items:flex-start;gap:10px}
+.rules-list li:last-child{border-bottom:none}
+.rules-list li::before{content:"";flex-shrink:0}
+@media(max-width:768px){.ad-layout{grid-template-columns:1fr}.ad-sidebar{position:static;height:auto;border-right:none;border-bottom:1px solid #e0f2e9}.stat-row{grid-template-columns:1fr}.ad-main{padding:16px}.info-grid{grid-template-columns:1fr}.candidate-grid{grid-template-columns:1fr}}
 </style>
 </head>
-<body class="vd-body">
+<body>
 
-<!-- NAVBAR -->
-<nav class="vd-nav">
-  <div class="brand">🗳 E-Vote System</div>
+<!-- ═══════════════════════════════════════════════════════════
+     NAVBAR
+════════════════════════════════════════════════════════════ -->
+<nav class="ad-nav">
+  <div class="brand">&#x1F5F3; E-Vote System</div>
   <div class="nav-right">
-    <span><span class="live-dot"></span>Live</span>
-    <span class="badge" th:classappend="${election != null and election.open} ? 'badge-open' : 'badge-closed'"
-          th:text="${election != null and election.open} ? 'OPEN' : 'CLOSED'">CLOSED</span>
+    <span th:text="${election.title}" style="font-weight:600"></span>
+    <span th:classappend="${election.open} ? 'badge-open' : 'badge-closed'"
+          th:text="${election.open} ? 'OPEN' : 'CLOSED'"></span>
 
     <!-- Notification Bell -->
     <div style="position:relative" id="notifWrap">
-      <button onclick="toggleNotif()" style="background:rgba(255,255,255,.15);border:none;color:#fff;cursor:pointer;border-radius:50%;width:36px;height:36px;font-size:16px;display:flex;align-items:center;justify-content:center;position:relative">
-        🔔
-        <span id="notifCount" style="position:absolute;top:-2px;right:-2px;background:#ef4444;color:#fff;border-radius:50%;width:16px;height:16px;font-size:10px;font-weight:800;display:none;align-items:center;justify-content:center">0</span>
+      <button onclick="toggleNotif()" style="background:rgba(255,255,255,.15);border:none;color:#fff;cursor:pointer;border-radius:50%;width:36px;height:36px;font-size:16px;display:flex;align-items:center;justify-content:center">
+        &#x1F514;
       </button>
-      <div id="notifDropdown" style="display:none;position:absolute;right:0;top:44px;width:300px;background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.2);z-index:999;overflow:hidden">
-        <div style="padding:14px 16px;border-bottom:1px solid #e0f2e9;display:flex;justify-content:space-between;align-items:center">
+      <div id="notifDropdown" style="display:none;position:absolute;right:0;top:44px;width:280px;background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.2);z-index:999;overflow:hidden">
+        <div style="padding:14px 16px;border-bottom:1px solid #e0f2e9">
           <span style="font-size:14px;font-weight:800;color:#1a1a1a">Notifications</span>
-          <button onclick="clearNotifs()" style="background:none;border:none;font-size:11px;color:#2d9e5f;cursor:pointer;font-weight:700">Clear all</button>
         </div>
-        <div id="notifList" style="max-height:300px;overflow-y:auto">
-          <div style="padding:20px;text-align:center;color:#aaa;font-size:13px">No notifications yet</div>
-        </div>
+        <div style="padding:20px;text-align:center;color:#aaa;font-size:13px">No notifications yet</div>
       </div>
     </div>
 
@@ -135,470 +114,446 @@
   </div>
 </nav>
 
-<div class="vd-layout">
-<!-- SIDEBAR -->
-<aside class="vd-sidebar">
-  <div class="sidebar-profile">
-    <div class="avatar-circle" th:text="${userName != null} ? ${#strings.substring(userName,0,1).toUpperCase()} : 'V'">V</div>
-    <div class="sidebar-name" th:text="${voter != null and voter.firstName != null} ? ${voter.firstName + ' ' + (voter.lastName ?: '')} : ${userName}">Voter</div>
-    <div class="sidebar-id">ID: <span th:text="${userId}"></span></div>
-    <div class="verified-badge">✅ Verified</div>
-  </div>
-  <nav class="sidebar-nav">
-    <a href="#" class="active" onclick="showSection('home',this)"><span class="nav-icon">🏠</span> Dashboard</a>
-    <a href="#" onclick="showSection('vote',this)"><span class="nav-icon">🗳</span> Vote</a>
-    <a href="#" onclick="showSection('history',this)"><span class="nav-icon">📊</span> Voting History</a>
-    <a href="#" onclick="showSection('profile',this)"><span class="nav-icon">👤</span> My Profile</a>
-    <a href="#" onclick="showSection('security',this)"><span class="nav-icon">🔐</span> Security</a>
-    <a href="#" onclick="showSection('rules',this)"><span class="nav-icon">📜</span> Rules & Guidelines</a>
-  </nav>
-</aside>
+<!-- ═══════════════════════════════════════════════════════════
+     TWO-COLUMN LAYOUT
+════════════════════════════════════════════════════════════ -->
+<div class="ad-layout">
 
-<!-- MAIN CONTENT -->
-<main class="vd-main">
-
-  <!-- Alerts -->
-  <div th:if="${param.success != null}" class="alert-success">
-    <span th:if="${param.success[0] == 'voted'}">✅ Your vote has been cast successfully! A confirmation email has been sent.</span>
-    <span th:if="${param.success[0] == 'updated'}">✅ Profile updated successfully.</span>
-    <span th:if="${param.success[0] == 'passwordchanged'}">✅ Password changed successfully.</span>
-  </div>
-  <div th:if="${param.error != null}" class="alert-error">
-    <span th:if="${param.error[0] == 'wrongpassword'}">⚠ Current password is incorrect.</span>
-    <span th:if="${param.error[0] == 'passwordmismatch'}">⚠ Passwords do not match or are too short.</span>
-    <span th:if="${param.error[0] == 'closed'}">⚠ The election is currently closed.</span>
-    <span th:if="${param.error[0] == 'voted'}">⚠ You have already cast your vote.</span>
-    <span th:unless="${param.error[0] == 'wrongpassword' or param.error[0] == 'passwordmismatch' or param.error[0] == 'closed' or param.error[0] == 'voted'}" th:text="${param.error[0]}"></span>
-  </div>
-
-  <!-- ── SECTION 1: HOME ─────────────────────────────────────── -->
-  <div id="sec-home" class="section active">
-    <div class="section-title">🏠 Welcome, <span th:text="${voter != null and voter.firstName != null} ? ${voter.firstName} : ${userName}">Voter</span>!</div>
-
-    <!-- Stats row -->
-    <div class="stat-row">
-      <div class="stat-card">
-        <div class="stat-label">Election</div>
-        <div class="stat-value" style="font-size:14px;margin-top:6px" th:text="${election != null} ? ${election.title} : 'N/A'"></div>
-      </div>
-      <div class="stat-card" th:classappend="${election != null and election.open} ? '' : 'red'">
-        <div class="stat-label">Status</div>
-        <div class="stat-value" style="font-size:18px" th:text="${election != null and election.open} ? 'Open 🟢' : 'Closed 🔴'"></div>
-      </div>
-      <div class="stat-card" th:classappend="${hasVoted} ? '' : 'yellow'">
-        <div class="stat-label">My Vote</div>
-        <div class="stat-value" style="font-size:18px" th:text="${hasVoted} ? 'Voted ✅' : 'Not Yet ⏳'"></div>
-      </div>
-      <div class="stat-card" th:classappend="${voter != null and voter.isApproved()} ? '' : 'yellow'">
-        <div class="stat-label">Account Status</div>
-        <div class="stat-value" style="font-size:14px;margin-top:6px"
-             th:text="${voter == null} ? 'Unknown' : (voter.isApproved() ? '✅ Approved' : (voter.isPending() ? '⏳ Pending' : '❌ Rejected'))"></div>
-      </div>
+  <!-- ─── SIDEBAR ─────────────────────────────────────────── -->
+  <aside class="ad-sidebar">
+    <div class="sidebar-head">
+      <div class="admin-avatar" th:text="${voter != null} ? ${voter.firstName.substring(0,1).toUpperCase()} : 'V'">V</div>
+      <div class="admin-name" th:text="${voter != null} ? ${voter.firstName + ' ' + voter.lastName} : ${userName}">Voter</div>
+      <div class="voter-id-label" th:text="'ID: ' + ${userId}">ID: —</div>
+      <div class="admin-role">&#x2705; Verified</div>
     </div>
 
-    <!-- Voter info card -->
-    <div class="card">
-      <div class="card-title">👤 Voter Information</div>
-      <div class="info-grid">
-        <div class="info-item"><div class="info-label">Full Name</div>
-          <div class="info-value" th:text="${voter != null and voter.name != null} ? ${voter.name} : ${userName}"></div></div>
-        <div class="info-item"><div class="info-label">Voter ID</div>
-          <div class="info-value" th:text="${userId}"></div></div>
-        <div class="info-item"><div class="info-label">Email</div>
-          <div class="info-value" th:text="${voter != null} ? ${voter.email} ?: '—' : '—'"></div></div>
-        <div class="info-item"><div class="info-label">Mobile</div>
-          <div class="info-value" th:text="${voter != null} ? ${voter.mobileNumber} ?: '—' : '—'"></div></div>
-        <div class="info-item"><div class="info-label">City</div>
-          <div class="info-value" th:text="${voter != null} ? ${voter.city} ?: '—' : '—'"></div></div>
-        <div class="info-item"><div class="info-label">Province</div>
-          <div class="info-value" th:text="${voter != null} ? ${voter.province} ?: 'Laguna' : 'Laguna'"></div></div>
-      </div>
+    <nav class="ad-nav-links">
+      <a class="active" onclick="showSection('overview', this)">
+        <span class="nav-icon">&#x1F4CA;</span> Dashboard
+      </a>
+      <a onclick="showSection('vote', this)">
+        <span class="nav-icon">&#x1F5F3;</span> Vote
+      </a>
+      <a onclick="showSection('history', this)">
+        <span class="nav-icon">&#x1F4DC;</span> Voting History
+      </a>
+      <a onclick="showSection('profile', this)">
+        <span class="nav-icon">&#x1F464;</span> My Profile
+      </a>
+      <a onclick="showSection('security', this)">
+        <span class="nav-icon">&#x1F510;</span> Security
+      </a>
+      <a onclick="showSection('rules', this)">
+        <span class="nav-icon">&#x1F4DC;</span> Rules &amp; Guidelines
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a th:href="@{/logout}" style="display:flex;align-items:center;gap:8px;color:#ef4444;text-decoration:none;font-size:14px;font-weight:700">
+        <span>&#x1F6AA;</span> Logout
+      </a>
+    </div>
+  </aside>
+
+  <!-- ─── MAIN CONTENT ─────────────────────────────────────── -->
+  <main class="ad-main">
+
+    <!-- Global alerts -->
+    <div th:if="${param.success != null}" class="alert-success">
+      <span th:if="${param.success[0] == 'voted'}">&#x2705; Your vote has been cast successfully!</span>
+      <span th:if="${param.success[0] == 'updated'}">&#x2705; Contact information updated successfully.</span>
+      <span th:if="${param.success[0] == 'passwordchanged'}">&#x2705; Password changed successfully.</span>
+    </div>
+    <div th:if="${param.error != null}" class="alert-error">
+      <span th:if="${param.error[0] == 'already_voted'}">&#x26A0; You have already voted in this election.</span>
+      <span th:if="${param.error[0] == 'election_closed'}">&#x26A0; The election is currently closed.</span>
+      <span th:if="${param.error[0] == 'wrongpassword'}">&#x26A0; Current password is incorrect.</span>
+      <span th:if="${param.error[0] == 'passwordmismatch'}">&#x26A0; Passwords do not match or are too short (min 6 chars).</span>
+      <span th:if="${param.error[0] != 'already_voted' and param.error[0] != 'election_closed' and param.error[0] != 'wrongpassword' and param.error[0] != 'passwordmismatch'}">&#x26A0; An error occurred. Please try again.</span>
     </div>
 
-    <!-- Live turnout -->
-    <div class="card">
-      <div class="card-title"><span class="live-dot"></span>Live Voter Turnout</div>
-      <div style="font-size:28px;font-weight:900;color:#1a6b3c" th:text="${turnoutPct} + '%'">0%</div>
-      <div style="font-size:13px;color:#888;margin-bottom:8px">of registered voters have voted</div>
-      <div class="progress-bar-wrap">
-        <div class="progress-bar-fill" th:style="'width:' + ${turnoutPct} + '%'"></div>
-      </div>
-    </div>
-  </div>
 
-  <!-- ── SECTION 2: VOTE ─────────────────────────────────────── -->
-  <div id="sec-vote" class="section">
-    <div class="section-title">🗳 Cast Your Vote</div>
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 1 — OVERVIEW (default active)
+    ═══════════════════════════════════════════════════════ -->
+    <div id="sec-overview" class="section active">
+      <div class="sec-title">&#x1F4CA; Dashboard Overview</div>
 
-    <!-- Election closed -->
-    <div th:if="${election == null or !election.open}" class="closed-banner">
-      <div style="font-size:40px;margin-bottom:10px">🔒</div>
-      <h3 style="font-size:16px;font-weight:800;color:#d68910;margin-bottom:6px">Election is Currently Closed</h3>
-      <p style="font-size:13px;color:#888">Voting is not available at this time. You will be notified when voting opens.</p>
-    </div>
-
-    <!-- Already voted -->
-    <div th:if="${election != null and election.open and hasVoted}" class="voted-banner">
-      <div class="check">✅</div>
-      <h3>Your Vote Has Been Recorded!</h3>
-      <p>Thank you for participating in <strong th:text="${election.title}"></strong>.<br>
-         Your vote is secure and has been counted. A confirmation was sent to your email.</p>
-    </div>
-
-    <!-- Pending approval -->
-    <div th:if="${voter != null and voter.isPending()}"
-         style="background:#fff8f0;border:2px solid #f59e0b;border-radius:12px;padding:28px;text-align:center;margin-bottom:16px">
-      <div style="font-size:40px;margin-bottom:10px">⏳</div>
-      <h3 style="font-size:18px;font-weight:800;color:#d68910;margin-bottom:8px">Account Pending Approval</h3>
-      <p style="color:#555;font-size:13px">Your registration is under review by the administrator.<br>
-         You will be notified by email once approved. You cannot vote until approved.</p>
-    </div>
-
-    <!-- Rejected -->
-    <div th:if="${voter != null and 'rejected'.equals(voter.status)}"
-         style="background:#fff0f0;border:2px solid #ef4444;border-radius:12px;padding:28px;text-align:center;margin-bottom:16px">
-      <div style="font-size:40px;margin-bottom:10px">❌</div>
-      <h3 style="font-size:18px;font-weight:800;color:#dc2626;margin-bottom:8px">Registration Rejected</h3>
-      <p style="color:#555;font-size:13px">
-        Reason: <strong th:text="${voter.rejectionReason} ?: 'Contact the administrator.'"></strong><br>
-        Please contact the election administrator for assistance.
-      </p>
-    </div>
-
-    <!-- Voting form -->
-    <div th:if="${election != null and election.open and !hasVoted and (voter == null or voter.isApproved())}">
-      <div class="election-card open">
-        <div class="election-title" th:text="${election.title}"></div>
-        <div class="election-meta">
-          <span class="status-pill status-open">🟢 Open — Voting Active</span>
+      <!-- 3 stat cards -->
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="stat-label">&#x1F5F3; Election</div>
+          <div class="stat-value" style="font-size:16px;line-height:1.3" th:text="${election.title}">—</div>
+          <div class="stat-sub">Current Election</div>
         </div>
-        <p style="font-size:13px;color:#555;margin-bottom:20px">
-          Select a candidate below and click <strong>Cast My Vote</strong>. Your vote is <strong>final and cannot be changed</strong>.
-        </p>
-
-        <div th:if="${#lists.isEmpty(candidates)}" style="color:#aaa;padding:20px 0;text-align:center">
-          No candidates registered yet.
+        <div class="stat-card green">
+          <div class="stat-label">&#x1F4E1; Status</div>
+          <div class="stat-value" th:text="${election.open} ? 'Open' : 'Closed'">—</div>
+          <div class="stat-sub" th:text="${election.open} ? 'Voting is active' : 'Voting inactive'">—</div>
         </div>
+        <div class="stat-card yellow">
+          <div class="stat-label">&#x2714; My Vote</div>
+          <div class="stat-value" th:text="${hasVoted} ? 'Voted' : 'Not Yet'">—</div>
+          <div class="stat-sub" th:text="${hasVoted} ? 'Vote recorded' : 'Pending'">—</div>
+        </div>
+      </div>
 
-        <form th:if="${!#lists.isEmpty(candidates)}" method="post" th:action="@{/voter/vote}" id="voteForm">
-          <div class="candidate-grid">
-            <label th:each="c : ${candidates}" class="cand-card"
-                   th:id="'card-' + ${c.candidateId}"
-                   th:onclick="'selectCand(\'' + ${c.candidateId} + '\')'">
-              <input type="radio" name="candidateId" th:value="${c.candidateId}" th:id="'r-' + ${c.candidateId}">
-              <div style="display:flex;align-items:center;gap:12px">
-                <div style="width:44px;height:44px;border-radius:50%;background:#e8f8ef;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">👤</div>
-                <div>
-                  <div class="cand-name" th:text="${c.name}"></div>
-                  <div class="cand-party" th:text="${c.party}"></div>
-                  <div class="cand-id" th:text="'ID: ' + ${c.candidateId}"></div>
-                </div>
-              </div>
-            </label>
+      <!-- Voter info card -->
+      <div class="card">
+        <div class="card-title">&#x1F464; Voter Information</div>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">Full Name</div>
+            <div class="info-value" th:text="${voter != null} ? ${voter.firstName + ' ' + voter.lastName} : ${userName}">—</div>
           </div>
-          <button type="button" class="vote-btn" id="voteBtn" disabled onclick="confirmVote()">
-            🗳 Cast My Vote
-          </button>
-          <p style="text-align:center;font-size:12px;color:#aaa;margin-top:8px">Select a candidate above to enable voting</p>
+          <div class="info-item">
+            <div class="info-label">Voter ID</div>
+            <div class="info-value" th:text="${userId}">—</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Email</div>
+            <div class="info-value" th:text="${voter != null and voter.email != null} ? ${voter.email} : '—'">—</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Mobile</div>
+            <div class="info-value" th:text="${voter != null and voter.mobileNumber != null} ? ${voter.mobileNumber} : '—'">—</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">City</div>
+            <div class="info-value" th:text="${voter != null and voter.city != null} ? ${voter.city} : '—'">—</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Province</div>
+            <div class="info-value" th:text="${voter != null and voter.province != null} ? ${voter.province} : '—'">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live turnout card -->
+      <div class="card">
+        <div class="card-title"><span class="live-dot"></span>Live Voter Turnout</div>
+        <div style="font-size:28px;font-weight:900;color:#1a6b3c" th:text="${turnoutPct != null} ? ${turnoutPct} + '%' : '0%'">0%</div>
+        <div style="font-size:13px;color:#888;margin-bottom:8px">of registered voters have voted</div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" th:style="'width:' + (${turnoutPct != null} ? ${turnoutPct} : 0) + '%'"></div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 2 — VOTE
+    ═══════════════════════════════════════════════════════ -->
+    <div id="sec-vote" class="section">
+      <div class="sec-title">&#x1F5F3; Cast Your Vote</div>
+
+      <!-- Election closed banner -->
+      <div th:if="${!election.open}" class="banner banner-closed">
+        <span style="font-size:24px">&#x1F534;</span>
+        <div>
+          <div style="font-size:15px;font-weight:800">Election is Currently Closed</div>
+          <div style="font-size:13px;font-weight:400;margin-top:2px">Voting is not available at this time. Please check back later.</div>
+        </div>
+      </div>
+
+      <!-- Already voted banner -->
+      <div th:if="${election.open and hasVoted}" class="banner banner-voted">
+        <span style="font-size:32px">&#x2705;</span>
+        <div>
+          <div style="font-size:15px;font-weight:800">You Have Already Voted</div>
+          <div style="font-size:13px;font-weight:400;margin-top:2px">Your vote has been recorded. Thank you for participating in this election!</div>
+        </div>
+      </div>
+
+      <!-- Voting form — only when election is open and voter has not voted -->
+      <div th:if="${election.open and !hasVoted}">
+        <div class="card" style="margin-bottom:14px">
+          <div class="card-title">&#x1F4CB; Select Your Candidate</div>
+          <p style="font-size:13px;color:#555;margin-bottom:16px">Click on a candidate card to select them, then press <strong>Cast My Vote</strong>. Your vote is secret and cannot be changed once submitted.</p>
+
+          <div th:if="${#lists.isEmpty(candidates)}" style="text-align:center;padding:30px;color:#aaa;font-size:14px">
+            No candidates have been registered yet.
+          </div>
+
+          <form id="voteForm" method="post" th:action="@{/voter/vote}">
+            <input type="hidden" id="selectedCandidateId" name="candidateId" value=""/>
+
+            <div class="candidate-grid" th:if="${!#lists.isEmpty(candidates)}">
+              <div th:each="c : ${candidates}"
+                   th:id="'cand-' + ${c.candidateId}"
+                   class="cand-card"
+                   th:onclick="'selectCand(\'' + ${c.candidateId} + '\')'"
+                   role="button"
+                   tabindex="0">
+                <div class="cand-avatar" th:text="${c.name.substring(0,1).toUpperCase()}">C</div>
+                <div class="cand-name" th:text="${c.name}">Candidate</div>
+                <div class="cand-party" th:text="${c.party}">Party</div>
+                <div class="cand-id" th:text="'ID: ' + ${c.candidateId}">ID</div>
+              </div>
+            </div>
+
+            <div style="text-align:center;margin-top:20px" th:if="${!#lists.isEmpty(candidates)}">
+              <button type="button" id="castVoteBtn" class="btn-vote" disabled="disabled" onclick="confirmVote()">
+                &#x1F5F3; Cast My Vote
+              </button>
+              <div style="font-size:12px;color:#aaa;margin-top:8px">Select a candidate above to enable voting</div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 3 — VOTING HISTORY
+    ═══════════════════════════════════════════════════════ -->
+    <div id="sec-history" class="section">
+      <div class="sec-title">&#x1F4CA; Voting History</div>
+      <div class="card">
+        <div class="card-title">&#x1F4DC; My Voting Record</div>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Election</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:if="${!hasVoted}">
+              <td colspan="4" style="text-align:center;padding:24px;color:#aaa">No voting history yet.</td>
+            </tr>
+            <tr th:if="${hasVoted}">
+              <td style="color:#aaa;font-size:12px">1</td>
+              <td style="font-weight:700" th:text="${election.title}">—</td>
+              <td style="font-size:12px;color:#555">—</td>
+              <td><span class="pill pill-green">&#x2714; Voted</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 4 — MY PROFILE
+    ═══════════════════════════════════════════════════════ -->
+    <div id="sec-profile" class="section">
+      <div class="sec-title">&#x1F464; My Profile</div>
+
+      <!-- Read-only personal info -->
+      <div class="card">
+        <div class="card-title">&#x1F4CB; Personal Information</div>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">Full Name</div>
+            <div class="info-value" th:text="${voter != null} ? ${voter.firstName + ' ' + voter.lastName} : ${userName}">—</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Date of Birth</div>
+            <div class="info-value" th:text="${voter != null and voter.dateOfBirth != null} ? ${voter.dateOfBirth} : '—'">—</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Gender</div>
+            <div class="info-value" th:text="${voter != null and voter.gender != null} ? ${voter.gender} : '—'">—</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Barangay</div>
+            <div class="info-value" th:text="${voter != null and voter.barangay != null} ? ${voter.barangay} : '—'">—</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">City</div>
+            <div class="info-value" th:text="${voter != null and voter.city != null} ? ${voter.city} : '—'">—</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">ID Type</div>
+            <div class="info-value" th:text="${voter != null and voter.idType != null} ? ${voter.idType} : '—'">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Editable contact info -->
+      <div class="card">
+        <div class="card-title">&#x1F4DE; Contact Information</div>
+        <form method="post" th:action="@{/voter/profile/update}">
+          <div class="form-field">
+            <label>Mobile Number</label>
+            <input type="text" name="contactNumber"
+                   th:value="${voter != null and voter.mobileNumber != null} ? ${voter.mobileNumber} : ''"
+                   placeholder="e.g. 09171234567"/>
+          </div>
+          <div class="form-field">
+            <label>Email Address</label>
+            <input type="email" name="email"
+                   th:value="${voter != null and voter.email != null} ? ${voter.email} : ''"
+                   placeholder="e.g. voter@email.com"/>
+          </div>
+          <button type="submit" class="btn-save">&#x1F4BE; Save Changes</button>
         </form>
       </div>
     </div>
-  </div>
 
-  <!-- ── SECTION 3: HISTORY ──────────────────────────────────── -->
-  <div id="sec-history" class="section">
-    <div class="section-title">📊 Voting History</div>
-    <div class="card">
-      <div class="card-title">Past Elections</div>
-      <table class="history-table">
-        <thead><tr><th>Election</th><th>Date &amp; Time</th><th>Status</th></tr></thead>
-        <tbody>
-          <tr th:if="${hasVoted}">
-            <td th:text="${election != null} ? ${election.title} : 'General Election 2025'"></td>
-            <td>—</td>
-            <td><span class="status-pill status-open">✅ Submitted</span></td>
-          </tr>
-          <tr th:if="${!hasVoted}">
-            <td colspan="3" style="text-align:center;color:#aaa;padding:24px">No voting history yet.</td>
-          </tr>
-        </tbody>
-      </table>
-      <p style="font-size:11px;color:#aaa;margin-top:12px">
-        🔒 For ballot secrecy, the candidate you voted for is not displayed here.
-      </p>
-    </div>
-  </div>
 
-  <!-- ── SECTION 4: NOTIFICATIONS ───────────────────────────── -->
-  <div id="sec-notifications" class="section">
-    <div class="section-title">🔔 Notifications &amp; Announcements</div>
-    <div class="card">
-      <div class="card-title">Recent Notifications</div>
-      <div class="notif-item" th:if="${election != null and election.open}">
-        <div class="notif-icon">🟢</div>
-        <div>
-          <div class="notif-title">Election is Now Open</div>
-          <div class="notif-desc" th:text="${election.title} + ' is currently accepting votes.'"></div>
-          <div class="notif-time">Active now</div>
-        </div>
-      </div>
-      <div class="notif-item" th:if="${election != null and !election.open}">
-        <div class="notif-icon">🔒</div>
-        <div>
-          <div class="notif-title">Election is Closed</div>
-          <div class="notif-desc" th:text="${election.title} + ' has ended. Results will be announced soon.'"></div>
-          <div class="notif-time">Closed</div>
-        </div>
-      </div>
-      <div class="notif-item" th:if="${hasVoted}">
-        <div class="notif-icon">✅</div>
-        <div>
-          <div class="notif-title">Vote Confirmed</div>
-          <div class="notif-desc">Your vote has been successfully recorded and counted.</div>
-          <div class="notif-time">Confirmed</div>
-        </div>
-      </div>
-      <div class="notif-item">
-        <div class="notif-icon">📧</div>
-        <div>
-          <div class="notif-title">Email Notifications Active</div>
-          <div class="notif-desc">You will receive email alerts for election open/close events and vote confirmations.</div>
-          <div class="notif-time">Always on</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── SECTION 5: PROFILE ──────────────────────────────────── -->
-  <div id="sec-profile" class="section">
-    <div class="section-title">👤 My Profile</div>
-
-    <!-- Read-only info -->
-    <div class="card">
-      <div class="card-title">Personal Information</div>
-      <div class="info-grid">
-        <div class="info-item"><div class="info-label">First Name</div><div class="info-value" th:text="${voter != null} ? ${voter.firstName} ?: '—' : '—'"></div></div>
-        <div class="info-item"><div class="info-label">Last Name</div><div class="info-value" th:text="${voter != null} ? ${voter.lastName} ?: '—' : '—'"></div></div>
-        <div class="info-item"><div class="info-label">Date of Birth</div><div class="info-value" th:text="${voter != null} ? ${voter.dateOfBirth} ?: '—' : '—'"></div></div>
-        <div class="info-item"><div class="info-label">Gender</div><div class="info-value" th:text="${voter != null} ? ${voter.gender} ?: '—' : '—'"></div></div>
-        <div class="info-item"><div class="info-label">Barangay</div><div class="info-value" th:text="${voter != null} ? ${voter.barangay} ?: '—' : '—'"></div></div>
-        <div class="info-item"><div class="info-label">City</div><div class="info-value" th:text="${voter != null} ? ${voter.city} ?: '—' : '—'"></div></div>
-        <div class="info-item"><div class="info-label">Province</div><div class="info-value" th:text="${voter != null} ? ${voter.province} ?: 'Laguna' : 'Laguna'"></div></div>
-        <div class="info-item"><div class="info-label">ID Type</div><div class="info-value" th:text="${voter != null} ? ${voter.idType} ?: '—' : '—'"></div></div>
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 5 — SECURITY
+    ═══════════════════════════════════════════════════════ -->
+    <div id="sec-security" class="section">
+      <div class="sec-title">&#x1F510; Security</div>
+      <div class="card">
+        <div class="card-title">&#x1F511; Change Password</div>
+        <p style="font-size:13px;color:#555;margin-bottom:18px">Choose a strong password with at least 6 characters. You will need to log in again after changing your password.</p>
+        <form method="post" th:action="@{/voter/profile/change-password}" style="max-width:420px">
+          <div class="form-field">
+            <label>Current Password</label>
+            <input type="password" name="currentPassword" placeholder="Enter current password" required="required"/>
+          </div>
+          <div class="form-field">
+            <label>New Password</label>
+            <input type="password" name="newPassword" placeholder="Enter new password (min 6 chars)" required="required"/>
+          </div>
+          <div class="form-field">
+            <label>Confirm New Password</label>
+            <input type="password" name="confirmPassword" placeholder="Repeat new password" required="required"/>
+          </div>
+          <button type="submit" class="btn-save">&#x1F510; Update Password</button>
+        </form>
       </div>
     </div>
 
-    <!-- Editable contact info -->
-    <div class="card">
-      <div class="card-title">Contact Information (Editable)</div>
-      <form method="post" th:action="@{/voter/profile/update}">
-        <div class="form-field">
-          <label>Mobile Number</label>
-          <input type="tel" name="contactNumber" th:value="${voter != null} ? ${voter.mobileNumber} : ''" placeholder="09XXXXXXXXX">
-        </div>
-        <div class="form-field">
-          <label>Email Address</label>
-          <input type="email" name="email" th:value="${voter != null} ? ${voter.email} : ''" placeholder="your@email.com">
-        </div>
-        <button type="submit" class="btn-save">Save Changes</button>
-      </form>
-    </div>
-  </div>
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 6 — RULES & GUIDELINES
+    ═══════════════════════════════════════════════════════ -->
+    <div id="sec-rules" class="section">
+      <div class="sec-title">&#x1F4DC; Rules &amp; Guidelines</div>
 
-  <!-- ── SECTION 6: SECURITY ─────────────────────────────────── -->
-  <div id="sec-security" class="section">
-    <div class="section-title">🔐 Security Settings</div>
-
-    <div class="card">
-      <div class="card-title">Change Password</div>
-      <form method="post" th:action="@{/voter/profile/change-password}">
-        <div class="form-field">
-          <label>Current Password</label>
-          <input type="password" name="currentPassword" placeholder="Enter current password" required>
-        </div>
-        <div class="form-field">
-          <label>New Password</label>
-          <input type="password" name="newPassword" placeholder="Min. 6 characters" required>
-        </div>
-        <div class="form-field">
-          <label>Confirm New Password</label>
-          <input type="password" name="confirmPassword" placeholder="Re-enter new password" required>
-        </div>
-        <button type="submit" class="btn-save">Change Password</button>
-      </form>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Account Security</div>
-      <div class="notif-item">
-        <div class="notif-icon">✅</div>
-        <div>
-          <div class="notif-title">Email OTP Verification</div>
-          <div class="notif-desc">Your account is protected with OTP verification during login and password reset.</div>
-        </div>
+      <div class="card">
+        <div class="card-title">&#x1F5F3; Voting Instructions</div>
+        <ul class="rules-list">
+          <li><span style="font-size:18px">1&#xFE0F;&#x20E3;</span> <span>Each registered voter is entitled to cast <strong>one vote only</strong> per election. Votes cannot be changed once submitted.</span></li>
+          <li><span style="font-size:18px">2&#xFE0F;&#x20E3;</span> <span>Navigate to the <strong>Vote</strong> section and select your preferred candidate by clicking their card.</span></li>
+          <li><span style="font-size:18px">3&#xFE0F;&#x20E3;</span> <span>Review your selection carefully before pressing <strong>Cast My Vote</strong>. A confirmation prompt will appear.</span></li>
+          <li><span style="font-size:18px">4&#xFE0F;&#x20E3;</span> <span>Voting is only available while the election is <strong>Open</strong>. Check the status badge in the top navigation bar.</span></li>
+          <li><span style="font-size:18px">5&#xFE0F;&#x20E3;</span> <span>Your vote is <strong>secret and anonymous</strong>. No one, including administrators, can see who you voted for.</span></li>
+        </ul>
       </div>
-      <div class="notif-item">
-        <div class="notif-icon">🔒</div>
-        <div>
-          <div class="notif-title">Ballot Secrecy</div>
-          <div class="notif-desc">Your vote is encrypted and anonymous. No one can see who you voted for.</div>
-        </div>
+
+      <div class="card">
+        <div class="card-title">&#x26A0; Important Reminders</div>
+        <ul class="rules-list">
+          <li><span style="font-size:16px">&#x1F512;</span> <span>Keep your login credentials confidential. Do not share your Voter ID or password with anyone.</span></li>
+          <li><span style="font-size:16px">&#x1F4F5;</span> <span>Do not attempt to vote multiple times. Any fraudulent activity will result in disqualification.</span></li>
+          <li><span style="font-size:16px">&#x1F4E7;</span> <span>A confirmation email will be sent to your registered email address after your vote is successfully cast.</span></li>
+          <li><span style="font-size:16px">&#x1F4DE;</span> <span>If you encounter any issues, contact the election administrator immediately.</span></li>
+          <li><span style="font-size:16px">&#x2705;</span> <span>Ensure your profile information is up to date, especially your email address, to receive important notifications.</span></li>
+        </ul>
       </div>
-      <div style="margin-top:16px">
-        <a th:href="@{/logout}" class="btn-danger" style="display:inline-block;text-decoration:none">🚪 Logout Now</a>
+
+      <div class="card">
+        <div class="card-title">&#x2696; Voter Rights</div>
+        <ul class="rules-list">
+          <li><span style="font-size:16px">&#x1F91D;</span> <span>Every eligible voter has the right to cast their vote freely and without coercion.</span></li>
+          <li><span style="font-size:16px">&#x1F4CA;</span> <span>Live results are available to all voters once the election closes.</span></li>
+          <li><span style="font-size:16px">&#x1F6E1;</span> <span>Your personal data is protected and used solely for election purposes.</span></li>
+        </ul>
       </div>
     </div>
-  </div>
 
-  <!-- ── SECTION 7: RULES ────────────────────────────────────── -->
-  <div id="sec-rules" class="section">
-    <div class="section-title">📜 Rules &amp; Guidelines</div>
-    <div class="card rules-section">
-      <div class="card-title">Voting Instructions</div>
-      <h3>How to Vote</h3>
-      <ul>
-        <li>Go to the <strong>Vote</strong> section from the sidebar.</li>
-        <li>Review all candidates carefully before making your choice.</li>
-        <li>Click on a candidate card to select them.</li>
-        <li>Click <strong>Cast My Vote</strong> and confirm your selection.</li>
-        <li>Your vote is <strong>final and cannot be changed</strong> once submitted.</li>
-      </ul>
-      <h3>Election Rules</h3>
-      <ul>
-        <li>Each registered voter may cast exactly <strong>one (1) vote</strong> per election.</li>
-        <li>Voting is only allowed during the official election period when status is <strong>OPEN</strong>.</li>
-        <li>Any attempt to vote multiple times or impersonate another voter is strictly prohibited.</li>
-        <li>Violations may result in disqualification and legal action.</li>
-      </ul>
-      <h3>Ballot Secrecy</h3>
-      <p>Your vote is completely secret. The system records only that you voted — not who you voted for. This is guaranteed by the design of the E-Vote System.</p>
-      <h3>Privacy Notice (R.A. 10173 — Data Privacy Act of 2012)</h3>
-      <p>Your personal information is collected and processed solely for voter verification and election administration. It is protected under the Data Privacy Act of 2012. You have the right to access, correct, and request deletion of your personal data by contacting the election administrator.</p>
-      <h3>Technical Support</h3>
-      <p>If you encounter any issues during voting, please contact the election administrator immediately. Do not attempt to vote again until the issue is resolved.</p>
-    </div>
-  </div>
+  </main>
+</div><!-- end .ad-layout -->
 
-</main>
-</div>
 
-<script>
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+// ── Section navigation ──────────────────────────────────────
 function showSection(name, el) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
-  document.getElementById('sec-' + name).classList.add('active');
-  if (el) el.classList.add('active');
-  window.scrollTo({top:0,behavior:'smooth'});
+  // Hide all sections
+  var sections = document.querySelectorAll('.section');
+  for (var i = 0; i < sections.length; i++) {
+    sections[i].classList.remove('active');
+  }
+  // Show target section
+  var target = document.getElementById('sec-' + name);
+  if (target) { target.classList.add('active'); }
+
+  // Update sidebar active link
+  var links = document.querySelectorAll('.ad-nav-links a');
+  for (var j = 0; j < links.length; j++) {
+    links[j].classList.remove('active');
+  }
+  if (el) { el.classList.add('active'); }
 }
 
+// ── Candidate selection ─────────────────────────────────────
 function selectCand(id) {
-  document.querySelectorAll('.cand-card').forEach(c => c.classList.remove('selected'));
-  document.getElementById('card-' + id).classList.add('selected');
-  document.getElementById('r-' + id).checked = true;
-  document.getElementById('voteBtn').disabled = false;
+  // Deselect all cards
+  var cards = document.querySelectorAll('.cand-card');
+  for (var i = 0; i < cards.length; i++) {
+    cards[i].classList.remove('selected');
+  }
+  // Select clicked card
+  var card = document.getElementById('cand-' + id);
+  if (card) { card.classList.add('selected'); }
+
+  // Set hidden input value
+  var input = document.getElementById('selectedCandidateId');
+  if (input) { input.value = id; }
+
+  // Enable vote button
+  var btn = document.getElementById('castVoteBtn');
+  if (btn) { btn.disabled = false; }
 }
 
+// ── Confirm and submit vote ─────────────────────────────────
 function confirmVote() {
-  const sel = document.querySelector('.cand-card.selected');
-  if (!sel) return;
-  const name = sel.querySelector('.cand-name').textContent;
-  const party = sel.querySelector('.cand-party').textContent;
-  if (confirm('Confirm your vote for:\n\n' + name + '\n' + party + '\n\nThis cannot be undone.')) {
+  var input = document.getElementById('selectedCandidateId');
+  if (!input || !input.value) {
+    alert('Please select a candidate first.');
+    return;
+  }
+  var card = document.getElementById('cand-' + input.value);
+  var name = card ? card.querySelector('.cand-name').textContent : input.value;
+  var ok = confirm('You are about to vote for: ' + name + '\n\nThis action cannot be undone. Confirm your vote?');
+  if (ok) {
     document.getElementById('voteForm').submit();
   }
 }
 
-// Auto-navigate to correct section based on URL param
-(function() {
-  const tab = new URLSearchParams(window.location.search).get('tab');
-  const map = {profile:'profile',security:'security',history:'history',notifications:'notifications',rules:'rules',vote:'vote'};
-  if (tab && map[tab]) {
-    const link = document.querySelector('.sidebar-nav a[onclick*="' + map[tab] + '"]');
-    showSection(map[tab], link);
-  }
-})();
-
-// Real-time election status check every 30s
-setInterval(() => {
-  fetch('/api/election-status')
-    .then(r => r.json())
-    .then(d => {
-      if (d.error) return;
-      const badge = document.querySelector('.vd-nav .badge');
-      if (badge) {
-        badge.className = 'badge ' + (d.open ? 'badge-open' : 'badge-closed');
-        badge.textContent = d.open ? 'OPEN' : 'CLOSED';
-      }
-      // Notify voter if election status changed
-      if (typeof lastOpen !== 'undefined' && d.open !== lastOpen) {
-        if (d.open) addNotif('🟢', 'Election is Now Open!', 'Voting is now active. Go cast your vote!');
-        else        addNotif('🔴', 'Election has Closed', 'Voting has ended. Thank you for participating.');
-      }
-      lastOpen = d.open;
-    }).catch(() => {});
-}, 30000);
-
-// ── Notification system ───────────────────────────────────────
-let notifications = JSON.parse(localStorage.getItem('voterNotifs') || '[]');
-let notifOpen = false;
-let lastOpen;
-
+// ── Notification bell toggle ────────────────────────────────
 function toggleNotif() {
-  notifOpen = !notifOpen;
-  document.getElementById('notifDropdown').style.display = notifOpen ? 'block' : 'none';
-  if (notifOpen) {
-    notifications.forEach(n => n.read = true);
-    saveNotifs(); updateBadge();
+  var dd = document.getElementById('notifDropdown');
+  if (dd) {
+    dd.style.display = (dd.style.display === 'none' || dd.style.display === '') ? 'block' : 'none';
   }
 }
-function addNotif(icon, title, desc) {
-  notifications.unshift({ icon, title, desc, time: new Date().toLocaleTimeString(), read: false });
-  if (notifications.length > 15) notifications.pop();
-  saveNotifs(); renderNotifs(); updateBadge();
-}
-function clearNotifs() {
-  notifications = []; saveNotifs(); renderNotifs(); updateBadge();
-}
-function saveNotifs() { localStorage.setItem('voterNotifs', JSON.stringify(notifications)); }
-function renderNotifs() {
-  const list = document.getElementById('notifList');
-  if (!notifications.length) {
-    list.innerHTML = '<div style="padding:20px;text-align:center;color:#aaa;font-size:13px">No notifications yet</div>';
-    return;
-  }
-  list.innerHTML = notifications.map(n => `
-    <div style="padding:12px 16px;border-bottom:1px solid #f0faf4;display:flex;gap:10px;align-items:flex-start;background:${n.read?'#fff':'#f0faf4'}">
-      <span style="font-size:18px;flex-shrink:0">${n.icon}</span>
-      <div>
-        <div style="font-size:13px;font-weight:700;color:#111;margin-bottom:2px">${n.title}</div>
-        <div style="font-size:12px;color:#888">${n.desc}</div>
-        <div style="font-size:11px;color:#aaa;margin-top:3px">${n.time}</div>
-      </div>
-    </div>`).join('');
-}
-function updateBadge() {
-  const unread = notifications.filter(n => !n.read).length;
-  const b = document.getElementById('notifCount');
-  if (unread > 0) { b.textContent = unread > 9 ? '9+' : unread; b.style.display = 'flex'; }
-  else b.style.display = 'none';
-}
-document.addEventListener('click', e => {
-  if (!document.getElementById('notifWrap').contains(e.target)) {
-    notifOpen = false;
-    document.getElementById('notifDropdown').style.display = 'none';
+
+// Close notification dropdown when clicking outside
+document.addEventListener('click', function(e) {
+  var wrap = document.getElementById('notifWrap');
+  if (wrap && !wrap.contains(e.target)) {
+    var dd = document.getElementById('notifDropdown');
+    if (dd) { dd.style.display = 'none'; }
   }
 });
-renderNotifs(); updateBadge();
 
-// Add initial notifications based on current state
+// ── Auto-navigate to tab from URL param ────────────────────
 (function() {
-  const hasVoted = document.querySelector('[th\\:text*="Voted"]') !== null;
-  const isOpen = document.querySelector('.badge-open') !== null;
-  if (notifications.length === 0) {
-    if (isOpen) addNotif('🟢', 'Election is Open', 'Voting is currently active. Cast your vote now!');
-    else        addNotif('🔴', 'Election is Closed', 'Voting is not currently active.');
+  var params = new URLSearchParams(window.location.search);
+  var tab = params.get('tab');
+  if (tab) {
+    var links = document.querySelectorAll('.ad-nav-links a');
+    for (var i = 0; i < links.length; i++) {
+      var onclick = links[i].getAttribute('onclick') || '';
+      if (onclick.indexOf("'" + tab + "'") !== -1) {
+        showSection(tab, links[i]);
+        break;
+      }
+    }
   }
 })();
+
+/*]]>*/
 </script>
 </body>
 </html>

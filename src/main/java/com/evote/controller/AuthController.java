@@ -77,7 +77,10 @@ public class AuthController {
 
     // ── Register ──────────────────────────────────────────────────────────────
     @GetMapping("/register")
-    public String registerPage() { return "register"; }
+    public String registerPage(Model model) {
+        model.addAttribute("error", null);
+        return "register";
+    }
 
     @PostMapping("/register/otp/send")
     @ResponseBody
