@@ -585,16 +585,30 @@ function populateBarangay() {
 
 // ─── Age calculator ───────────────────────────────────────────────────────────
 function calcAge() {
-  var dob = document.getElementById("dateOfBirth").value;
+  var dobEl = document.getElementById("dateOfBirth");
   var display = document.getElementById("ageDisplay");
-  if (!dob) {
-    display.innerHTML = "—";
+  if (!dobEl || !display) return;
+  var dob = dobEl.value;
+  if (!dob || dob.length < 10) {
+    display.innerHTML = "&#8212;";
     display.style.background = "#f8faff";
     display.style.color = "#aaa";
     display.style.border = "1.5px solid #c8d8f0";
     return;
   }
-  var age = Math.floor((new Date() - new Date(dob)) / (365.25 * 24 * 3600 * 1000));
+  var parts = dob.split("-");
+  var birthDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+  var today = new Date();
+  var age = today.getFullYear() - birthDate.getFullYear();
+  var m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) { age--; }
+  if (age < 0 || age > 120) {
+    display.innerHTML = "&#8212;";
+    display.style.background = "#f8faff";
+    display.style.color = "#aaa";
+    display.style.border = "1.5px solid #c8d8f0";
+    return;
+  }
   if (age < 18) {
     display.innerHTML = "<strong>" + age + " yrs</strong> &#128683;";
     display.style.background = "#fff0f0";
@@ -607,6 +621,16 @@ function calcAge() {
     display.style.border = "1.5px solid #c8d8f0";
   }
 }
+
+// Attach event listener after DOM loads (more reliable than inline onchange)
+document.addEventListener("DOMContentLoaded", function() {
+  var dobEl = document.getElementById("dateOfBirth");
+  if (dobEl) {
+    dobEl.addEventListener("change", calcAge);
+    dobEl.addEventListener("input", calcAge);
+    dobEl.addEventListener("blur", calcAge);
+  }
+});
 function validateStep1() {
   var fn  = document.getElementById("firstName").value.trim();
   var ln  = document.getElementById("lastName").value.trim();
