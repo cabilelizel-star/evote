@@ -209,24 +209,6 @@ tr:hover td{background:#f8faff}
         </form>
       </div>
     </div>
-    <!-- Quick results -->
-    <div class="card">
-      <div class="card-title"><span class="live-dot"></span>Live Results Preview</div>
-      <div id="resultsChart">
-        <div th:if="${#lists.isEmpty(candidates)}" style="text-align:center;padding:20px;color:#aaa">No candidates yet.</div>
-        <div th:each="c : ${candidates}" class="result-row" th:id="'row-' + ${c.candidateId}">
-          <div class="result-name"><div th:text="${c.name}"></div><div style="font-size:11px;color:#aaa" th:text="${c.party}"></div></div>
-          <div class="result-bar-wrap">
-            <div class="result-bar" th:id="'bar-' + ${c.candidateId}"
-                 th:style="'width:' + (${totalVotes > 0} ? ${c.voteCount * 100 / totalVotes} : 0) + '%'">
-              <span class="result-bar-text" th:text="${totalVotes > 0} ? ${#numbers.formatDecimal(c.voteCount * 100.0 / totalVotes, 1, 1)} + '%' : ''"></span>
-            </div>
-          </div>
-          <div class="result-votes" th:id="'votes-' + ${c.candidateId}" th:text="${c.voteCount} + ' votes'"></div>
-        </div>
-      </div>
-    </div>
-
     <!-- Audit Logs (moved from sidebar) -->
     <div class="card">
       <div class="card-title">📝 Recent Activity Log</div>
