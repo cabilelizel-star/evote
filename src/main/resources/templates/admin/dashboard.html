@@ -1010,7 +1010,8 @@ function showWarning() {
 
 ['mousemove','keydown','click','scroll','touchstart'].forEach(function(evt) {
   document.addEventListener(evt, function() {
-    if (document.getElementById('sessionWarning').style.display === 'none') {
+    var w = document.getElementById('sessionWarning');
+    if (w && w.style.pointerEvents === 'none') {
       resetSessionTimer();
     }
   }, { passive: true });

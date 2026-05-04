@@ -830,7 +830,9 @@ function resetSessionTimer() {
 function showWarning() {
   countdown = 30;
   document.getElementById('countdownDisplay').textContent = countdown;
-  document.getElementById('sessionWarning').style.display = 'flex';
+  var w = document.getElementById('sessionWarning');
+  w.style.display = 'flex';
+  w.style.pointerEvents = 'all';
   countdownTimer = setInterval(function() {
     countdown--;
     var el = document.getElementById('countdownDisplay');
@@ -845,7 +847,8 @@ function showWarning() {
 // Track user activity — reset timer on any interaction
 ['mousemove','keydown','click','scroll','touchstart'].forEach(function(evt) {
   document.addEventListener(evt, function() {
-    if (document.getElementById('sessionWarning').style.display === 'none') {
+    var w = document.getElementById('sessionWarning');
+    if (w && w.style.pointerEvents === 'none') {
       resetSessionTimer();
     }
   }, { passive: true });
