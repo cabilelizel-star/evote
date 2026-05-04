@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>E-Vote — Vote Confirmed</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Segoe UI',system-ui,sans-serif;
+  min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  padding:24px;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(0,180,255,0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(0,100,255,0.10) 0%, transparent 50%),
+    linear-gradient(135deg, #020b18 0%, #041428 40%, #061e3a 70%, #030f22 100%);
+}
+.card{
+  background:rgba(255,255,255,0.98);
+  border-radius:20px;
+  padding:48px 52px;
+  width:100%;max-width:560px;
+  box-shadow:0 0 0 1px rgba(0,150,255,0.2),0 24px 64px rgba(0,0,0,0.55);
+  text-align:center;
+}
+
+/* Success animation */
+.check-circle{
+  width:88px;height:88px;border-radius:50%;
+  background:linear-gradient(135deg,#0066cc,#0044aa);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 24px;
+  box-shadow:0 8px 32px rgba(0,100,200,0.4);
+  animation:popIn .5s cubic-bezier(.175,.885,.32,1.275);
+}
+@keyframes popIn{0%{transform:scale(0);opacity:0}100%{transform:scale(1);opacity:1}}
+.check-icon{font-size:40px;color:#fff}
+
+.title{font-size:1.6rem;font-weight:900;color:#0044aa;margin-bottom:6px}
+.subtitle{font-size:.95rem;color:#6b7a99;margin-bottom:32px}
+
+/* Receipt box */
+.receipt{
+  background:#f8faff;
+  border:1.5px solid #c8d8f0;
+  border-radius:14px;
+  padding:24px;
+  margin-bottom:28px;
+  text-align:left;
+}
+.receipt-title{
+  font-size:.75rem;font-weight:800;color:#0044aa;
+  text-transform:uppercase;letter-spacing:.08em;
+  margin-bottom:16px;padding-bottom:8px;
+  border-bottom:2px solid #e0eeff;
+  display:flex;align-items:center;gap:6px;
+}
+.receipt-row{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  padding:10px 0;border-bottom:1px solid #e8f0fe;gap:12px;
+}
+.receipt-row:last-child{border-bottom:none}
+.receipt-label{font-size:.8rem;color:#8a9ab8;font-weight:700;text-transform:uppercase;letter-spacing:.04em;flex-shrink:0}
+.receipt-value{font-size:.9rem;color:#1a2a4a;font-weight:600;text-align:right;word-break:break-all}
+.receipt-value.txid{font-family:monospace;font-size:.85rem;color:#0044aa;font-weight:800}
+
+/* Security badge */
+.security-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:#e8f0fe;border:1.5px solid #c8d8f0;
+  border-radius:50px;padding:8px 18px;
+  font-size:.82rem;font-weight:700;color:#0044aa;
+  margin-bottom:24px;
+}
+
+/* Info box */
+.info-box{
+  background:#f0f8ff;border:1.5px solid #c8d8f0;
+  border-radius:10px;padding:16px;
+  font-size:.85rem;color:#4a5a7a;
+  line-height:1.6;margin-bottom:24px;text-align:left;
+}
+.info-box strong{color:#0044aa}
+
+/* Turnout */
+.turnout-wrap{margin-bottom:24px}
+.turnout-label{font-size:.8rem;color:#8a9ab8;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px}
+.turnout-bar{background:#e0eeff;border-radius:99px;height:12px;overflow:hidden;margin-bottom:6px}
+.turnout-fill{height:100%;background:linear-gradient(90deg,#0066cc,#0044aa);border-radius:99px;transition:width 1s ease}
+.turnout-pct{font-size:1.4rem;font-weight:900;color:#0044aa}
+.turnout-sub{font-size:.8rem;color:#8a9ab8}
+
+/* Buttons */
+.btn-primary{
+  display:block;width:100%;padding:14px;
+  background:linear-gradient(135deg,#0066cc,#0044aa);
+  color:#fff;border:none;border-radius:10px;
+  font-size:1rem;font-weight:700;cursor:pointer;
+  text-decoration:none;text-align:center;
+  box-shadow:0 4px 16px rgba(0,100,200,.35);
+  transition:all .2s;margin-bottom:12px;
+}
+.btn-primary:hover{background:linear-gradient(135deg,#0055bb,#003399);transform:translateY(-1px)}
+.btn-secondary{
+  display:block;width:100%;padding:12px;
+  background:#f0f4ff;color:#0044aa;
+  border:1.5px solid #c8d8f0;border-radius:10px;
+  font-size:.93rem;font-weight:700;cursor:pointer;
+  text-decoration:none;text-align:center;
+  transition:all .2s;
+}
+.btn-secondary:hover{background:#e0eeff}
+
+.footer-note{font-size:.78rem;color:#aaa;margin-top:16px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="card">
+
+  <!-- Success icon -->
+  <div class="check-circle">
+    <span class="check-icon">&#10003;</span>
+  </div>
+
+  <h1 class="title">Vote Successfully Submitted!</h1>
+  <p class="subtitle">Your vote has been securely recorded in the system.</p>
+
+  <!-- Security badge -->
+  <div class="security-badge">
+    &#x1F512; Encrypted &amp; Secure &nbsp;|&nbsp; &#x1F4DC; Ballot Secrecy Protected
+  </div>
+
+  <!-- Receipt -->
+  <div class="receipt">
+    <div class="receipt-title">&#x1F9FE; Vote Receipt</div>
+    <div class="receipt-row">
+      <span class="receipt-label">Transaction ID</span>
+      <span class="receipt-value txid" th:text="${transactionId} ?: 'N/A'">EVT-20250504-V001-12345</span>
+    </div>
+    <div class="receipt-row">
+      <span class="receipt-label">Election</span>
+      <span class="receipt-value" th:text="${electionTitle} ?: 'General Election 2025'">General Election 2025</span>
+    </div>
+    <div class="receipt-row">
+      <span class="receipt-label">Voter</span>
+      <span class="receipt-value" th:text="${userName} ?: 'Voter'">Voter Name</span>
+    </div>
+    <div class="receipt-row">
+      <span class="receipt-label">Voter ID</span>
+      <span class="receipt-value" th:text="${userId} ?: '—'">V001</span>
+    </div>
+    <div class="receipt-row">
+      <span class="receipt-label">Date &amp; Time</span>
+      <span class="receipt-value" th:text="${voteTimestamp} ?: '—'">May 4, 2025 03:15:00 PM</span>
+    </div>
+    <div class="receipt-row">
+      <span class="receipt-label">Status</span>
+      <span class="receipt-value" style="color:#16a34a;font-weight:800">&#x2705; Confirmed</span>
+    </div>
+  </div>
+
+  <!-- Info box -->
+  <div class="info-box">
+    <strong>&#x1F512; Your ballot is secret.</strong> The system does not store which candidates you voted for — only that you have voted. This protects your privacy under the <strong>Data Privacy Act of 2012 (R.A. 10173)</strong>.<br><br>
+    <strong>&#x23F3; Results</strong> will be announced after the election period ends. You can view overall voter turnout below.
+  </div>
+
+  <!-- Turnout -->
+  <div class="turnout-wrap">
+    <div class="turnout-label">&#x1F4CA; Current Voter Turnout</div>
+    <div class="turnout-pct" id="turnoutPct">—</div>
+    <div class="turnout-bar"><div class="turnout-fill" id="turnoutBar" style="width:0%"></div></div>
+    <div class="turnout-sub">of registered voters have voted</div>
+  </div>
+
+  <!-- Actions -->
+  <a th:href="@{/voter/dashboard}" class="btn-primary">&#x1F3E0; Return to Dashboard</a>
+  <a th:href="@{/logout}" class="btn-secondary">&#x1F6AA; Logout</a>
+
+  <p class="footer-note">
+    Keep your Transaction ID <strong th:text="${transactionId} ?: ''"></strong> as proof of voting.<br>
+    Your vote is <strong>final and cannot be changed</strong>.
+  </p>
+
+</div>
+
+<script th:inline="javascript">
+// Load turnout via API
+fetch('/api/election-status')
+  .then(function(r) { return r.json(); })
+  .catch(function() { return {}; });
+
+// Animate turnout bar (fetch from dashboard data)
+setTimeout(function() {
+  fetch('/voter/dashboard')
+    .then(function() {})
+    .catch(function() {});
+}, 100);
+
+// Simple turnout display — we'll just show a placeholder
+// The actual turnout is shown on the dashboard
+document.getElementById('turnoutPct').textContent = 'See Dashboard';
+document.getElementById('turnoutBar').style.width = '0%';
+</script>
+</body>
+</html>

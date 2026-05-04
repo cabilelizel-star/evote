@@ -155,6 +155,25 @@ public class ElectionService {
         return castVotes(voterId, java.util.List.of(candidateId));
     }
 
+    // ── Vote receipt ──────────────────────────────────────────────────────────
+    public String getVoteTimestamp(String voterId) {
+        try {
+            List<String> rows = db.query(
+                "SELECT MAX(voted_at) FROM votes WHERE voter_id = ? AND election_id = ?",
+                (rs, i) -> rs.getString(1), voterId, ELECTION_ID);
+            return (rows.isEmpty() || rows.get(0) == null) ? "" : rows.get(0);
+        } catch (Exception e) { return ""; }
+    }
+
+    public String generateTransactionId(String voterId) {
+        // Format: EVT-YYYYMMDD-VOTERPREFIX-HASH
+        String date = new java.text.SimpleDateFormat("yyyyMMdd").format(new java.util.Date());
+        String prefix = voterId.replaceAll("[^A-Z0-9]", "").toUpperCase();
+        if (prefix.length() > 6) prefix = prefix.substring(0, 6);
+        int hash = Math.abs((voterId + date).hashCode()) % 100000;
+        return "EVT-" + date + "-" + prefix + "-" + String.format("%05d", hash);
+    }
+
     // ── Stats ─────────────────────────────────────────────────────────────────
     public int getTotalVotes() {
         Integer n = db.queryForObject(
@@ -163,9 +182,15 @@ public class ElectionService {
     }
 
     public int getTurnoutPercent() {
-        int total  = getVoters().size();
-        int voted  = getTotalVotes();
-        return total > 0 ? (int) Math.round(voted * 100.0 / total) : 0;
+        try {
+            // Count unique voters who have voted
+            Integer voted = db.queryForObject(
+                "SELECT COUNT(*) FROM voters WHERE election_id = ? AND has_voted = 1",
+                Integer.class, ELECTION_ID);
+            int total = getVoters().size();
+            if (total == 0) return 0;
+            return (int) Math.round((voted == null ? 0 : voted) * 100.0 / total);
+        } catch (Exception e) { return 0; }
     }
 
     public void updateVoterContact(String voterId, String mobile, String email) {

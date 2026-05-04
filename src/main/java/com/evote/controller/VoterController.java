@@ -40,6 +40,9 @@ public class VoterController {
             model.addAttribute("userId",     voterId);
             model.addAttribute("hasVoted",   session.getAttribute("hasVoted"));
             model.addAttribute("turnoutPct", svc.getTurnoutPercent());
+            // Pass transaction ID if available
+            model.addAttribute("transactionId", session.getAttribute("voteTransactionId"));
+            model.addAttribute("voteTimestamp", session.getAttribute("voteTimestamp"));
         } catch (Exception e) {
             model.addAttribute("election",   new com.evote.model.Election(1, "General Election 2025", false));
             model.addAttribute("candidates", java.util.Collections.emptyList());
@@ -62,21 +65,42 @@ public class VoterController {
         List<String> ids = new java.util.ArrayList<>();
         if (candidateIds != null) ids.addAll(candidateIds);
         if (singleId != null && !singleId.isBlank() && !ids.contains(singleId)) ids.add(singleId);
-        if (ids.isEmpty()) return "redirect:/voter/dashboard?error=No candidate selected";
+        if (ids.isEmpty()) return "redirect:/voter/dashboard?tab=vote&error=nocandidate";
 
         String result = svc.castVotes(voterId, ids);
         if ("ok".equals(result)) {
             session.setAttribute("hasVoted", true);
+            // Generate transaction ID and store in session for confirmation page
+            String txId = svc.generateTransactionId(voterId);
+            String timestamp = new java.text.SimpleDateFormat("MMMM dd, yyyy hh:mm:ss a")
+                .format(new java.util.Date());
+            session.setAttribute("voteTransactionId", txId);
+            session.setAttribute("voteTimestamp", timestamp);
+            session.setAttribute("voteElectionTitle", svc.getElection().getTitle());
+            // Send confirmation email
             Optional<Voter> voter = svc.findVoter(voterId);
             if (voter.isPresent() && voter.get().getEmail() != null && !voter.get().getEmail().isBlank()) {
                 String em = voter.get().getEmail(), nm = voter.get().getName();
                 String et = svc.getElection().getTitle();
+                final String finalTxId = txId;
+                final String finalTs = timestamp;
                 new Thread(() -> emailService.sendVoteConfirmation(em, nm,
-                    ids.size() + " candidate(s)", "Multiple positions", et)).start();
+                    "Reference: " + finalTxId, finalTs + " | " + et, et)).start();
             }
-            return "redirect:/voter/dashboard?success=voted";
+            return "redirect:/voter/vote-confirmed";
         }
-        return "redirect:/voter/dashboard?error=" + result;
+        return "redirect:/voter/dashboard?tab=vote&error=" + java.net.URLEncoder.encode(result, java.nio.charset.StandardCharsets.UTF_8);
+    }
+
+    @GetMapping("/vote-confirmed")
+    public String voteConfirmed(HttpSession session, Model model) {
+        if (!"voter".equals(session.getAttribute("role"))) return "redirect:/login";
+        model.addAttribute("transactionId",  session.getAttribute("voteTransactionId"));
+        model.addAttribute("voteTimestamp",  session.getAttribute("voteTimestamp"));
+        model.addAttribute("electionTitle",  session.getAttribute("voteElectionTitle"));
+        model.addAttribute("userName",       session.getAttribute("userName"));
+        model.addAttribute("userId",         session.getAttribute("userId"));
+        return "voter/vote-confirmed";
     }
 
     @GetMapping("/notifications")
