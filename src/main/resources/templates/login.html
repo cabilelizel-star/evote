@@ -88,6 +88,15 @@
             color:#fff;
         }
         .input-wrap input::placeholder{color:rgba(255,255,255,0.55)}
+        /* Hide browser native password reveal button */
+        .input-wrap input[type=password]::-ms-reveal,
+        .input-wrap input[type=password]::-ms-clear,
+        .input-wrap input[type=password]::-webkit-contacts-auto-fill-button,
+        .input-wrap input[type=password]::-webkit-credentials-auto-fill-button{
+            display:none !important;
+            visibility:hidden;
+            pointer-events:none;
+        }
         .input-wrap .iicon{
             padding:0 16px 0 0;
             color:rgba(255,255,255,0.6);
