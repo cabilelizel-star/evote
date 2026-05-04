@@ -274,8 +274,8 @@ tr:hover td{background:#f8faff}
       <!-- Voting form — only when election is open and voter has not voted -->
       <div th:if="${election.open and !hasVoted}">
         <div class="card" style="margin-bottom:14px">
-          <div class="card-title">&#x1F4CB; Select Your Candidate</div>
-          <p style="font-size:13px;color:#555;margin-bottom:16px">Click on a candidate card to select them, then press <strong>Cast My Vote</strong>. Your vote is secret and cannot be changed once submitted.</p>
+          <div class="card-title">&#x1F5F3; Select Your Candidate</div>
+          <p style="font-size:13px;color:#555;margin-bottom:20px">Select one candidate per position. Your vote is <strong>secret and final</strong> once submitted.</p>
 
           <div th:if="${#lists.isEmpty(candidates)}" style="text-align:center;padding:30px;color:#aaa;font-size:14px">
             No candidates have been registered yet.
@@ -284,22 +284,106 @@ tr:hover td{background:#f8faff}
           <form id="voteForm" method="post" th:action="@{/voter/vote}">
             <input type="hidden" id="selectedCandidateId" name="candidateId" value=""/>
 
-            <div class="candidate-grid" th:if="${!#lists.isEmpty(candidates)}">
-              <div th:each="c : ${candidates}"
-                   th:id="'cand-' + ${c.candidateId}"
-                   class="cand-card"
-                   th:attr="data-id=${c.candidateId}"
-                   onclick="selectCand(this.getAttribute('data-id'))"
-                   role="button"
-                   tabindex="0">
-                <div class="cand-avatar" th:text="${c.name != null} ? ${c.name.substring(0,1).toUpperCase()} : '?'">C</div>
-                <div class="cand-name" th:text="${c.name}">Candidate</div>
-                <div class="cand-party" th:text="${c.party}">Party</div>
-                <div class="cand-id" th:text="'ID: ' + ${c.candidateId}">ID</div>
+            <div th:if="${!#lists.isEmpty(candidates)}">
+
+              <!-- ── Governor ── -->
+              <div th:if="${#lists.size(candidates.?[party.contains('Governor') and !party.contains('Vice')]) > 0}"
+                   style="margin-bottom:24px">
+                <div style="font-size:11px;font-weight:800;color:#0044aa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding:6px 12px;background:#e8f0fe;border-radius:6px;border-left:4px solid #0066cc">
+                  &#x1F451; Governor
+                </div>
+                <div class="candidate-grid">
+                  <div th:each="c : ${candidates.?[party.contains('Governor') and !party.contains('Vice')]}"
+                       th:id="'cand-' + ${c.candidateId}"
+                       class="cand-card"
+                       th:attr="data-id=${c.candidateId}"
+                       onclick="selectCand(this.getAttribute('data-id'))">
+                    <div class="cand-avatar" th:text="${c.name != null} ? ${c.name.substring(0,1).toUpperCase()} : '?'">C</div>
+                    <div class="cand-name" th:text="${c.name}">Candidate</div>
+                    <div class="cand-party" th:text="${c.party.contains('Incumbent') ? 'Incumbent' : 'Challenger'}">Party</div>
+                  </div>
+                </div>
               </div>
+
+              <!-- ── Vice Governor ── -->
+              <div th:if="${#lists.size(candidates.?[party.contains('Vice Governor')]) > 0}"
+                   style="margin-bottom:24px">
+                <div style="font-size:11px;font-weight:800;color:#0044aa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding:6px 12px;background:#e8f0fe;border-radius:6px;border-left:4px solid #0066cc">
+                  &#x1F947; Vice Governor
+                </div>
+                <div class="candidate-grid">
+                  <div th:each="c : ${candidates.?[party.contains('Vice Governor')]}"
+                       th:id="'cand-' + ${c.candidateId}"
+                       class="cand-card"
+                       th:attr="data-id=${c.candidateId}"
+                       onclick="selectCand(this.getAttribute('data-id'))">
+                    <div class="cand-avatar" th:text="${c.name != null} ? ${c.name.substring(0,1).toUpperCase()} : '?'">C</div>
+                    <div class="cand-name" th:text="${c.name}">Candidate</div>
+                    <div class="cand-party" th:text="${c.party.contains('Incumbent') ? 'Incumbent' : 'Challenger'}">Party</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ── Mayor ── -->
+              <div th:if="${#lists.size(candidates.?[party.contains('Mayor') and !party.contains('Vice')]) > 0}"
+                   style="margin-bottom:24px">
+                <div style="font-size:11px;font-weight:800;color:#0044aa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding:6px 12px;background:#e8f0fe;border-radius:6px;border-left:4px solid #0066cc">
+                  &#x1F3DB; Mayor — Santa Cruz
+                </div>
+                <div class="candidate-grid">
+                  <div th:each="c : ${candidates.?[party.contains('Mayor') and !party.contains('Vice')]}"
+                       th:id="'cand-' + ${c.candidateId}"
+                       class="cand-card"
+                       th:attr="data-id=${c.candidateId}"
+                       onclick="selectCand(this.getAttribute('data-id'))">
+                    <div class="cand-avatar" th:text="${c.name != null} ? ${c.name.substring(0,1).toUpperCase()} : '?'">C</div>
+                    <div class="cand-name" th:text="${c.name}">Candidate</div>
+                    <div class="cand-party" th:text="${c.party.contains('Incumbent') ? 'Incumbent' : 'Challenger'}">Party</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ── Vice Mayor ── -->
+              <div th:if="${#lists.size(candidates.?[party.contains('Vice Mayor')]) > 0}"
+                   style="margin-bottom:24px">
+                <div style="font-size:11px;font-weight:800;color:#0044aa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding:6px 12px;background:#e8f0fe;border-radius:6px;border-left:4px solid #0066cc">
+                  &#x1F948; Vice Mayor — Santa Cruz
+                </div>
+                <div class="candidate-grid">
+                  <div th:each="c : ${candidates.?[party.contains('Vice Mayor')]}"
+                       th:id="'cand-' + ${c.candidateId}"
+                       class="cand-card"
+                       th:attr="data-id=${c.candidateId}"
+                       onclick="selectCand(this.getAttribute('data-id'))">
+                    <div class="cand-avatar" th:text="${c.name != null} ? ${c.name.substring(0,1).toUpperCase()} : '?'">C</div>
+                    <div class="cand-name" th:text="${c.name}">Candidate</div>
+                    <div class="cand-party" th:text="${c.party.contains('Incumbent') ? 'Incumbent' : 'Challenger'}">Party</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ── Representatives ── -->
+              <div th:if="${#lists.size(candidates.?[party.contains('District Representative')]) > 0}"
+                   style="margin-bottom:24px">
+                <div style="font-size:11px;font-weight:800;color:#0044aa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding:6px 12px;background:#e8f0fe;border-radius:6px;border-left:4px solid #0066cc">
+                  &#x1F3DB; House of Representatives
+                </div>
+                <div class="candidate-grid">
+                  <div th:each="c : ${candidates.?[party.contains('District Representative')]}"
+                       th:id="'cand-' + ${c.candidateId}"
+                       class="cand-card"
+                       th:attr="data-id=${c.candidateId}"
+                       onclick="selectCand(this.getAttribute('data-id'))">
+                    <div class="cand-avatar" th:text="${c.name != null} ? ${c.name.substring(0,1).toUpperCase()} : '?'">C</div>
+                    <div class="cand-name" th:text="${c.name}">Candidate</div>
+                    <div class="cand-party" style="font-size:11px" th:text="${c.party}">Party</div>
+                  </div>
+                </div>
+              </div>
+
             </div>
 
-            <div style="text-align:center;margin-top:20px" th:if="${!#lists.isEmpty(candidates)}">
+            <div style="text-align:center;margin-top:24px">
               <button type="button" id="castVoteBtn" class="btn-vote" disabled="disabled" onclick="confirmVote()">
                 &#x1F5F3; Cast My Vote
               </button>
