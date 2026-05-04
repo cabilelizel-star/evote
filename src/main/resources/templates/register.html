@@ -499,7 +499,8 @@
   </div>
 </div>
 
-<script>
+<script th:inline="javascript">
+/*<![CDATA[*/
 // ─── Barangay data ────────────────────────────────────────────────────────────
 var barangayData = {
   "Calamba": ["Bagong Kalsada","Banadero","Banlic","Batino","Burol","Canlubang","Halang","Laguerta","Lawa","Lecheria","Lingga","Looc","Mabato","Makiling","Mapagong","Masili","Maunong","Mayapa","Milagrosa","Paciano Rizal","Palingon","Palo-Alto","Pansol","Parian","Prinza","Punta","Putho-Tuntungin","Real","Saimsim","Sampiruhan","San Cristobal","San Jose","San Juan","Sirang Lupa","Sucol","Turbina","Ulango","Uno"],
@@ -610,12 +611,12 @@ function calcAge() {
     return;
   }
   if (age < 18) {
-    display.innerHTML = "<strong>" + age + " yrs</strong> &#128683;";
+    display.innerHTML = "<strong>" + age + " yrs</strong> &#x1F6AB;";
     display.style.background = "#fff0f0";
     display.style.color = "#c0392b";
     display.style.border = "1.5px solid #f5c6cb";
   } else {
-    display.innerHTML = "<strong>" + age + " yrs</strong> &#10003;";
+    display.innerHTML = "<strong>" + age + " yrs</strong> &#x2713;";
     display.style.background = "#f0f8ff";
     display.style.color = "#0044aa";
     display.style.border = "1.5px solid #c8d8f0";
@@ -956,6 +957,7 @@ function showAlert(containerId, message, type) {
   document.getElementById(containerId).innerHTML =
     "<div class=\"alert " + cls + "\">" + message + "</div>";
 }
+/*]]>*/
 </script>
 </body>
 </html>
