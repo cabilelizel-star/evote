@@ -68,11 +68,10 @@ public class VoterController {
     @PostMapping("/vote")
     public String castVote(@RequestParam(value="candidateIds", required=false) List<String> candidateIds,
                            @RequestParam(value="candidateId", required=false) String singleId,
-                           HttpSession session) {
+                           HttpSession session, Model model) {
         if (!"voter".equals(session.getAttribute("role"))) return "redirect:/login";
         String voterId = (String) session.getAttribute("userId");
 
-        // Support both single and multiple candidate IDs
         List<String> ids = new java.util.ArrayList<>();
         if (candidateIds != null) ids.addAll(candidateIds);
         if (singleId != null && !singleId.isBlank() && !ids.contains(singleId)) ids.add(singleId);
@@ -81,26 +80,32 @@ public class VoterController {
         String result = svc.castVotes(voterId, ids);
         if ("ok".equals(result)) {
             session.setAttribute("hasVoted", true);
-            // Generate transaction ID and store in session for confirmation page
             String txId = svc.generateTransactionId(voterId);
             String timestamp = new java.text.SimpleDateFormat("MMMM dd, yyyy hh:mm:ss a")
                 .format(new java.util.Date());
             session.setAttribute("voteTransactionId", txId);
             session.setAttribute("voteTimestamp", timestamp);
             session.setAttribute("voteElectionTitle", svc.getElection().getTitle());
-            // Send confirmation email
-            Optional<Voter> voter = svc.findVoter(voterId);
-            if (voter.isPresent() && voter.get().getEmail() != null && !voter.get().getEmail().isBlank()) {
-                String em = voter.get().getEmail(), nm = voter.get().getName();
-                String et = svc.getElection().getTitle();
-                final String finalTxId = txId;
-                final String finalTs = timestamp;
-                new Thread(() -> emailService.sendVoteConfirmation(em, nm,
-                    "Reference: " + finalTxId, finalTs + " | " + et, et)).start();
-            }
-            return "redirect:/voter/vote-confirmed";
+
+            // Send confirmation email in background
+            svc.findVoter(voterId).ifPresent(v -> {
+                if (v.getEmail() != null && !v.getEmail().isBlank()) {
+                    String em = v.getEmail(), nm = v.getName(), et = svc.getElection().getTitle();
+                    new Thread(() -> emailService.sendVoteConfirmation(em, nm,
+                        "Reference: " + txId, timestamp + " | " + et, et)).start();
+                }
+            });
+
+            // Forward directly to receipt — no redirect, instant display
+            model.addAttribute("transactionId", txId);
+            model.addAttribute("voteTimestamp",  timestamp);
+            model.addAttribute("electionTitle",  svc.getElection().getTitle());
+            model.addAttribute("userName",       session.getAttribute("userName"));
+            model.addAttribute("userId",         voterId);
+            return "voter/vote-confirmed";
         }
-        return "redirect:/voter/dashboard?tab=vote&error=" + java.net.URLEncoder.encode(result, java.nio.charset.StandardCharsets.UTF_8);
+        return "redirect:/voter/dashboard?tab=vote&error=" +
+            java.net.URLEncoder.encode(result, java.nio.charset.StandardCharsets.UTF_8);
     }
 
     @GetMapping("/vote-confirmed")

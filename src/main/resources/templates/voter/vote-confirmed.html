@@ -162,6 +162,7 @@ body{
     <!-- Actions -->
     <div class="actions">
       <a th:href="@{/voter/dashboard}" class="btn-primary">&#x1F3E0; Return to Dashboard</a>
+      <button onclick="window.print()" class="btn-secondary" style="cursor:pointer;border:none">&#x1F5A8; Print Receipt</button>
       <a th:href="@{/logout}" class="btn-secondary">&#x1F6AA; Logout</a>
     </div>
   </div>
@@ -172,5 +173,12 @@ body{
   </p>
 
 </div>
+<script>
+// Prevent going back to the vote form
+history.pushState(null, null, location.href);
+window.addEventListener('popstate', function() {
+  history.pushState(null, null, location.href);
+});
+</script>
 </body>
 </html>
