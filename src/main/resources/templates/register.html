@@ -1,9 +1,9 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>E-Vote â€” Voter Registration</title>
+<title>E-Vote — Voter Registration</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{min-height:100vh;background:linear-gradient(135deg,#020b18,#041428,#061e3a);display:flex;align-items:center;justify-content:center;font-family:'Segoe UI',Arial,sans-serif;padding:20px}
@@ -17,8 +17,8 @@ h2{text-align:center;color:#0044aa;font-size:1.35rem;margin-bottom:18px;letter-s
 .prog-line{flex:1;height:3px;background:#ccd6e8;transition:background .3s;min-width:18px}
 .prog-line.done{background:#0044aa}
 /* Steps */
-.step{display:none !important}
-.step.active{display:block !important}
+.reg-step{display:none !important}
+.reg-step.active{display:block !important}
 /* Form elements */
 .form-group{margin-bottom:14px}
 label{display:block;font-size:.82rem;color:#334;font-weight:600;margin-bottom:4px}
@@ -112,7 +112,7 @@ input[readonly],select[disabled]{background:#eef2f8;color:#667}
     <input type="hidden" name="name" id="nameHidden" value=""/>
 
     <!-- ===== STEP 1: Personal Info ===== -->
-    <div class="step active" id="step1">
+    <div class="reg-step active" id="step1">
       <div id="step1Alert" class="alert"></div>
       <div class="row2">
         <div class="form-group">
@@ -148,14 +148,16 @@ input[readonly],select[disabled]{background:#eef2f8;color:#667}
           </div>
         </div>
       </div>
-      <button type="button" class="btn btn-primary" onclick="validateStep1()">Next &#8594;</button>
-      <div style="text-align:center;margin-top:14px;font-size:13px;color:#555">
+      <div class="btn-row" style="margin-top:8px">
+        <button type="button" class="btn btn-primary" onclick="validateStep1()" style="grid-column:1/-1">Next &#8594;</button>
+      </div>
+      <div style="text-align:center;margin-top:12px;font-size:13px;color:#555">
         Already have an account? <a th:href="@{/login}" style="color:#0066cc;font-weight:700;text-decoration:none">Sign in here</a>
       </div>
     </div>
 
     <!-- ===== STEP 2: Address ===== -->
-    <div class="step" id="step2">
+    <div class="reg-step" id="step2">
       <div id="step2Alert" class="alert"></div>
       <div class="form-group">
         <label>Street / House No. *</label>
@@ -201,7 +203,7 @@ input[readonly],select[disabled]{background:#eef2f8;color:#667}
     </div>
 
     <!-- ===== STEP 3: Contact & Account ===== -->
-    <div class="step" id="step3">
+    <div class="reg-step" id="step3">
       <div id="step3Alert" class="alert"></div>
       <div class="form-group">
         <label>Mobile Number *</label>
@@ -236,7 +238,7 @@ input[readonly],select[disabled]{background:#eef2f8;color:#667}
     </div>
 
     <!-- ===== STEP 4: OTP ===== -->
-    <div class="step" id="step4">
+    <div class="reg-step" id="step4">
       <div id="step4Alert" class="alert"></div>
       <p style="text-align:center;color:#334;font-size:.9rem;margin-bottom:4px">Enter the 6-digit code sent to your email.</p>
       <div class="otp-row">
@@ -255,7 +257,7 @@ input[readonly],select[disabled]{background:#eef2f8;color:#667}
     </div>
 
     <!-- ===== STEP 5: ID Verification ===== -->
-    <div class="step" id="step5">
+    <div class="reg-step" id="step5">
       <div id="step5Alert" class="alert"></div>
       <div class="form-group">
         <label>ID Type *</label>
@@ -295,7 +297,7 @@ input[readonly],select[disabled]{background:#eef2f8;color:#667}
     </div>
 
     <!-- ===== STEP 6: Face Capture ===== -->
-    <div class="step" id="step6">
+    <div class="reg-step" id="step6">
       <div id="step6Alert" class="alert"></div>
       <p style="text-align:center;color:#334;font-size:.85rem;margin-bottom:10px">Position your face inside the oval and take a selfie.</p>
       <div id="cameraWrap">
@@ -331,7 +333,7 @@ input[readonly],select[disabled]{background:#eef2f8;color:#667}
   <div class="modal-box">
     <div class="modal-header">&#128220; Terms and Conditions</div>
     <div class="modal-body" id="termsBody" onscroll="checkTermsScroll()">
-      <p><strong>E-Vote System â€” Voter Registration Terms and Conditions</strong></p>
+      <p><strong>E-Vote System — Voter Registration Terms and Conditions</strong></p>
       <p>Last updated: January 2025</p>
       <br/>
       <p><strong>1. Eligibility</strong></p>
