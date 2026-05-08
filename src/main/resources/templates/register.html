@@ -17,8 +17,8 @@ h2{text-align:center;color:#0044aa;font-size:1.35rem;margin-bottom:18px;letter-s
 .prog-line{flex:1;height:3px;background:#ccd6e8;transition:background .3s;min-width:18px}
 .prog-line.done{background:#0044aa}
 /* Steps */
-.step{display:none}
-.step.active{display:block}
+.step{display:none !important}
+.step.active{display:block !important}
 /* Form elements */
 .form-group{margin-bottom:14px}
 label{display:block;font-size:.82rem;color:#334;font-weight:600;margin-bottom:4px}
@@ -149,6 +149,9 @@ input[readonly],select[disabled]{background:#eef2f8;color:#667}
         </div>
       </div>
       <button type="button" class="btn btn-primary" onclick="validateStep1()">Next &#8594;</button>
+      <div style="text-align:center;margin-top:14px;font-size:13px;color:#555">
+        Already have an account? <a th:href="@{/login}" style="color:#0066cc;font-weight:700;text-decoration:none">Sign in here</a>
+      </div>
     </div>
 
     <!-- ===== STEP 2: Address ===== -->
@@ -321,9 +324,6 @@ input[readonly],select[disabled]{background:#eef2f8;color:#667}
     </div>
 
   </form>
-  <div style="text-align:center;margin-top:16px;padding-bottom:8px;font-size:14px;color:#555">
-    Already have an account? <a th:href="@{/login}" style="color:#0066cc;font-weight:700;text-decoration:none">Sign in here</a>
-  </div>
 </div>
 
 <!-- Terms Modal -->
