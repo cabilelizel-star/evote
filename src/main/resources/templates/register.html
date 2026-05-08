@@ -157,7 +157,7 @@ input[readonly],select[disabled]{background:#eef2f8;color:#667}
     </div>
 
     <!-- ===== STEP 2: Address ===== -->
-    <div class="reg-step" id="step2">
+    <div class="reg-step" id="step2" style="display:none">
       <div id="step2Alert" class="alert"></div>
       <div class="form-group">
         <label>Street / House No. *</label>
@@ -203,7 +203,7 @@ input[readonly],select[disabled]{background:#eef2f8;color:#667}
     </div>
 
     <!-- ===== STEP 3: Contact & Account ===== -->
-    <div class="reg-step" id="step3">
+    <div class="reg-step" id="step3" style="display:none">
       <div id="step3Alert" class="alert"></div>
       <div class="form-group">
         <label>Mobile Number *</label>
@@ -238,7 +238,7 @@ input[readonly],select[disabled]{background:#eef2f8;color:#667}
     </div>
 
     <!-- ===== STEP 4: OTP ===== -->
-    <div class="reg-step" id="step4">
+    <div class="reg-step" id="step4" style="display:none">
       <div id="step4Alert" class="alert"></div>
       <p style="text-align:center;color:#334;font-size:.9rem;margin-bottom:4px">Enter the 6-digit code sent to your email.</p>
       <div class="otp-row">
@@ -257,7 +257,7 @@ input[readonly],select[disabled]{background:#eef2f8;color:#667}
     </div>
 
     <!-- ===== STEP 5: ID Verification ===== -->
-    <div class="reg-step" id="step5">
+    <div class="reg-step" id="step5" style="display:none">
       <div id="step5Alert" class="alert"></div>
       <div class="form-group">
         <label>ID Type *</label>
@@ -297,7 +297,7 @@ input[readonly],select[disabled]{background:#eef2f8;color:#667}
     </div>
 
     <!-- ===== STEP 6: Face Capture ===== -->
-    <div class="reg-step" id="step6">
+    <div class="reg-step" id="step6" style="display:none">
       <div id="step6Alert" class="alert"></div>
       <p style="text-align:center;color:#334;font-size:.85rem;margin-bottom:10px">Position your face inside the oval and take a selfie.</p>
       <div id="cameraWrap">
@@ -451,9 +451,13 @@ function hideAlert(containerId) {
 }
 
 function goToStep(n) {
-  document.getElementById("step" + currentStep).classList.remove("active");
+  var prev = document.getElementById("step" + currentStep);
+  prev.classList.remove("active");
+  prev.style.display = "none";
   currentStep = n;
-  document.getElementById("step" + currentStep).classList.add("active");
+  var next = document.getElementById("step" + currentStep);
+  next.classList.add("active");
+  next.style.display = "block";
   updateProgress(n);
   window.scrollTo(0, 0);
 }
