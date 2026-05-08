@@ -770,6 +770,14 @@ function declineTerms() {
   document.getElementById("termsCheck").checked = false;
   document.getElementById("termsModal").classList.remove("open");
 }
+
+// Force hide all non-active steps on load
+document.addEventListener("DOMContentLoaded", function() {
+  ["step2","step3","step4","step5","step6"].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) { el.style.setProperty("display", "none", "important"); }
+  });
+});
 </script>
 </body>
 </html>
