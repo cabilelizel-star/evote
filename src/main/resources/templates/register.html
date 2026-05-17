@@ -92,6 +92,12 @@ input[readonly],select[disabled]{background:#eef2f8;color:#667}
 </style>
 </head>
 <body>
+<script>
+// Prevent browser session restore from showing old DOM state
+if (window.performance && window.performance.navigation.type === 2) {
+  window.location.reload(true);
+}
+</script>
 <div class="card">
   <h2>&#128100; Voter Registration</h2>
 
