@@ -241,7 +241,7 @@ if (window.performance && window.performance.navigation.type === 2) {
         <input type="checkbox" id="termsCheck"/>
         <span>I agree to the <a onclick="openTerms()">Terms and Conditions</a></span>
       </div>
-      <div class="btn-row">
+      <div class="btn-row" style="display:none">
         <button type="button" class="btn btn-secondary" onclick="goToStep(2)">&#8592; Back</button>
         <button type="button" class="btn btn-primary" onclick="validateStep3()">Send OTP &#8594;</button>
       </div>
@@ -300,7 +300,7 @@ if (window.performance && window.performance.navigation.type === 2) {
         </div>
         </div>
       </div>
-      <div class="btn-row">
+      <div class="btn-row" style="display:none">
         <button type="button" class="btn btn-secondary" onclick="goToStep(4)">&#8592; Back</button>
         <button type="button" class="btn btn-primary" id="step5NextBtn" disabled="disabled" onclick="goToStep(6)">Next &#8594;</button>
       </div>
@@ -329,7 +329,7 @@ if (window.performance && window.performance.navigation.type === 2) {
         <button type="button" class="btn btn-secondary" id="retakeBtn" style="display:none" onclick="retakeSelfie()">&#8635; Retake</button>
       </div>
       <div class="skip-row"><a onclick="skipSelfie()">Skip face capture</a></div>
-      <div class="btn-row" style="margin-top:10px">
+      <div class="btn-row" style="margin-top:10px;display:none">
         <button type="button" class="btn btn-secondary" onclick="goToStep(5)">&#8592; Back</button>
         <button type="submit" class="btn btn-primary" id="submitBtn" onclick="return prepareSubmit()">&#10003; Submit Registration</button>
       </div>
