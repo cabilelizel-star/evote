@@ -47,6 +47,9 @@ input[readonly],select[disabled]{background:#eef2f8;color:#667}
 .alert-error{background:#fff0f0;border:1px solid #f5c0c0;color:#c0392b}
 .alert-success{background:#f0fff4;border:1px solid #a8e6c0;color:#1a7a3a}
 .alert-info{background:#f0f6ff;border:1px solid #a8c8f0;color:#0044aa}
+/* Auto-capitalize name fields */
+#firstName,#lastName,#middleName,#street{text-transform:capitalize}
+#firstName::placeholder,#lastName::placeholder,#middleName::placeholder{text-transform:none}
 /* Age display */
 .dob-row{display:flex;gap:10px;align-items:flex-end}
 .dob-row .form-group{flex:1;margin-bottom:0}
@@ -128,16 +131,16 @@ if (window.performance && window.performance.navigation.type === 2) {
       <div class="row2">
         <div class="form-group">
           <label>First Name *</label>
-          <input type="text" id="firstName" name="firstName" placeholder="Juan"/>
+          <input type="text" id="firstName" name="firstName" placeholder="Juan" autocapitalize="words"/>
         </div>
         <div class="form-group">
           <label>Last Name *</label>
-          <input type="text" id="lastName" name="lastName" placeholder="Dela Cruz"/>
+          <input type="text" id="lastName" name="lastName" placeholder="Dela Cruz" autocapitalize="words"/>
         </div>
       </div>
       <div class="form-group">
         <label>Middle Name</label>
-        <input type="text" id="middleName" name="middleName" placeholder="Santos (optional)"/>
+        <input type="text" id="middleName" name="middleName" autocapitalize="words" placeholder="Santos (optional)"/>
       </div>
       <div class="row2">
         <div class="form-group">
@@ -172,7 +175,7 @@ if (window.performance && window.performance.navigation.type === 2) {
       <div id="step2Alert" class="alert"></div>
       <div class="form-group">
         <label>Street / House No. *</label>
-        <input type="text" id="street" name="street" placeholder="123 Rizal St."/>
+        <input type="text" id="street" name="street" placeholder="123 Rizal St." autocapitalize="words"/>
       </div>
       <div class="form-group">
         <label>City / Municipality *</label>
@@ -447,6 +450,19 @@ window.addEventListener('load', function() {
 
 var currentStep = 1;
 var cameraStream = null;
+
+// Auto-capitalize first letter of each word
+function capitalizeWords(el) {
+  var pos = el.selectionStart;
+  el.value = el.value.replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+  el.setSelectionRange(pos, pos);
+}
+document.addEventListener("DOMContentLoaded", function() {
+  ["firstName","lastName","middleName","street"].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener("input", function() { capitalizeWords(this); });
+  });
+});
 
 function showAlert(containerId, message, type) {
   var el = document.getElementById(containerId);
