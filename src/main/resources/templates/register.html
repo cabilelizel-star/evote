@@ -245,7 +245,7 @@ if (window.performance && window.performance.navigation.type === 2) {
         <input type="checkbox" id="termsCheck"/>
         <span>I agree to the <a onclick="openTerms()">Terms and Conditions</a></span>
       </div>
-      <div class="btn-row" style="display:none">
+      <div class="btn-row">
         <button type="button" class="btn btn-secondary" onclick="goToStep(2)">&#8592; Back</button>
         <button type="button" class="btn btn-primary" onclick="validateStep3()">Send OTP &#8594;</button>
       </div>
@@ -265,7 +265,7 @@ if (window.performance && window.performance.navigation.type === 2) {
       </div>
       <button type="button" class="btn btn-primary" onclick="verifyOtp()">Verify OTP</button>
       <div class="resend-row">Didn't receive it? <a onclick="resendOtp()">Resend OTP</a></div>
-      <div class="btn-row" style="margin-top:10px;display:none">
+      <div class="btn-row" style="margin-top:10px">
         <button type="button" class="btn btn-secondary" onclick="goToStep(3)">&#8592; Back</button>
       </div>
     </div>
@@ -304,7 +304,7 @@ if (window.performance && window.performance.navigation.type === 2) {
         </div>
         </div>
       </div>
-      <div class="btn-row" style="display:none">
+      <div class="btn-row">
         <button type="button" class="btn btn-secondary" onclick="goToStep(4)">&#8592; Back</button>
         <button type="button" class="btn btn-primary" id="step5NextBtn" disabled="disabled" onclick="goToStep(6)">Next &#8594;</button>
       </div>
@@ -333,7 +333,7 @@ if (window.performance && window.performance.navigation.type === 2) {
         <button type="button" class="btn btn-secondary" id="retakeBtn" style="display:none" onclick="retakeSelfie()">&#8635; Retake</button>
       </div>
       <div class="skip-row"><a onclick="skipSelfie()">Skip face capture</a></div>
-      <div class="btn-row" style="margin-top:10px;display:none">
+      <div class="btn-row" style="margin-top:10px">
         <button type="button" class="btn btn-secondary" onclick="goToStep(5)">&#8592; Back</button>
         <button type="submit" class="btn btn-primary" id="submitBtn" onclick="return prepareSubmit()">&#10003; Submit Registration</button>
       </div>
@@ -478,25 +478,13 @@ function hideAlert(containerId) {
 }
 
 function goToStep(n) {
-  // Hide current step
   var prev = document.getElementById("step" + currentStep);
   prev.classList.remove("active");
   prev.style.display = "none";
-
   currentStep = n;
-
-  // Show new step
   var next = document.getElementById("step" + currentStep);
   next.classList.add("active");
   next.style.display = "block";
-
-  // Show all btn-rows inside this step
-  var rows = next.querySelectorAll(".btn-row");
-  for (var i = 0; i < rows.length; i++) {
-    rows[i].style.cssText = rows[i].style.cssText.replace(/display\s*:\s*none\s*[;!]?[^;]*/gi, "");
-    rows[i].style.display = "grid";
-  }
-
   updateProgress(n);
   window.scrollTo(0, 0);
 }
