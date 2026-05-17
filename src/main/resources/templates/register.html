@@ -10,7 +10,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{min-height:100vh;background:linear-gradient(135deg,#020b18,#041428,#061e3a);display:flex;align-items:center;justify-content:center;font-family:'Segoe UI',Arial,sans-serif;padding:20px}
-.card{background:#fff;width:100%;max-width:520px;border-radius:20px;box-shadow:0 0 40px rgba(0,102,204,0.45),0 8px 32px rgba(0,0,0,0.5);padding:32px 36px 28px;position:relative}
+.card{background:#fff;width:100%;max-width:520px;border-radius:20px;box-shadow:0 0 40px rgba(0,102,204,0.45),0 8px 32px rgba(0,0,0,0.5);padding:32px 36px 28px;position:relative;overflow:hidden}
 h2{text-align:center;color:#0044aa;font-size:1.35rem;margin-bottom:18px;letter-spacing:.5px}
 /* Progress bar */
 .progress-wrap{display:flex;align-items:center;justify-content:center;margin-bottom:28px;gap:0}
@@ -261,7 +261,7 @@ if (window.performance && window.performance.navigation.type === 2) {
       </div>
       <button type="button" class="btn btn-primary" onclick="verifyOtp()">Verify OTP</button>
       <div class="resend-row">Didn't receive it? <a onclick="resendOtp()">Resend OTP</a></div>
-      <div class="btn-row" style="margin-top:10px">
+      <div class="btn-row" style="margin-top:10px;display:none">
         <button type="button" class="btn btn-secondary" onclick="goToStep(3)">&#8592; Back</button>
       </div>
     </div>
