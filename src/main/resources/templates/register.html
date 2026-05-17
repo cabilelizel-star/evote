@@ -156,7 +156,7 @@ if (window.performance && window.performance.navigation.type === 2) {
           <label>Date of Birth *</label>
           <div class="dob-row">
             <div class="form-group">
-              <input type="date" id="dateOfBirth" name="dateOfBirth" onchange="calcAge()" oninput="calcAge()"/>
+              <input type="date" id="dateOfBirth" name="dateOfBirth" min="1900-01-01" max="2007-12-31" onchange="calcAge()" oninput="calcAge()"/>
             </div>
             <div id="ageDisplay">&#8212;</div>
           </div>
@@ -527,7 +527,14 @@ function calcAge() {
   if (!dob) { disp.innerHTML = "&#8212;"; return; }
   var today = new Date();
   var birth = new Date(dob);
-  var age = today.getFullYear() - birth.getFullYear();
+  var birthYear = birth.getFullYear();
+  var currentYear = today.getFullYear();
+  // Validate year range: must be between 1900 and current year
+  if (birthYear < 1900 || birthYear > currentYear) {
+    disp.innerHTML = "<span style='color:#c0392b'>Invalid year</span>";
+    return;
+  }
+  var age = currentYear - birthYear;
   var m = today.getMonth() - birth.getMonth();
   if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
   if (age >= 18) {
@@ -549,7 +556,12 @@ function validateStep1() {
   if (!dob) { showAlert("step1Alert", "Date of birth is required."); return; }
   var today = new Date();
   var birth = new Date(dob);
-  var age = today.getFullYear() - birth.getFullYear();
+  var birthYear = birth.getFullYear();
+  if (birthYear < 1900 || birthYear > today.getFullYear()) {
+    showAlert("step1Alert", "Please enter a valid birth year (1900 to " + today.getFullYear() + ").");
+    return;
+  }
+  var age = today.getFullYear() - birthYear;
   var mo = today.getMonth() - birth.getMonth();
   if (mo < 0 || (mo === 0 && today.getDate() < birth.getDate())) age--;
   if (age < 18) { showAlert("step1Alert", "You must be at least 18 years old to register."); return; }
