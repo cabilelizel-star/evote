@@ -93,10 +93,12 @@ public class AuthController {
 
     // ── Register ──────────────────────────────────────────────────────────────
     @GetMapping("/register")
-    public String registerPage(Model model, jakarta.servlet.http.HttpServletResponse response) {
+    public String registerPage(Model model, jakarta.servlet.http.HttpServletResponse response,
+                               @RequestParam(required=false) String v) {
         response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
         response.setHeader("Pragma", "no-cache");
         response.setHeader("Expires", "0");
+        if (v == null) return "redirect:/register?v=3";
         model.addAttribute("error", null);
         return "register";
     }
