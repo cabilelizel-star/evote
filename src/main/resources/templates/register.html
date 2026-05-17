@@ -198,9 +198,8 @@ input[readonly],select[disabled]{background:#eef2f8;color:#667}
           <input type="text" id="zipCode" name="zipCode" readonly="readonly" placeholder="Auto-filled"/>
         </div>
       </div>
-      <div class="btn-row" id="step2-btns">
-        <button type="button" class="btn btn-secondary" style="display:none" onclick="goToStep(1)">&#8592; Back</button>
-        <button type="button" class="btn btn-primary" style="display:none" onclick="validateStep2()">Next &#8594;</button>
+      <div id="step2-btns">
+        <!-- Buttons injected by JS when step 2 is shown -->
       </div>
     </div>
 
@@ -456,19 +455,19 @@ function goToStep(n) {
   var prev = document.getElementById("step" + currentStep);
   prev.classList.remove("active");
   prev.style.display = "none";
-  // Hide step2 buttons when leaving step2
+  // Remove step2 buttons when leaving step2
   if (currentStep === 2) {
-    var s2btns = document.getElementById("step2-btns");
-    if (s2btns) { s2btns.querySelectorAll("button").forEach(function(b){ b.style.display="none"; }); }
+    var s2 = document.getElementById("step2-btns");
+    if (s2) s2.innerHTML = "";
   }
   currentStep = n;
   var next = document.getElementById("step" + currentStep);
   next.classList.add("active");
   next.style.display = "block";
-  // Show step2 buttons when entering step2
+  // Inject step2 buttons when entering step2
   if (currentStep === 2) {
-    var s2btns = document.getElementById("step2-btns");
-    if (s2btns) { s2btns.querySelectorAll("button").forEach(function(b){ b.style.display=""; }); }
+    var s2 = document.getElementById("step2-btns");
+    if (s2) s2.innerHTML = '<div class="btn-row"><button type="button" class="btn btn-secondary" onclick="goToStep(1)">&#8592; Back</button><button type="button" class="btn btn-primary" onclick="validateStep2()">Next &#8594;</button></div>';
   }
   updateProgress(n);
   window.scrollTo(0, 0);
