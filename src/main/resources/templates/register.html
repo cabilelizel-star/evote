@@ -479,10 +479,11 @@ function hideAlert(containerId) {
 function goToStep(n) {
   var prev = document.getElementById("step" + currentStep);
   prev.classList.remove("active");
-  prev.style.display = "none";
+  prev.style.setProperty("display", "none", "important");
   currentStep = n;
   var next = document.getElementById("step" + currentStep);
   next.classList.add("active");
+  next.style.removeProperty("display");
   next.style.display = "block";
   updateProgress(n);
   window.scrollTo(0, 0);
