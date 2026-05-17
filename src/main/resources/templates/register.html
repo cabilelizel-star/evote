@@ -210,8 +210,9 @@ if (window.performance && window.performance.navigation.type === 2) {
           <input type="text" id="zipCode" name="zipCode" readonly="readonly" placeholder="Auto-filled"/>
         </div>
       </div>
-      <div id="step2-btns">
-        <!-- Buttons injected by JS when step 2 is shown -->
+      <div class="btn-row" id="step2-btns">
+        <button type="button" class="btn btn-secondary" onclick="goToStep(1)">&#8592; Back</button>
+        <button type="button" class="btn btn-primary" onclick="validateStep2()">Next &#8594;</button>
       </div>
     </div>
 
@@ -481,11 +482,6 @@ function goToStep(n) {
   var prev = document.getElementById("step" + currentStep);
   prev.classList.remove("active");
   prev.style.display = "none";
-  // Clear step2 injected buttons
-  if (currentStep === 2) {
-    var s2 = document.getElementById("step2-btns");
-    if (s2) s2.innerHTML = "";
-  }
 
   currentStep = n;
 
@@ -494,21 +490,11 @@ function goToStep(n) {
   next.classList.add("active");
   next.style.display = "block";
 
-  // Inject correct buttons for each step
-  var btns = "";
-  if (currentStep === 1) {
-    // Step 1: Next only (no back)
-    btns = "";
-  } else if (currentStep === 2) {
-    btns = '<div class="btn-row"><button type="button" class="btn btn-secondary" onclick="goToStep(1)">&#8592; Back</button><button type="button" class="btn btn-primary" onclick="validateStep2()">Next &#8594;</button></div>';
-    var s2 = document.getElementById("step2-btns");
-    if (s2) s2.innerHTML = btns;
-  } else {
-    // Steps 3-6: show all btn-rows in the step
-    next.querySelectorAll(".btn-row").forEach(function(br) {
-      br.style.removeProperty("display");
-      br.style.display = "grid";
-    });
+  // Show all btn-rows inside this step
+  var rows = next.querySelectorAll(".btn-row");
+  for (var i = 0; i < rows.length; i++) {
+    rows[i].style.cssText = rows[i].style.cssText.replace(/display\s*:\s*none\s*[;!]?[^;]*/gi, "");
+    rows[i].style.display = "grid";
   }
 
   updateProgress(n);
