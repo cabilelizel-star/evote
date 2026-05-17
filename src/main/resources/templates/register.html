@@ -477,13 +477,11 @@ function hideAlert(containerId) {
 }
 
 function goToStep(n) {
-  // Hide current step and its btn-row
+  // Hide current step - hide its btn-rows
   var prev = document.getElementById("step" + currentStep);
   prev.classList.remove("active");
   prev.style.display = "none";
-  var prevBtns = prev.querySelector(".btn-row");
-  if (prevBtns) prevBtns.style.display = "none";
-  // Clear step2 injected buttons
+  prev.querySelectorAll(".btn-row").forEach(function(b){ b.style.display="none"; });
   if (currentStep === 2) {
     var s2 = document.getElementById("step2-btns");
     if (s2) s2.innerHTML = "";
@@ -495,13 +493,18 @@ function goToStep(n) {
   var next = document.getElementById("step" + currentStep);
   next.classList.add("active");
   next.style.display = "block";
-  // Show its btn-row
-  var nextBtns = next.querySelector(".btn-row");
-  if (nextBtns) nextBtns.style.display = "";
+
+  // Show btn-rows in the new step
+  next.querySelectorAll(".btn-row").forEach(function(b){ b.style.display=""; });
+
   // Inject step2 buttons
   if (currentStep === 2) {
     var s2 = document.getElementById("step2-btns");
-    if (s2) s2.innerHTML = '<div class="btn-row"><button type="button" class="btn btn-secondary" onclick="goToStep(1)">&#8592; Back</button><button type="button" class="btn btn-primary" onclick="validateStep2()">Next &#8594;</button></div>';
+    if (s2) s2.innerHTML = '
+      + '<div class="btn-row">'
+      + '<button type="button" class="btn btn-secondary" onclick="goToStep(1)">&#8592; Back</button>'
+      + '<button type="button" class="btn btn-primary" onclick="validateStep2()">Next &#8594;</button>'
+      + '</div>';
   }
 
   updateProgress(n);
