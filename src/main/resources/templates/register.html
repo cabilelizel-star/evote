@@ -10,7 +10,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{min-height:100vh;background:linear-gradient(135deg,#020b18,#041428,#061e3a);display:flex;align-items:center;justify-content:center;font-family:'Segoe UI',Arial,sans-serif;padding:20px}
-.card{background:#fff;width:100%;max-width:520px;border-radius:20px;box-shadow:0 0 40px rgba(0,102,204,0.45),0 8px 32px rgba(0,0,0,0.5);padding:32px 36px 28px;position:relative;overflow:hidden}
+.card{background:#fff;width:100%;max-width:520px;border-radius:20px;box-shadow:0 0 40px rgba(0,102,204,0.45),0 8px 32px rgba(0,0,0,0.5);padding:32px 36px 28px;position:relative}
 h2{text-align:center;color:#0044aa;font-size:1.35rem;margin-bottom:18px;letter-spacing:.5px}
 /* Progress bar */
 .progress-wrap{display:flex;align-items:center;justify-content:center;margin-bottom:28px;gap:0}
@@ -156,7 +156,7 @@ if (window.performance && window.performance.navigation.type === 2) {
           <label>Date of Birth *</label>
           <div class="dob-row">
             <div class="form-group">
-              <input type="date" id="dateOfBirth" name="dateOfBirth" min="1900-01-01" max="2007-12-31" onchange="calcAge()" oninput="calcAge()"/>
+              <input type="date" id="dateOfBirth" name="dateOfBirth" min="1900-01-01" onchange="calcAge()" oninput="calcAge()"/>
             </div>
             <div id="ageDisplay">&#8212;</div>
           </div>
@@ -503,18 +503,12 @@ function goToStep(n) {
     btns = '<div class="btn-row"><button type="button" class="btn btn-secondary" onclick="goToStep(1)">&#8592; Back</button><button type="button" class="btn btn-primary" onclick="validateStep2()">Next &#8594;</button></div>';
     var s2 = document.getElementById("step2-btns");
     if (s2) s2.innerHTML = btns;
-  } else if (currentStep === 3) {
-    var br = next.querySelector(".btn-row");
-    if (br) br.style.display = "";
-  } else if (currentStep === 4) {
-    var br = next.querySelector(".btn-row");
-    if (br) br.style.display = "";
-  } else if (currentStep === 5) {
-    var br = next.querySelector(".btn-row");
-    if (br) br.style.display = "";
-  } else if (currentStep === 6) {
-    var br = next.querySelector(".btn-row");
-    if (br) br.style.display = "";
+  } else {
+    // Steps 3-6: show all btn-rows in the step
+    next.querySelectorAll(".btn-row").forEach(function(br) {
+      br.style.removeProperty("display");
+      br.style.display = "grid";
+    });
   }
 
   updateProgress(n);
